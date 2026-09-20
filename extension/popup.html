@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>网页净化助手 · PagePure</title><link rel="stylesheet" href="popup.css"></head>
+<body>
+<header><img class="brand" src="icons/pagepure-48.png" alt=""><div><h1>PagePure</h1><p>让阅读更纯粹</p></div></header>
+<main>
+<form id="settings"><fieldset id="controls" disabled>
+<label class="master" for="enabled"><span>网页净化</span><input type="checkbox" id="enabled" role="switch"></label>
+<section class="manual-tools" aria-label="可视化净化">
+<button type="button" id="preview" class="primary">选择要隐藏的内容</button>
+<p class="hint">点选隐藏，随时恢复。</p>
+<div class="quick-actions"><button type="button" id="toggleVisibility" class="secondary">原网页 / 净化</button><button type="button" id="undoSave" class="secondary">撤销上次保存</button></div>
+</section>
+<div class="page-status"><span id="pageStatus">正在读取页面状态…</span></div>
+<details class="advanced"><summary>自动判断与设置</summary>
+<label class="ai-toggle" for="aiEnabled"><span>此网站使用 AI 判断</span><input type="checkbox" id="aiEnabled" role="switch"></label>
+<p class="hint">需配置 Jev 密钥，新网站默认关闭。</p>
+<label class="field" for="context">此网站的自动净化需求</label>
+<textarea id="context" rows="4" maxlength="4000" required placeholder="例如：保留问题、回答和文章，隐藏推广、创作入口、推荐关注及页脚。"></textarea>
+<p class="hint">未设置规则时使用，手动规则优先。</p>
+<label class="field key-label" for="key"><span>Jev API Key</span><span id="keyState">未配置</span></label>
+<input type="password" id="key" autocomplete="off" spellcheck="false" placeholder="填写你的 API Key">
+<div class="key-actions"><span class="hint">留空保留已保存的密钥</span><button type="button" id="clearKey" class="text-button">清除密钥</button></div>
+<button type="submit" class="primary">保存并应用</button>
+<div class="quick-actions"><button type="button" id="retry" class="text-button">重新判断</button><button type="button" id="clearRules" class="text-button">清除本页规则</button></div>
+<details class="privacy"><summary>数据与隐私</summary><p class="note">AI 判断会将模块文字、图片描述和链接路径发送给 TypeSafe Jev；不发送完整 DOM 或 Cookie。手动选择无需 AI，规则保存在本机。</p></details>
+</details>
+</fieldset></form>
+<p id="status" role="status" aria-live="polite">正在读取设置…</p>
+</main>
+<footer>专注阅读 <span>0.6.24</span></footer>
+<script src="popup.js"></script>
+</body></html>

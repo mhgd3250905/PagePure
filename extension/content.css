@@ -1,0 +1,8 @@
+[data-jev-zhihu-hidden] { display: none !important; }
+[data-jev-manual-hidden], [data-jev-preview-hide] { display: none !important; }
+[data-jev-candidate] { outline: 1px dashed #3886f5 !important; outline-offset: -2px !important; cursor: crosshair !important; }
+[data-jev-hover] { outline: 3px solid #1768ed !important; outline-offset: -3px !important; }
+[data-jev-selected] { outline: 2px solid #64748b !important; outline-offset: -3px !important;  }
+
+[data-jev-focus]{outline:3px solid #f59e0b!important;outline-offset:2px!important}
+[data-jev-awaiting]{opacity:0!important;pointer-events:none!important}
