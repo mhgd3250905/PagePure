@@ -27,6 +27,8 @@
 
 ## 验证与交付边界
 
+- Cockpit closeout 基线：`cd47369d548d024fa529976271901b3e4ad210ce`（master 首次提交，用户确认的首个可用版本）。2026-09-20 20:54 +08:00 在该 HEAD、完整工作区无改动的状态执行 `npm test`，144/144 通过；`git diff --check` 和 `git diff --cached --check` 通过。基线至检查时 HEAD 的提交及文件 delta 均为空。
+- 本次 closeout 仅补齐本文件的验证证据绑定，不改变运行代码、测试或依赖；上述测试证据因此继续适用于本次文档提交。README 当前使用说明与本台账为 current，旧版本段落为 history。本轮未读取或重新验证压缩包，包一致性记载是上一轮收束的历史核对结果，不作为本轮 HEAD 测试证据。
 - 验证命令：`npm test`，144 项通过（阶段收束时复验）。
 - 交付包：`PagePure-0.6.24.zip`；阶段收束时逐文件核对其与 `extension/` 一致。
 - 无独立 build/lint 脚本，扩展直接加载 JavaScript；构建和 lint 不适用。
