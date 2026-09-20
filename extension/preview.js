@@ -338,7 +338,7 @@
       partitions.set(parent,parts);learnedSplit=true;syncCandidates();focus(accepted[0]);
       ui.querySelector('#status').textContent=`已拆分为 ${parts.length} 个区域，请点选。`;
     }catch(error){if(ui)ui.querySelector('#status').textContent=error.message;}
-    finally{splitting=false;if(ui){ui.querySelector('#q-split').disabled=false;ui.querySelector('#q-split').textContent='拆分区域';}}
+    finally{splitting=false;if(ui){ui.querySelector('#q-split').disabled=false;ui.querySelector('#q-split').textContent='智能拆分';}}
   }
   function positionQuick() {
     const quick=ui?.querySelector('#quick');if(!quick)return;
@@ -352,7 +352,6 @@
     quick.style.top=Math.max(8,Math.min(y+12,innerHeight-height-8))+'px';
     ui.querySelector('#quick-name').textContent=labels[categoryOf(focusNode)] || '已选区域';
     ui.querySelector('#quick-name').title=moduleName(focusNode);
-    ui.querySelector('#q-split').hidden=!canClassify();
     ui.querySelector('#q-smaller').disabled=!focusTrail.length;
     ui.querySelector('#q-save').disabled=ui.querySelector('#save').disabled;
   }
@@ -469,7 +468,7 @@
       #quick{position:fixed;z-index:2147483647;padding:8px;background:#fff;border:1px solid #dce3ec;border-radius:12px;box-shadow:0 8px 28px #0f172a24;max-height:calc(100dvh - 16px);overflow:auto}
       .main-actions{display:flex;align-items:center;gap:5px;padding:0 2px 10px}
       #quick-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#53647b;font-size:12px;font-weight:600}
-      .range{display:flex;gap:3px}.range button{height:28px;font-size:11px;padding:0 6px;background:#fff;box-shadow:none}
+      .range-row{margin-bottom:6px}.range{display:flex;gap:3px}.range button{flex:1}.range button{height:28px;font-size:11px;padding:0 6px;background:#fff;box-shadow:none}
       #cancel{width:28px;height:28px;padding:0;color:#7b889b;background:#fff;box-shadow:none}
       #more-toggle{list-style:none;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #d8e1ec;background:#fff;border-radius:7px;font-size:17px}#more-toggle::-webkit-details-marker{display:none}#more[open] #more-toggle{background:#edf3fc;border-color:#b9ceeb}
       .action-row{display:grid;grid-template-columns:58px 1fr 1fr;align-items:center;gap:6px;padding:8px;background:#f5f7fb;border:1px solid #e8edf4;border-radius:9px}.scope-label{font-size:11px;color:#64748b;font-weight:500;padding-left:2px}
@@ -485,14 +484,14 @@
     <div id="quick" role="toolbar" aria-label="区域快捷操作" hidden>
       <div class="main-actions">
         <span id="quick-name"></span>
-        <div class="range" role="group" aria-label="调整范围"><button id="q-larger" title="扩大选中范围">扩大</button><button id="q-smaller" title="缩小选中范围">缩小</button></div>
         <details id="more"><summary id="more-toggle" aria-label="更多操作" title="更多操作">···</summary></details>
         <button id="cancel" aria-label="取消并退出" title="取消并退出">×</button>
       </div>
+      <div class="action-row range-row"><span class="scope-label">选区</span><div class="range" role="group" aria-label="调整范围"><button id="q-larger" title="扩大选中范围">扩大</button><button id="q-smaller" title="缩小选中范围">缩小</button></div><button id="q-split" title="将大区域拆成可单独选择的小区域">智能拆分</button></div>
       <div class="action-row" role="group" aria-label="区域操作"><span class="scope-label">此区域</span><button id="q-hide">隐藏区域</button><button id="q-keep">恢复区域</button></div>
       <div id="more-actions" hidden>
         <div class="action-row" role="group" aria-label="仅本页操作"><span class="scope-label">仅本页</span><button id="q-page-hide" aria-label="仅本页隐藏">隐藏区域</button><button id="q-page-keep" aria-label="仅本页恢复">恢复区域</button></div>
-        <div class="utility-actions" role="group" aria-label="辅助操作"><button id="same">隐藏同类</button><button id="q-split" title="将大区域拆成可单独选择的小区域">拆分区域</button><button id="correct">调整分类</button></div>
+        <div class="utility-actions" role="group" aria-label="辅助操作"><button id="same">隐藏同类</button><button id="correct">调整分类</button></div>
       </div>
       <div class="footer-actions"><button id="effect">预览效果</button><button id="q-save">保存更改</button></div>
       <p id="status" role="status" aria-live="polite"></p>

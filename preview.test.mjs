@@ -636,3 +636,15 @@ test('learned page retries changed boundaries automatically before classifying c
  assert.equal(hidden(env,'sponsor'),true);assert.equal(hidden(env,'news'),false);assert.equal(hidden(env,'new-sidebar'),false);
  await env.mutate();assert.equal(env.calls.filter(c=>c.type==='splitBlock').length,1);
 });
+
+test('smart split stays discoverable without AI configuration',async()=>{
+ const env=await environment([],null,{config:{aiEnabled:false,configured:false}});
+ await env.start();await env.click(overlay(env,0));
+ const split=env.ui.querySelector('#q-split');
+ assert.equal(split.textContent,'智能拆分');
+ assert.equal(split.hidden,false);
+ assert.equal(split.closest('#more-actions'),null);
+ await env.click(split);
+ assert.match(env.ui.querySelector('#status').textContent,/配置密钥/);
+ assert.equal(env.calls.some(c=>c.type==='splitBlock'),false);
+});
