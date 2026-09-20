@@ -1,7 +1,7 @@
 (() => {
   const {scope, matches} = globalThis.JevManual;
   const {labels, create} = globalThis.JevCategories;
-  let active = false, host, ui, layer, layerRoot, resizing, timer;
+  let active = false, host, ui, layer, layerRoot, resizing, toolbarResizing, timer;
   let candidates = [], selected = new Set(), hidden = new Set(), chosen = new Set();
   let groups = [], config = {}, url = '', revision = 0, previewing = false, focusCategory = '';
   let syncing = false, applying = false, correctionNode = null, overrides = [], localRules = [], focusNode = null, focusTrail = [], showOriginal = false, previewNodes = new Set();
@@ -228,8 +228,7 @@
     if(!ui)return;
     const counts=new Map();let unknown=0;
     for(const node of candidates){const category=categoryOf(node);if(!category||category==='other')unknown++;else counts.set(category,(counts.get(category)||0)+1);}
-    ui.querySelector('#status').textContent=engine.error || (!canClassify()?'可以直接选择区域；在设置中开启智能识别后，也能选择同类内容。':
-      `${focusCategory ? labels[focusCategory]+'：' : ''}已选择 ${chosen.size} 类 / ${selected.size} 块${engine.pending ? ' · 正在识别 '+engine.pending+' 块' : ''}${unknown ? ' · '+unknown+' 块待确定' : ''}`);
+    ui.querySelector('#status').textContent=engine.error || (selected.size ? `已隐藏 ${selected.size} 处 · 保存后生效` : '');
     const list=ui.querySelector('#categories');list.replaceChildren();
     for(const category of new Set([...counts.keys(),...chosen])) {
       const button=document.createElement('button');button.type='button';button.textContent=`${chosen.has(category)?'☑':'☐'} ${labels[category]}（${counts.get(category)||0}）`;
@@ -327,7 +326,7 @@
     if(!canClassify()){ui.querySelector('#status').textContent='智能拆分需要开启此网站的 Jev 判断并配置密钥';return;}
     const parent=focusNode,expectedUrl=page(),expectedHost=host;
     const parts=splitCandidates(parent);
-    if(parts.length<2||parts.length>20){ui.querySelector('#status').textContent='未找到合适的内部区域，请调整范围再拆分（最多 20 个候选）';return;}
+    if(parts.length<2||parts.length>20){ui.querySelector('#status').textContent='请先扩大范围，再尝试拆分';return;}
     const fingerprints=parts.map(signature);
     splitting=true;ui.querySelector('#q-split').disabled=true;ui.querySelector('#q-split').textContent='拆分中…';
     try{
@@ -337,20 +336,23 @@
       const accepted=parts.filter((n,i)=>result.ids?.includes('part-'+i));
       if(accepted.length<2)throw new Error('未找到至少两个独立模块，保留原区域');
       partitions.set(parent,parts);learnedSplit=true;syncCandidates();focus(accepted[0]);
-      ui.querySelector('#status').textContent=`已细分 ${parts.length} 个区域，其中 ${accepted.length} 个经 Jev 确认；请点选需要隐藏的区域。`;
+      ui.querySelector('#status').textContent=`已拆分为 ${parts.length} 个区域，请点选。`;
     }catch(error){if(ui)ui.querySelector('#status').textContent=error.message;}
-    finally{splitting=false;if(ui){ui.querySelector('#q-split').disabled=false;ui.querySelector('#q-split').textContent='智能拆分';}}
+    finally{splitting=false;if(ui){ui.querySelector('#q-split').disabled=false;ui.querySelector('#q-split').textContent='拆分区域';}}
   }
   function positionQuick() {
     const quick=ui?.querySelector('#quick');if(!quick)return;
     quick.hidden=!focusNode?.isConnected;
     if(quick.hidden)return;
-    const r=focusNode.getBoundingClientRect(),w=Math.min(410,innerWidth-16);
+    const r=focusNode.getBoundingClientRect(),w=Math.min(320,innerWidth-16);
     const x=quickAnchor?.x ?? r.left, y=quickAnchor?.y ?? r.top;
     quick.style.left=Math.max(8,Math.min(x+12,innerWidth-w-8))+'px';
-    quick.style.top=Math.max(8,Math.min(y+12,innerHeight-94))+'px';
     quick.style.width=w+'px';
-    ui.querySelector('#quick-name').textContent=moduleName(focusNode);
+    const height=quick.getBoundingClientRect().height || 60;
+    quick.style.top=Math.max(8,Math.min(y+12,innerHeight-height-8))+'px';
+    ui.querySelector('#quick-name').textContent=labels[categoryOf(focusNode)] || '已选区域';
+    ui.querySelector('#quick-name').title=moduleName(focusNode);
+    ui.querySelector('#q-split').hidden=!canClassify();
     ui.querySelector('#q-smaller').disabled=!focusTrail.length;
     ui.querySelector('#q-save').disabled=ui.querySelector('#save').disabled;
   }
@@ -371,10 +373,10 @@
       const category=categoryOf(focusNode);
       if(!pageOnly&&action==='hide'&&category&&category!=='other') {
         chosen.add(category);selectKnown();position();renderStatus();
-        const message=`已选中同类「${labels[category]}」；此区域没有独立定位，将按类别保存。`;
+        const message=`已隐藏同类内容 · 按类别保存`;
         ui.querySelector('#status').textContent=message;ui.querySelector('#quick-name').textContent=message;
       } else {
-        const message='暂时无法稳定保存这个区域，请扩大范围或先纠正类别。';
+        const message='暂时无法保存，请扩大范围后重试。';
         ui.querySelector('#status').textContent=message;ui.querySelector('#quick-name').textContent=message;
       }
       return;
@@ -383,7 +385,7 @@
     localRules=localRules.filter(r=>r.selector!==rule.selector||(pageOnly?r.page!==current:!!r.page&&r.page!==current));
     localRules.push({...rule,label:moduleName(focusNode),action,...(pageOnly?{page:current}:{})});
     selectKnown();position();renderStatus();
-    if(pageOnly)ui.querySelector('#status').textContent=`已设为仅当前页面${action==='keep'?'恢复':'隐藏'}，点击保存后生效；其他页面不变。`;
+    if(pageOnly)ui.querySelector('#status').textContent=`仅本页${action==='keep'?'恢复':'隐藏'} · 保存后生效`;
   }
   function coverageRect(node) {
     const base=node.getBoundingClientRect();
@@ -446,7 +448,7 @@
   }
   function leave() {
     globalThis.cancelAnimationFrame?.(positionFrame);clearMarks();partitions.clear();learnedSplit=false;focusNode?.removeAttribute('data-jev-focus');focusNode=null;quickAnchor=null;correctionNode=null;active=false;previewing=false;focusCategory='';
-    layer?.remove();layer=null;layerRoot=null;resizing?.disconnect();resizing=null;
+    layer?.remove();layer=null;layerRoot=null;resizing?.disconnect();resizing=null;toolbarResizing?.disconnect();toolbarResizing=null;
     globalThis.removeEventListener?.('scroll',afterLayout,true);globalThis.removeEventListener?.('resize',afterLayout);
     host?.remove();host=null;ui=null;
     document.removeEventListener('click',click,true);document.removeEventListener('keydown',keydown,true);
@@ -461,19 +463,51 @@
     chosen=new Set(rulesForScope().filter(r=>r.action!=='keep').map(r=>r.category).filter(Boolean));loadOverrides();
     host=document.createElement('div');host.setAttribute('data-jev-ui','preview');host.style.cssText='position:fixed!important;top:16px!important;right:16px!important;z-index:2147483647!important;';
     ui=host.attachShadow({mode:'open'});
-    ui.innerHTML=`<style>:host{font:14px system-ui;color:#172b3a}*{box-sizing:border-box}.box{width:min(380px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:18px;background:white;border:1px solid #d6e3f5;border-radius:14px;box-shadow:0 8px 35px #132c4a33}h2{font-size:16px;margin:0 0 8px}p{font-size:12px;line-height:1.7}select,button{font:inherit;padding:8px;border:1px solid #cad6e5;border-radius:7px;background:white}select{width:100%;margin-bottom:10px}.actions,#categories{display:flex;flex-wrap:wrap;gap:8px}#categories{margin-bottom:12px}#categories button{font-size:12px}button[aria-pressed=true]{background:#fff0f0;border-color:#ef4444}button{cursor:pointer}#save{background:#1768ed;color:white;border:0}button:disabled{opacity:.5}#status,#legacy{overflow-wrap:anywhere}#legacy{color:#9a6420}#quick{position:fixed;z-index:2147483647;background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:10px;box-shadow:0 8px 28px #0f172a30}#quick-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}#quick .actions{gap:5px}#quick button{font-size:12px;padding:7px}#q-hide{background:#475569;color:white}#q-save{background:#1768ed;color:white}</style><div id="quick" role="toolbar" aria-label="区域快捷操作" hidden><div id="quick-name"></div><div class="actions"><button id="q-larger">扩大</button><button id="q-smaller">缩小</button><button id="q-split">智能拆分</button><button id="q-hide">选定隐藏</button><button id="q-save">保存</button><details><summary>更多</summary><div class="actions"><button id="q-keep">恢复这个区域</button><button id="q-page-hide">仅当前页面隐藏</button><button id="q-page-keep">仅当前页面恢复</button></div></details></div></div>
-    <section class="box" aria-label="按类别净化网页"><h2>点选你不想看的内容</h2><p>点击网页上的蓝框，选择隐藏这个区域或同类内容。先预览，满意再保存；随时可以恢复。</p><div id="selection" hidden><p id="selection-name"></p><div class="actions"><button id="hide-area">隐藏这个区域</button><button id="same">隐藏同类内容</button><button id="keep-area">恢复这个区域</button></div><details><summary>仅当前页面</summary><p>只影响当前网址，优先于普通规则；其他问题页不受影响。保存后生效。</p><div class="actions"><button id="page-hide">仅当前页面隐藏</button><button id="page-keep">仅当前页面恢复</button></div></details><details><summary>调整范围或纠正识别</summary><div class="actions"><button id="larger">扩大范围</button><button id="smaller">缩小范围</button><button id="correct">纠正类别</button></div></details></div><p id="status" role="status"></p><details><summary>更多选项与规则</summary><label>应用到<select id="scope"><option value="site">整个网站（共享规则）</option><option value="type">仅此类页面</option><option value="page">仅当前网址</option></select></label><div id="categories"></div><p id="legacy"></p><div id="rule-list" class="actions"></div></details><div id="correction" hidden><label>手动指定类别<select id="manual-category">${Object.entries(labels).filter(([key])=>key!=='other').map(([key,label])=>`<option value="${key}">${label}</option>`).join('')}</select></label><p>按模块结构记住纠正结果；确认后请检查同类高亮范围，再保存。</p><button id="assign">指定并选中整类</button><button id="dismiss-correction">关闭</button></div><div class="actions"><button id="effect">预览效果</button><button id="save">保存并应用</button><button id="retry">重试识别</button><button id="cancel">取消</button></div></section>`;
-    // Keep the original region toolbar; fold the former standalone panel into More.
-    const extra=ui.querySelector('.box');
-    extra.classList.remove('box');
-    extra.querySelector('h2').remove();
-    extra.querySelector('p').remove();
-    ui.querySelector('#quick details').append(extra);
+    ui.innerHTML=`<style>
+      :host{font:13px system-ui,-apple-system,sans-serif;color:#263549;color-scheme:light}*{box-sizing:border-box}[hidden]{display:none!important}
+      button,summary,select{font:inherit}button,summary{cursor:pointer;white-space:nowrap}button{height:34px;padding:0 10px;border:1px solid #d8e1ec;border-radius:7px;background:#f6f8fb;color:inherit;font-weight:500;box-shadow:0 1px 2px #172b3a08;transition:background .12s,border-color .12s,box-shadow .12s}button:not(:disabled):hover,summary:hover{background:#eaf1fa;border-color:#a7bdd9;box-shadow:0 2px 5px #172b3a12}button:not(:disabled):active{transform:translateY(1px);box-shadow:none}button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid #1768ed;outline-offset:2px}button:disabled{color:#a5afbd;background:#fafbfd;border-color:#edf0f5;box-shadow:none;cursor:not-allowed}
+      #quick{position:fixed;z-index:2147483647;padding:8px;background:#fff;border:1px solid #dce3ec;border-radius:12px;box-shadow:0 8px 28px #0f172a24;max-height:calc(100dvh - 16px);overflow:auto}
+      .main-actions{display:flex;align-items:center;gap:5px;padding:0 2px 10px}
+      #quick-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#53647b;font-size:12px;font-weight:600}
+      .range{display:flex;gap:3px}.range button{height:28px;font-size:11px;padding:0 6px;background:#fff;box-shadow:none}
+      #cancel{width:28px;height:28px;padding:0;color:#7b889b;background:#fff;box-shadow:none}
+      #more-toggle{list-style:none;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #d8e1ec;background:#fff;border-radius:7px;font-size:17px}#more-toggle::-webkit-details-marker{display:none}#more[open] #more-toggle{background:#edf3fc;border-color:#b9ceeb}
+      .action-row{display:grid;grid-template-columns:58px 1fr 1fr;align-items:center;gap:6px;padding:8px;background:#f5f7fb;border:1px solid #e8edf4;border-radius:9px}.scope-label{font-size:11px;color:#64748b;font-weight:500;padding-left:2px}
+      .action-row button{background:#fff;box-shadow:0 1px 2px #172b3a06;font-size:12px;padding:0 6px}
+      #q-hide{color:#155bc6;background:#edf4ff;border-color:#c9dcfa}#q-hide:hover{background:#dceaff}
+      #more-actions{margin-top:6px}.utility-actions{display:flex;gap:6px;padding:10px 0}.utility-actions button{flex:1;font-size:12px;padding:0 6px}
+      .footer-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;border-top:1px solid #e8edf4;margin-top:10px;padding-top:10px}
+      #quick:has(#more[open]) .footer-actions{margin-top:0}
+      #q-save{background:#1768ed;color:#fff;border-color:#1768ed;box-shadow:0 2px 5px #1768ed25}#q-save:hover{background:#1255c5}
+      #status{margin:6px 6px 0;font-size:12px;line-height:1.5;color:#64748b;overflow-wrap:anywhere}#status:empty{display:none}#correction{padding:10px 6px 2px;font-size:12px}#correction select{margin:0 8px;padding:5px;border:1px solid #dce3ec;border-radius:6px}
+      @media(max-width:300px){.action-row{grid-template-columns:48px 1fr 1fr;padding:6px;gap:4px}.range button{padding:0 4px}button{padding:0 4px}}
+    </style>
+    <div id="quick" role="toolbar" aria-label="区域快捷操作" hidden>
+      <div class="main-actions">
+        <span id="quick-name"></span>
+        <div class="range" role="group" aria-label="调整范围"><button id="q-larger" title="扩大选中范围">扩大</button><button id="q-smaller" title="缩小选中范围">缩小</button></div>
+        <details id="more"><summary id="more-toggle" aria-label="更多操作" title="更多操作">···</summary></details>
+        <button id="cancel" aria-label="取消并退出" title="取消并退出">×</button>
+      </div>
+      <div class="action-row" role="group" aria-label="区域操作"><span class="scope-label">此区域</span><button id="q-hide">隐藏区域</button><button id="q-keep">恢复区域</button></div>
+      <div id="more-actions" hidden>
+        <div class="action-row" role="group" aria-label="仅本页操作"><span class="scope-label">仅本页</span><button id="q-page-hide" aria-label="仅本页隐藏">隐藏区域</button><button id="q-page-keep" aria-label="仅本页恢复">恢复区域</button></div>
+        <div class="utility-actions" role="group" aria-label="辅助操作"><button id="same">隐藏同类</button><button id="q-split" title="将大区域拆成可单独选择的小区域">拆分区域</button><button id="correct">调整分类</button></div>
+      </div>
+      <div class="footer-actions"><button id="effect">预览效果</button><button id="q-save">保存更改</button></div>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div id="correction" hidden><label>分类<select id="manual-category">${Object.entries(labels).filter(([key])=>key!=='other').map(([key,label])=>`<option value="${key}">${label}</option>`).join('')}</select></label><button id="assign">确认</button><button id="dismiss-correction">取消</button></div>
+    </div>
+    <div hidden aria-hidden="true"><div id="selection" hidden><p id="selection-name"></p></div><button id="hide-area"></button><button id="keep-area"></button><button id="page-hide"></button><button id="page-keep"></button><button id="larger"></button><button id="smaller"></button><button id="save"></button><button id="retry"></button><select id="scope"><option value="site">整个网站</option><option value="type">此类页面</option><option value="page">当前页面</option></select><div id="categories"></div><p id="legacy"></p><div id="rule-list"></div></div>`;
+    ui.querySelector('#more').addEventListener('toggle',()=>{
+      ui.querySelector('#more-actions').hidden=!ui.querySelector('#more').open;
+      positionQuick();
+    });
     ui.querySelector('#scope option[value=site]').selected=true;
     document.body.append(host);
     layer=document.createElement('div');layer.setAttribute('data-jev-ui','selection-layer');layer.style.cssText='position:fixed!important;inset:0!important;pointer-events:none!important;z-index:2147483646!important;';
     layerRoot=layer.attachShadow({mode:'open'});document.body.append(layer);
-    if(globalThis.ResizeObserver)resizing=new ResizeObserver(position);
+    if(globalThis.ResizeObserver){resizing=new ResizeObserver(position);toolbarResizing=new ResizeObserver(positionQuick);toolbarResizing.observe(ui.querySelector('#quick'));}
     globalThis.addEventListener?.('scroll',afterLayout,true);globalThis.addEventListener?.('resize',afterLayout);
     ui.querySelector('#cancel').addEventListener('click',leave);
     ui.querySelector('#q-split').addEventListener('click',splitFocus);

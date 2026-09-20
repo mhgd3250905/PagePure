@@ -6,3 +6,4 @@ output/
 !.env.example
 *.log
 .playwright-mcp/
+.playwright-cli/

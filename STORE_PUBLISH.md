@@ -22,11 +22,15 @@
 
 **发布经验来源**：`E:\AII-Jev\0919\STORE_PUBLISH.md`（Jev 邮件助手已于 2026-09-20 用同一账号成功提审）。
 
-## 发布材料
+## 0.6.25 本地更新
+
+2026-09-20：紧凑分组操作条已完成，本地交付 `PagePure-0.6.25.zip`，尚未提交 Edge 商店。下方 0.6.24 包和截图属于已提审材料，不代表当前 0.6.25 源码；后续商店更新需使用新版包并更新界面截图。
+
+## 发布材料（0.6.24 已提审）
 
 | 材料 | 文件/内容 | 状态 |
 | --- | --- | --- |
-| 发布包 | `PagePure-0.6.24-store.zip`（根目录即 `manifest.json`，21 个文件，108KB，与 `extension/` 一致，不含密钥） | ✅ |
+| 发布包 | `PagePure-0.6.24-store.zip`（根目录即 `manifest.json`，21 个文件，108KB，与提审时 `extension/` 一致，不含密钥） | ✅ |
 | 商店 logo | `extension/icons/pagepure-256.png`（256×256，从 `assets/pagepure-icon-source.png` 缩放） | ✅ |
 | 截图 1 | `assets/store/screenshot-select.png`（1280×800，点选广告：遮罩+净化盖章+快捷工具条） | ✅ |
 | 截图 2 | `assets/store/screenshot-clean.png`（1280×800，保存后广告消失的干净页面） | ✅ |

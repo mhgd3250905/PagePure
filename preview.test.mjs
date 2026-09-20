@@ -353,7 +353,7 @@ test('ambiguous page-only hide never falls back to a shared category rule',async
  const env=await environment([], '<html><body><main><article>Sponsored one</article><article>Sponsored two</article></main></body></html>');
  await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#page-hide'));
  assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
- assert.match(env.ui.querySelector('#status').textContent,/无法稳定/);
+ assert.match(env.ui.querySelector('#status').textContent,/无法保存/);
  await env.click(env.ui.querySelector('#save'));assert.equal(env.calls.find(c=>c.type==='rulesSet').payload.rules.length,0);
 });
 
@@ -402,7 +402,7 @@ test('clicking one feed selects all subjects, excludes interleaved ads, and inte
   assert.equal(event.defaultPrevented, true);
   assert.equal(selected(env,'sports'), true); assert.equal(selected(env,'technology'), true);
   assert.equal(selected(env,'ad'), false); assert.equal(selected(env,'promotion'), false);
-  assert.match(env.ui.querySelector('#status').textContent, /已选择 1 类 \/ 2 块/);
+  assert.match(env.ui.querySelector('#status').textContent, /已隐藏 2 处 · 保存后生效/);
   await env.click(env.ui.querySelector('#effect'));
   assert.equal(env.document.querySelectorAll('[data-jev-preview-hide]').length, 2);
   await env.click(env.ui.querySelector('#effect'));
