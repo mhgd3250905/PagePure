@@ -35,8 +35,16 @@
 - 此轮不重新操作用户 Edge 或调用真实 Jev；自动化测试不能代替所有网站的端到端兼容验证。
 - Git：经用户明确授权，在当前项目初始化本地仓库，以现有 0.6.24 源码和交付包为初始实物基线。首次提交包含源码、测试、演示、依赖配置及文档；不包含压缩包、依赖目录和临时输出。提交前运行 `git diff --cached --check`；准确提交标识由 Git 历史查询，不在本文件写入自身提交哈希。未推送远程。
 
+## 0.6.24 商店发布（2026-09-20）
+
+v0.6.24 已于 2026-09-20 提交 Edge 加载项商店审核（微软口径 7 个工作日内反馈，结果邮件发账户邮箱）。提交信息快照、商店文案与材料清单以 [STORE_PUBLISH.md](STORE_PUBLISH.md) 为准。
+
+- Microsoft Store ID `0RDCKDS5H0H3`；CRX ID `ijiaoneehjiebocilhnbmkoohlleaeen`；产品 ID `647794d8-17b4-4ca3-954f-ecd211d3b985`。
+- 商店发布包 `PagePure-0.6.24-store.zip`：与 `extension/` 逐文件一致；较历史包移除两张未引用的图标源图（内容相同，保留一份于 `assets/pagepure-icon-source.png`）并新增 `extension/icons/pagepure-256.png` 商店 logo；运行代码与 manifest 与历史包一致。
+- 私有材料：隐私政策中英双语 gist；截图取自 `demo.html` 演示页。商店审核通过后需把商店链接回填 README 与 STORE_PUBLISH.md。
+
 ## 剩余事项与交接
 
 下一位维护者先读 README 和本台账。后续优先按实际反馈验证不同页面、动态侧栏和网站改版后的稳定定位；模型仍可能误判，快照不能保证新结构全部立即显示。封闭 Shadow DOM、Canvas 内部及浏览器内部页面不支持。
 
-保持已确认的块点选视觉和交互，不扩大 UI 改动范围。不清空已有规则、快照或密钥，不 reset/clean，不以旧包覆盖当前源码。尚未安排远程推送或发布。
+保持已确认的块点选视觉和交互，不扩大 UI 改动范围。不清空已有规则、快照或密钥，不 reset/clean，不以旧包覆盖当前源码。Edge 商店提审已安排（见上节）；Git 远程推送仍未授权。
