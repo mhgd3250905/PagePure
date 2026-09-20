@@ -1,0 +1,121 @@
+# 网页净化助手 PagePure 商店发布指南（Edge Add-ons）
+
+## 发布状态台账
+
+| 市场 | 状态 | 日期 | 说明 |
+| --- | --- | --- | --- |
+| Edge Add-ons | ✅ 已提交审核（In review） | 2026-09-20 | v0.6.24；微软口径 7 个工作日内反馈；结果邮件发 sk18101652104@outlook.com |
+| Chrome Web Store | ⏳ 未计划 | — | 全站 host_permissions + 广告屏蔽类功能在 Chrome 审核更严，暂不提交 |
+
+**发布账号（Edge）**：复用 Jev 邮件助手已注册的 Microsoft 个人账户 `sk18101652104@outlook.com`；开发者发布者名 `Bboyugk`（中国区 / Individual）。Partner Center：https://partner.microsoft.com/dashboard/microsoftedge/overview 。同一账号可发布多个扩展，无需重新注册。
+
+**已提交信息快照（Edge v0.6.24，2026-09-20）**：
+- 类别：高效工作（Productivity）；可见性：公用（Public）；语言：English (United States)
+- 商店名称（锁定自 manifest）：网页净化助手 · PagePure；商店描述：英文版（功能/隐私/安装三节，存于 Partner Center 提交记录与本文档第二节）
+- 商店 logo：`extension/icons/pagepure-256.png`（256×256）
+- 截图：`assets/store/screenshot-select.png`、`screenshot-clean.png`（1280×800，取自 demo.html 演示页，无隐私内容）
+- 隐私政策：https://gist.github.com/mhgd3250905/3ff8cf844b63c9379e105d5d3e7026a4 （中英双语）
+- 数据披露：勾选 Website content（网站内容）；三项证明全部勾选；权限理由与远程代码声明见第三节
+- 认证说明：已说明手动功能免密钥可用、BYOK 模式及逐按钮测试步骤（存于提交记录）
+- Microsoft Store ID：`0RDCKDS5H0H3`；CRX ID：`ijiaoneehjiebocilhnbmkoohlleaeen`；产品 ID：`647794d8-17b4-4ca3-954f-ecd211d3b985`
+- 审核通过后待办：把商店链接回填本文档台账和 README.md
+
+**发布经验来源**：`E:\AII-Jev\0919\STORE_PUBLISH.md`（Jev 邮件助手已于 2026-09-20 用同一账号成功提审）。
+
+## 发布材料
+
+| 材料 | 文件/内容 | 状态 |
+| --- | --- | --- |
+| 发布包 | `PagePure-0.6.24-store.zip`（根目录即 `manifest.json`，21 个文件，108KB，与 `extension/` 一致，不含密钥） | ✅ |
+| 商店 logo | `extension/icons/pagepure-256.png`（256×256，从 `assets/pagepure-icon-source.png` 缩放） | ✅ |
+| 截图 1 | `assets/store/screenshot-select.png`（1280×800，点选广告：遮罩+净化盖章+快捷工具条） | ✅ |
+| 截图 2 | `assets/store/screenshot-clean.png`（1280×800，保存后广告消失的干净页面） | ✅ |
+| 隐私政策 URL | https://gist.github.com/mhgd3250905/3ff8cf844b63c9379e105d5d3e7026a4 （中英双语） | ✅ |
+
+备注：
+- 0.6.24 的历史包 `PagePure-0.6.24.zip`（1.86MB）含两张 906KB 图标源图，仅作历史产物保留；商店提交一律使用精简后的 `-store` 包。
+- 截图取自 `demo.html` 演示页（模拟分类结果，不含真实用户数据，无脱敏问题）。
+- 备选 UI 图：`output/playwright/ui-0.6.22.png`、`ui-expanded-0.6.22.png`（1000×720，操作台面板）。
+
+## 商店文案
+
+### 名称（≤45 字符）
+
+```
+PagePure 网页净化助手 - 点击隐藏网页干扰模块
+```
+
+英文版（提交语言为 English (United States) 时使用）：
+
+```
+PagePure - Click to Clean Any Web Page
+```
+
+### 简短描述（≤132 字符）
+
+英文版：
+
+```
+Click any ad or distracting module to hide it and keep it hidden. Manual selection works with no account; AI similar-block search optional.
+```
+
+### 详细描述
+
+英文版：
+
+```
+PagePure cleans distracting web pages: click a module, preview, save — the page stays clean on every visit.
+
+Core features
+• Click any block (ads, promotions, follow cards, footers) to hide it — no CSS or DOM knowledge needed
+• Preview with a frosted-glass mask and "purified" stamp before saving
+• Rules are saved per site, page type or exact URL, and re-applied automatically
+• Page-level exceptions: hide everywhere except this page, or hide only on this page
+• Fast restore: recognized regions reappear instantly on your next visit, without waiting for AI
+• Undo the last save and temporarily view the original page at any time
+• Manual selection works fully offline with no account and no API key
+
+Smart similar-block classification (BYOK)
+• Add your own TypeSafe (Jev) API key and the AI finds every similar module for you across 27 built-in categories (ads, promotions, feeds, footers and more)
+• Correct a wrong guess once and the correction is remembered for that stable structure
+• Your key stays in your browser's local extension storage — never synced, never displayed
+• Calls go to the official TypeSafe API (api.typesafe.ai) with your own account and quota
+
+Privacy
+• When AI is enabled, only module text, image alt descriptions, structure hints and link paths (query strings removed) are sent to the TypeSafe official API
+• Never sends full page HTML, cookies, browsing history, form input, or cross-origin iframe content
+• No ads, no analytics, no tracking, no data selling
+
+Get a TypeSafe API key at https://console.typesafe.ai/ (optional — manual selection works without one).
+```
+
+### 版本说明（首次发布）
+
+```
+First release: click-to-hide with preview, per-site / page-type / URL rules, page exceptions, snapshot fast restore, undo, and optional AI similar-block classification with your own Jev key.
+```
+
+### 类别与语言
+
+- 类别：Productivity（生产力工具）
+- 可见性：Public
+- 语言：English (United States)（与 0919 提交口径一致）
+
+## Edge Partner Center 提交步骤
+
+1. 用 `sk18101652104@outlook.com` 打开 https://partner.microsoft.com/dashboard/microsoftedge/overview 。
+2. 「Create new extension」→ 上传 `PagePure-0.6.24-store.zip`。
+3. Store listing：粘贴上文英文文案；上传 `extension/icons/pagepure-256.png` 为商店 logo；上传两张截图；Website URL 可填隐私政策 gist；Support email 填账户邮箱。
+4. Privacy policy URL：https://gist.github.com/mhgd3250905/3ff8cf844b63c9379e105d5d3e7026a4
+5. 审核重点——权限与数据披露：
+   - **权限说明 `storage`**：`Saves the user's purification rules, region snapshots, undo records, page preferences, and locally stored API key on this device only.`
+   - **权限说明 host permissions（http/https）**：`Used to show the selection UI on pages the user visits, apply the user's saved purification rules, and restore hidden regions. Everything runs locally in the page context; the extension never uploads page content to any server.`
+   - **数据披露**：勾选 Website content（读取模块可见文本用于可选的类别判断）；用途选 Provide the product's core functionality；声明不出售、不转移数据、不用于无关用途、不用于信用评估。不勾选 Personal communications、Financial information 等其他项。
+   - **认证备注**：`Manual block selection and all rule features work without any account or API key. The optional AI classification is BYOK: the reviewer can test it by entering their own TypeSafe API key (https://console.typesafe.ai/) and enabling AI for the site; without a key the extension simply skips AI classification.`
+6. 提交审核（微软口径约 7 个工作日内反馈；结果邮件发账户邮箱）。
+
+**提交后待办**：把审核状态与商店链接回填本文档台账和 README.md。
+
+## 后续版本更新
+
+改 `extension/manifest.json` 的 `version` → `python` 重新打包（根目录即 `manifest.json`，参考本文档材料清单）→ 在 Partner Center 该扩展下「Update」上传新 zip 并更新版本说明。
