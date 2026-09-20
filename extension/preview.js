@@ -565,7 +565,7 @@
     clearTimeout(timer);timer=setTimeout(()=>{if(url!==page()){if(active)leave();void refresh();}else if(active)syncCandidates();else apply();},200);
   }).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','id','role','data-testid','data-test','data-component','src','href','style','data-jev-manual-hidden','data-jev-awaiting']});
   chrome.runtime.onMessage.addListener((msg,_sender,respond)=>{
-    if(msg.type==='rulesChanged'||msg.type==='configChanged')void refresh();
+    if(msg.type==='rulesChanged'||msg.type==='configChanged'){if(msg.source==='manager'&&active)leave();void refresh();}
     if(msg.type==='pageAction') {
       const work=msg.action==='toggleVisibility'?(async()=>{if(active)leave();showOriginal=!showOriginal;if(showOriginal)globalThis.JevPage?.suspend();else void globalThis.JevPage?.resume();apply();})():msg.action==='undoSave'?(async()=>{if(active)leave();await request('rulesUndo',{keys:keys()});await refresh();})():msg.action==='preview'?start():msg.action==='clearRules'?(async()=>{if(active)leave();await request('rulesDelete',{keys:keys()});await refresh();void globalThis.JevPage?.resume();})():Promise.reject(new Error('未知操作'));
       work.then(()=>respond({ok:true})).catch(error=>respond({ok:false,error:error.message}));return true;

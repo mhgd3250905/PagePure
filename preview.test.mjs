@@ -81,7 +81,7 @@ async function environment(initialGroups = [], body = null, options = {}) {
     async start() {await context.JevPreview.start(); await settle();},
     async click(node) {const event = new window.Event('click', {bubbles:true, cancelable:true, composed:true}); node.dispatchEvent(event); await settle(); return event;},
     async action(action) {const response = await new Promise(resolve => listener({type:'pageAction', action}, {}, resolve)); await settle(); return response;},
-    async notify(type) {listener({type},{},()=>{});await settle();},
+    async notify(type,extra={}) {listener({type,...extra},{},()=>{});await settle();},
     async mutate(changes) {mutation(changes||[{type:'childList', target:document.querySelector('main')}]); const work = [...timers.values()]; timers.clear(); work.forEach(callback => callback()); await settle();}
   };
 }
@@ -647,4 +647,11 @@ test('smart split stays discoverable without AI configuration',async()=>{
  await env.click(split);
  assert.match(env.ui.querySelector('#status').textContent,/配置密钥/);
  assert.equal(env.calls.some(c=>c.type==='splitBlock'),false);
+});
+
+test('manager clear notification closes stale selection drafts',async()=>{
+ const env=await environment();await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-hide'));
+ assert.ok(env.ui);
+ await env.notify('rulesChanged', {source:'manager'});
+ assert.equal(env.ui,undefined);assert.equal(env.calls.some(c=>c.type==='rulesSet'),false);
 });

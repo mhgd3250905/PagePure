@@ -94,6 +94,11 @@ for (const [action, message] of [['toggleVisibility', '已切换显示效果，�
     await refreshStatus();
   }));
 }
+document.querySelector('#manageRules').addEventListener('click', () => perform(async () => {
+  await request('rulesManagerOpen');
+  if(new URLSearchParams(location.search).get('embedded')==='1')window.parent.postMessage({type:'jev-console-close'}, '*');
+}));
+
 document.querySelector('#clearRules').addEventListener('click', () => perform(async () => {
   await request('pageAction', {action: 'clearRules'});
   showMessage('已清除适用于本页的类别规则及旧版选块规则');

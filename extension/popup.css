@@ -56,3 +56,5 @@ footer{padding-inline:14px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before{transition:none!important}
 }
+
+.manager-link{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:12px;padding:11px 13px}

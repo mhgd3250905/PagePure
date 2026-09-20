@@ -152,3 +152,10 @@ test('master switch saves immediately without saving draft AI settings', async (
   assert.equal(saved.enabled, false);
   assert.equal(saved.aiEnabled, false);
 });
+
+test('embedded console opens the dedicated rule manager and closes its panel',async()=>{
+ const env=await popupEnvironment();
+ env.document.querySelector('#manageRules').click();await env.flush();
+ assert.ok(env.requests.some(message=>message.type==='rulesManagerOpen'));
+ assert.equal(env.messages.at(-1).type,'jev-console-close');
+});

@@ -1,3 +1,4 @@
+import {managerRequest} from './rules-manager-store.mjs';
 import {snapshotRequest} from './snapshots.mjs';
 import {classifyBlock, classifyCategory, splitBlock, CATEGORY_LABELS} from './classifier.mjs';
 const LEGACY_CONTEXT = '只保留知乎的文章、问题、回答等真实阅读内容及其必要操作。隐藏广告、活动横幅、创作入口、推广服务、推荐关注、热搜、帮助中心、举报说明、关于网站和备案页脚。不要按文章主题筛选。';
@@ -50,6 +51,7 @@ function splitScope(raw) {
 const compactSplitDescriptor = block => ({tag:block.tag,role:block.role,text:block.text.slice(0,400),structural:(block.structural||'').slice(0,500)});
 export function createMessageHandler(chromeApi, fetchImpl = fetch) {
   const ready = Promise.all([chromeApi.storage.local.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'}),chromeApi.storage.session.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'})]);
+  let ruleWrites = Promise.resolve();
   const pending = new Map();
   let active = 0;
   const queue = [];
@@ -76,12 +78,15 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
   };
   return (message, sender, respond) => {
     const popup = ['popup.html','popup.html?embedded=1'].some(path => sender.url === chromeApi.runtime.getURL(path)) && (!sender.id || sender.id === chromeApi.runtime.id);
+    const manager = sender.url === chromeApi.runtime.getURL('rules-manager.html') && sender.id === chromeApi.runtime.id;
     const content = Boolean(sender.tab) && sender.frameId !== undefined && sender.frameId === 0 && onWeb(sender.url) && (!sender.id || sender.id === chromeApi.runtime.id);
-    const allowed = popup ? ['configGet','configSet','keyClear','statusGet','retry','pageAction'] : content ? ['configGet','classify','classifyCategories','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
+    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : content ? ['configGet','classify','classifyCategories','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
     if (!allowed.includes(message?.type)) {respond({ok:false,error:'不允许的插件请求'}); return false;}
-    (async () => {
+    const work = async () => {
       await ready;
       const {type,payload} = message;
+      if(type==='rulesManagerOpen'){await chromeApi.tabs.create({url:chromeApi.runtime.getURL('rules-manager.html')});return {};}
+      if(manager)return managerRequest(chromeApi,type,payload);
       const targetTab = popup ? (sender.tab || await activeTab()) : sender.tab;
       const targetUrl = content ? sender.url : targetTab?.url;
       if(type==='snapshotGet'||type==='snapshotSet')return snapshotRequest(chromeApi.storage.local,type,payload,new URL(sender.url).origin);
@@ -288,7 +293,11 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
         } catch(error) {errors.push({id:block.id,error:error.message});}
       }));
       return {results,errors};
-    })().then(data=>respond({ok:true,data})).catch(error=>respond({ok:false,error:error.message}));
+    };
+    const writes=['rulesSet','rulesDelete','rulesUndo','rulesManagerDelete'];
+    const result=writes.includes(message.type)?ruleWrites.then(work):work();
+    if(writes.includes(message.type))ruleWrites=result.catch(()=>{});
+    result.then(data=>respond({ok:true,data})).catch(error=>respond({ok:false,error:error.message}));
     return true;
   };
 }

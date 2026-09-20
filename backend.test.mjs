@@ -515,3 +515,57 @@ test('site default derives semantic preferences only from same origin and respec
   values['rules:'+key]=[];
   assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[]}]);
 });
+
+
+const managerSender=h=>({id:'test',url:h.api.runtime.getURL('rules-manager.html')});
+test('rule manager is restricted to exact trusted page and never exposes secrets',async()=>{
+ const h=harness(),key='https://www.zhihu.com|site';
+ h.api.storage.local.values['rules:'+key]=[{selector:'.ad',label:'Ad'}];
+ h.api.storage.local.values.jevApiKey='private-key';
+ for(const sender of [h.content,h.popup,{id:'other',url:h.api.runtime.getURL('rules-manager.html')},{id:'test',url:h.api.runtime.getURL('rules-manager.html?evil=1')}])assert.equal((await h.send('rulesManagerList',{},sender)).ok,false);
+ const result=await h.send('rulesManagerList',{},managerSender(h));assert.equal(result.ok,true);
+ assert.deepEqual(result.data.entries,[{id:key,origin:'https://www.zhihu.com',address:'https://www.zhihu.com',scope:'site',label:'整个网站',count:1}]);
+ assert.ok(!JSON.stringify(result).includes('private-key'));assert.ok(!JSON.stringify(result).includes('.ad'));
+ let opened;h.api.tabs.create=async options=>{opened=options.url;};
+ assert.equal((await h.send('rulesManagerOpen',{},h.content)).ok,false);
+ assert.equal((await h.send('rulesManagerOpen',{},h.popup)).ok,true);assert.equal(opened,h.api.runtime.getURL('rules-manager.html'));
+});
+test('manager groups inline page exceptions and clears only selected address endpoints',async()=>{
+ const h=harness(),origin='https://www.zhihu.com',site=origin+'|site',page=origin+'|page:/question/1',other=origin+'|page:/question/2';
+ const values=h.api.storage.local.values;
+ values['rules:'+site]=[{selector:'.ad',label:'Ad'},{selector:'.local',label:'Local',page},{selector:'.other',label:'Other',page:other}];
+ values['rules:'+page]=[{selector:'.second',label:'Second'}];values['rules:https://other.test|site']=[{selector:'.safe',label:'Safe'}];
+ values['rulesUndo:'+site]={rules:[{selector:'.local',label:'Local',page}]};values['snapshot-v1:'+page]={entries:[]};values['partitions:'+site]=[{parent:'.parent',parts:['.a','.b']}];
+ values.jevApiKey='private';values['ai:'+origin]=true;
+ const messages=[];h.api.tabs.query=async()=>[{id:1,url:origin+'/question/1'},{id:2,url:'https://other.test/'}];h.api.tabs.sendMessage=async(id,m)=>messages.push([id,m]);
+ const list=(await h.send('rulesManagerList',{},managerSender(h))).data;
+ assert.equal(list.entries.find(e=>e.id===page).count,2);assert.equal(list.entries.find(e=>e.id===site).count,1);
+ assert.equal((await h.send('rulesManagerDelete',{ids:[page],revision:list.revision},managerSender(h))).ok,true);
+ assert.equal(values['rules:'+site].length,2);assert.deepEqual(values['rules:'+page],[]);
+ assert.equal(values['rulesUndo:'+site],undefined);assert.equal(values['snapshot-v1:'+page],undefined);
+ assert.equal(values['partitions:'+site].length,1);assert.equal(values.jevApiKey,'private');assert.equal(values['ai:'+origin],true);
+ assert.equal(values['rules:https://other.test|site'].length,1);assert.deepEqual(messages,[[1,{type:'rulesChanged',source:'manager'}]]);
+ assert.equal((await h.send('rulesManagerDelete',{ids:[other],revision:list.revision},managerSender(h))).ok,false);
+ const fresh=(await h.send('rulesManagerList',{},managerSender(h))).data;
+ assert.equal((await h.send('rulesManagerDelete',{ids:[site,other],revision:fresh.revision},managerSender(h))).ok,true);
+ assert.deepEqual(values['rules:'+site],[]);assert.equal(values['partitions:'+site],undefined);
+});
+test('manager clear keeps empty scope marker so legacy categories cannot resurrect',async()=>{
+ const h=harness(),site='https://www.zhihu.com|site',type='https://www.zhihu.com|type:/';
+ h.api.storage.local.values['rules:'+site]=[{category:'advertisement',label:'Ad'}];
+ h.api.storage.local.values['rules:'+type]=[{category:'promotion',label:'Promotion'}];
+ const list=(await h.send('rulesManagerList',{},managerSender(h))).data;
+ await h.send('rulesManagerDelete',{ids:[site],revision:list.revision},managerSender(h));
+ const groups=(await h.send('rulesGet',{keys:[site,type]})).data.groups;
+ assert.deepEqual(groups.find(g=>g.key===site).rules,[]);assert.equal(groups.find(g=>g.key===type).rules.length,1);
+});
+test('manager rejects stale confirmation after save and serializes simultaneous clears',async()=>{
+ const h=harness(),site='https://www.zhihu.com|site';
+ await h.send('rulesSet',{key:site,rules:[{selector:'.a',label:'A'}]});
+ const old=(await h.send('rulesManagerList',{},managerSender(h))).data;
+ await h.send('rulesSet',{key:site,rules:[{selector:'.a',label:'A'},{selector:'.b',label:'B'}]});
+ assert.equal((await h.send('rulesManagerDelete',{ids:[site],revision:old.revision},managerSender(h))).ok,false);
+ const current=(await h.send('rulesManagerList',{},managerSender(h))).data;
+ const result=await Promise.all([1,2].map(()=>h.send('rulesManagerDelete',{ids:[site],revision:current.revision},managerSender(h))));
+ assert.equal(result.filter(r=>r.ok).length,1);
+});
