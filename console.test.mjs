@@ -75,7 +75,7 @@ async function popupEnvironment(config = {}) {
   }};
   runInNewContext(source, {
     document, chrome:{runtime}, URLSearchParams, location:{search:'?embedded=1'},
-    window:{parent:{postMessage: message => messages.push(message)}}, setInterval:() => 0
+    window:{parent:{postMessage: message => messages.push(message)}}, setTimeout:() => 0, clearTimeout:() => {}
   });
   const flush = () => new Promise(resolve => setImmediate(resolve));
   await flush();

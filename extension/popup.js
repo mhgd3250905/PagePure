@@ -15,8 +15,15 @@ const clearKey = document.querySelector('#clearKey');
 const status = document.querySelector('#status');
 const pageStatus = document.querySelector('#pageStatus');
 let configured = false;
-async function request(type, payload) {
-  const result = await chrome.runtime.sendMessage({type, ...(payload ? {payload} : {})});
+async function request(type, payload, timeoutMs = 0) {
+  let timer;
+  const response = chrome.runtime.sendMessage({type, ...(payload ? {payload} : {})});
+  let result;
+  try {
+    result = timeoutMs ? await Promise.race([response, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('连接超时，请重新连接；若仍失败，请在扩展管理页重新加载 PagePure 后刷新网页')), timeoutMs);
+    })]) : await response;
+  } finally { if (timer !== undefined) clearTimeout(timer); }
   if (!result?.ok) throw new Error(result?.error || '请求失败，请重试');
   return result.data;
 }
@@ -32,7 +39,7 @@ function showMessage(message, isError = false) {
 }
 async function refreshStatus() {
   try {
-    const state = await request('statusGet');
+    const state = await request('statusGet', undefined, 8000);
     if (!state || (state.hidden == null && state.pending == null && !state.error)) {
       pageStatus.textContent = '打开网页查看净化状态';
       return;
@@ -104,16 +111,32 @@ document.querySelector('#clearRules').addEventListener('click', () => perform(as
   showMessage('已清除适用于本页的类别规则及旧版选块规则');
   await refreshStatus();
 }));
+const reconnect = document.querySelector('#reconnect');
+let initializing = false, statusTimer;
 async function initialize() {
-  const config = await request('configGet');
-  enabled.checked = Boolean(config.enabled);
-  aiEnabled.checked = Boolean(config.aiEnabled);
-  context.value = config.context || '';
-  if(config.origin)document.querySelector('label[for="context"]').textContent=`此网站的自动净化需求（${new URL(config.origin).hostname}）`;
-  showKeyState(config.configured);
-  controls.disabled = false;
-  showMessage(config.enabled ? '' : '网页净化已关闭');
-  await refreshStatus();
-  setInterval(refreshStatus, 2000);
+  if (initializing) return;
+  initializing = true;
+  reconnect.hidden = true;
+  controls.disabled = true;
+  if (statusTimer !== undefined) clearTimeout(statusTimer);
+  showMessage('正在读取设置…');
+  pageStatus.textContent = '正在读取页面状态…';
+  try {
+    const config = await request('configGet', undefined, 8000);
+    enabled.checked = Boolean(config.enabled);
+    aiEnabled.checked = Boolean(config.aiEnabled);
+    context.value = config.context || '';
+    if(config.origin)document.querySelector('label[for="context"]').textContent=`此网站的自动净化需求（${new URL(config.origin).hostname}）`;
+    showKeyState(config.configured);
+    controls.disabled = false;
+    showMessage(config.enabled ? '' : '网页净化已关闭');
+    const poll = async () => { await refreshStatus(); statusTimer = setTimeout(poll, 2000); };
+    await poll();
+  } catch (error) {
+    showMessage(`无法读取设置：${error.message}`, true);
+    pageStatus.textContent = '尚未连接到 PagePure';
+    reconnect.hidden = false;
+  } finally { initializing = false; }
 }
-initialize().catch(error => showMessage(`无法读取设置：${error.message}`, true));
+reconnect.addEventListener('click', initialize);
+initialize();

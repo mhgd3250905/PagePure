@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "网页净化助手 · PagePure",
-  "version": "0.6.29",
+  "version": "0.6.30",
   "description": "使用 Jev 识别网页模块类别，点击样本选择整类，按网站与页面类型保存净化规则。",
   "permissions": [
     "storage"
