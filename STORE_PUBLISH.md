@@ -24,7 +24,19 @@
 
 ## 0.6.32 本地更新
 
-按用户要求移除类别净化系列，仅保留区域规则操作及显式智能拆分；旧类别规则停用。交付 `PagePure-0.6.32.zip`，尚未提交商店；后续商店文案应以新版区域操作描述为准。
+按用户要求移除类别净化系列，仅保留区域规则操作及显式智能拆分；旧类别规则停用。交付 `PagePure-0.6.32.zip`，2026-09-21用户确认实测通过；尚未提交商店。下方0.6.24文案为历史提审材料，不代表当前功能。
+
+### 0.6.32 后续更新文案（草稿，未提交）
+
+简短描述：
+
+> Select a page region, adjust its size, and hide or restore it. Save site or page rules; optional AI splitting uses your own key.
+
+版本说明：
+
+> Removed category-wide hiding and category correction. Region selection, expand/shrink, hide/restore, page exceptions, preview, undo, and explicit smart splitting remain available. Existing region rules are preserved; legacy category rules are inactive. Improved compatibility with Twinkstar Browser.
+
+后续更新须同步商店截图和功能说明，移除“27 categories”“similar-block classification”和类别快照快速恢复宣传。普通AI自动判断与显式智能拆分仍为可选功能，因此不能沿用旧权限文案中“never uploads page content to any server”的绝对表述；应说明用户启用AI时会向TypeSafe发送处理所需的模块信息。这里仅记录文档对齐，不修改已提交材料或外部隐私政策。
 
 ## 0.6.31 本地更新
 
@@ -69,7 +81,7 @@
 - 截图取自 `demo.html` 演示页（模拟分类结果，不含真实用户数据，无脱敏问题）。
 - 备选 UI 图：`output/playwright/ui-0.6.22.png`、`ui-expanded-0.6.22.png`（1000×720，操作台面板）。
 
-## 商店文案
+## 商店文案（0.6.24 历史提审材料）
 
 ### 名称（≤45 字符）
 
@@ -133,7 +145,7 @@ First release: click-to-hide with preview, per-site / page-type / URL rules, pag
 - 可见性：Public
 - 语言：English (United States)（与 0919 提交口径一致）
 
-## Edge Partner Center 提交步骤
+## Edge Partner Center 提交步骤（0.6.24 历史操作记录）
 
 1. 用 `sk18101652104@outlook.com` 打开 https://partner.microsoft.com/dashboard/microsoftedge/overview 。
 2. 「Create new extension」→ 上传 `PagePure-0.6.24-store.zip`。
