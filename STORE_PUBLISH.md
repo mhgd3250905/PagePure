@@ -1,5 +1,9 @@
 # 网页净化助手 PagePure 商店发布指南（Edge Add-ons）
 
+## GitHub 下载（当前公开分发）
+
+仓库：<https://github.com/mhgd3250905/PagePure>。2026-09-21 已推送源码，并发布 [0.6.32 安装包](https://github.com/mhgd3250905/PagePure/releases/tag/v0.6.32)。README 提供无需开发工具的安装步骤。GitHub 分发与下方商店审核相互独立；本轮没有提交或更新 Edge 商店。
+
 ## 发布状态台账
 
 | 市场 | 状态 | 日期 | 说明 |
