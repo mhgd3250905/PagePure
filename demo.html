@@ -1,34 +1,23 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><title>网页净化助手 · PagePure · 类别净化演示</title><link rel="stylesheet" href="extension/content.css"><style>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>网页净化助手 · PagePure · 区域净化演示</title><link rel="stylesheet" href="extension/content.css"><style>
 body{margin:0;background:#f3f6fb;color:#1b2c43;font:16px system-ui}.demo-tools{padding:18px 5%;background:#173962;color:white;display:flex;gap:18px;align-items:center;flex-wrap:wrap}button{cursor:pointer;border:0;border-radius:8px;padding:10px 16px;font:inherit;background:#2375ec;color:white}.intro{max-width:1080px;margin:24px auto}.layout{max-width:1080px;margin:24px auto;display:grid;grid-template-columns:2fr 1fr;gap:24px}article,section,footer{background:white;border-radius:12px;padding:24px;margin-bottom:20px}h1{font-size:28px}h2{font-size:21px}p{line-height:1.8;color:#63738a}.offer{background:#fff1d5}.tag{color:#1768ed;font-size:13px}footer{max-width:1032px;margin:0 auto}@media(max-width:700px){.layout{display:block;margin:20px}.intro,footer{margin:20px}}
 </style></head><body>
-<div class="demo-tools" data-jev-ui><strong>Jev 按类别净化 · 0.6.11</strong><span>演示分类结果 · 不调用真实模型</span><button id="start">选择要隐藏的内容</button><button id="reset">清除演示规则</button><button id="original">原网页 / 净化效果</button><button id="undo">撤销上次保存</button><button id="add">加载新文章</button></div>
-<div class="intro" data-jev-ui><h1>点选、预览、保存</h1><p>技术、体育、生活文章属于同一种信息流；列表中的广告属于另一类。点击样本后可隐藏这个区域、隐藏同类或始终保留，预览并保存后，刷新或加载新条目仍适用。本演示使用固定分类结果展示交互；真实网页可直接手动选区；智能识别需配置 Jev 密钥并开启此网站的判断。</p></div>
+<div class="demo-tools" data-jev-ui><strong>PagePure 区域净化</strong><span>手动选区演示 · 不调用真实模型</span><button id="start">选择要隐藏的内容</button><button id="reset">清除演示规则</button><button id="original">原网页 / 净化效果</button><button id="undo">撤销上次保存</button><button id="add">加载新文章</button></div>
+<div class="intro" data-jev-ui><h1>点选、预览、保存</h1><p>点选不想看的区域，使用扩大和缩小调整范围，再隐藏、预览并保存。需要精细选择时可使用智能拆分；本演示使用模拟拆分结果，不调用真实模型。</p></div>
 <div class="layout"><main id="feed">
 <section class="campaign offer"><span class="tag">活动推广</span><h2>限时会员活动</h2><p>这是活动推广模块，与正文信息流分别选择。</p></section>
 <article class="story"><span class="tag">技术 · 正常信息流</span><h2>浏览器如何让网页加载得更快？</h2><p>从缓存到资源调度，了解页面打开背后的技术。文章标题不会决定它的功能类别。</p><a href="https://example.com/">阅读全文</a></article>
 <article class="advertisement offer"><span class="tag">广告</span><h2>云服务新品，限时优惠</h2><p>这条广告也在信息流列表里，但选择它不会选中正常文章。</p><a href="https://example.com/offer">查看推广</a></article>
-<article class="story"><span class="tag">体育 · 正常信息流</span><h2>一场比赛里，团队协作有多重要？</h2><p>一次进攻需要不同位置的队员共同完成。虽然话题与技术文章不同，它们仍是同类模块。</p><a href="https://example.com/sport">阅读全文</a></article>
+<article class="story"><span class="tag">体育 · 正常信息流</span><h2>一场比赛里，团队协作有多重要？</h2><p>一次进攻需要不同位置的队员共同完成。可以单独选择这篇文章，也可以扩大范围选择整个列表。</p><a href="https://example.com/sport">阅读全文</a></article>
 <article class="story"><span class="tag">生活 · 正常信息流</span><h2>周末如何安排一段安静的阅读时间？</h2><p>找一本喜欢的书，留下一段属于自己的时间。这是第三条正常信息流样本。</p><a href="https://example.com/life">阅读全文</a></article>
-</main><aside><section class="recommend"><h2>推荐关注</h2><p>创作者甲 · 创作者乙 · 关注更多</p></section><section class="subscribe offer"><h2>订阅推广</h2><p>可以选择整类推广模块。</p></section><section class="advertisement offer"><span class="tag">广告</span><h2>侧栏品牌广告</h2><p>它与列表广告处于不同位置，仍属于广告类别。</p></section></aside></div>
+</main><aside><section class="recommend"><h2>推荐关注</h2><p>创作者甲 · 创作者乙 · 关注更多</p></section><section class="subscribe offer"><h2>订阅推广</h2><p>可以单独隐藏这个推广区域。</p></section><section class="advertisement offer"><span class="tag">广告</span><h2>侧栏品牌广告</h2><p>可以扩大选择范围，隐藏整个侧栏。</p></section></aside></div>
 <footer class="legal"><h2>网站页脚</h2><p>关于我们 · 合作推广 · 帮助中心</p></footer>
 <script>
-// Demo-only functional labels. Production classifications are supplied by Jev.
 const listeners=[];
-function demoCategory(block){
-  if(block.role.includes('advertisement'))return 'advertisement';
-  if(block.role.includes('story'))return 'content_feed';
-  if(block.role.includes('recommend'))return 'follow_recommend';
-  if(block.role.includes('campaign')||block.role.includes('subscribe'))return 'promotion';
-  if(block.tag==='FOOTER')return 'site_footer';
-  return 'other';
-}
 window.chrome={runtime:{onMessage:{addListener(fn){listeners.push(fn)}},async sendMessage({type,payload}){
   let data={};const saved=JSON.parse(localStorage.getItem('jev-demo-rules')||'{}');
   if(type==='splitBlock')data={ids:payload.blocks.map(b=>b.id)};
-  if(type==='snapshotGet')data={entries:[]};
   if(type==='configGet')data={enabled:true,aiEnabled:true,configured:true};
-  if(type==='classifyCategories')data={results:payload.blocks.map(block=>({id:block.id,category:demoCategory(block),confidence:1})),errors:[]};
   if(type==='rulesGet')data={groups:payload.keys.filter(k=>saved[k]).map(key=>({key,rules:saved[key]}))};
   if(type==='rulesSet'){const prior=JSON.parse(localStorage.getItem('jev-demo-undo')||'{}');prior[payload.key]=saved[payload.key]||null;localStorage.setItem('jev-demo-undo',JSON.stringify(prior));saved[payload.key]=payload.rules;localStorage.setItem('jev-demo-rules',JSON.stringify(saved));}
   if(type==='rulesUndo'){const prior=JSON.parse(localStorage.getItem('jev-demo-undo')||'{}');for(const k of payload.keys)if(Object.hasOwn(prior,k)){if(prior[k])saved[k]=prior[k];else delete saved[k];delete prior[k];}localStorage.setItem('jev-demo-undo',JSON.stringify(prior));localStorage.setItem('jev-demo-rules',JSON.stringify(saved));}
@@ -36,10 +25,10 @@ window.chrome={runtime:{onMessage:{addListener(fn){listeners.push(fn)}},async se
   return {ok:true,data};
 }}};
 window.JevPage={suspend(){},resume(){}};
-</script><script src="extension/blocks.js"></script><script src="extension/manual.js"></script><script src="extension/categories.js"></script><script src="extension/preview.js"></script><script>
+</script><script src="extension/blocks.js"></script><script src="extension/manual.js"></script><script src="extension/preview.js"></script><script>
 document.querySelector('#start').onclick=()=>JevPreview.start();
 document.querySelector('#reset').onclick=()=>{localStorage.removeItem('jev-demo-rules');location.reload()};
 for(const [id,action] of [['original','toggleVisibility'],['undo','undoSave']])document.getElementById(id).onclick=()=>listeners.forEach(fn=>fn({type:'pageAction',action},{},()=>{}));
 let count=0;
-document.querySelector('#add').onclick=()=>{const article=document.createElement('article');article.className='story';article.innerHTML='<span class="tag">新加载 · 正常信息流</span><h2>新文章 '+(++count)+'：城市中的散步路线</h2><p>这是一条新内容，保存的类别规则也应该适用于它。</p>';document.querySelector('#feed').append(article);};
+document.querySelector('#add').onclick=()=>{const article=document.createElement('article');article.className='story';article.innerHTML='<span class="tag">新加载 · 正常信息流</span><h2>新文章 '+(++count)+'：城市中的散步路线</h2><p>这是一条新内容，隐藏整个列表时，新条目也会保持隐藏。</p>';document.querySelector('#feed').append(article);};
 </script></body></html>

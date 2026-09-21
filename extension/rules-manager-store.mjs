@@ -15,6 +15,8 @@ function effectiveKey(key,rule) {
 async function inventory(values) {
   const entries=new Map(),sources=Object.entries(values).filter(([k,v])=>k.startsWith('rules:')&&Array.isArray(v)&&scopeInfo(k.slice(6))).sort(([a],[b])=>a.localeCompare(b));
   for(const [storageKey,rules] of sources)for(const rule of rules) {
+    // Retired category preferences no longer run or count as active rules.
+    if(typeof rule?.selector!=='string'||!rule.selector||rule.category)continue;
     const id=effectiveKey(storageKey.slice(6),rule),info=scopeInfo(id);
     if(!entries.has(id))entries.set(id,{id,...info,count:0});
     entries.get(id).count++;

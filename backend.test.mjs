@@ -148,59 +148,24 @@ test('category judgments validate all probabilities and fall back when uncertain
   assert.equal(parseCategoryAnswer('a',categoryAnswer('advertisement',0.7)).category,'advertisement');
   for (const value of [categoryAnswer('unknown'), categoryAnswer('advertisement',NaN), {answers:{category:{type:'choice',choice:'advertisement',confidence:1,probabilities:{advertisement:1}}}}]) assert.throws(()=>parseCategoryAnswer('a',value));
 });
-test('functional category classification sends structure, excludes preference and uses separate cache',async()=>{
-  const requests=[];
-  const h=harness(async(url,init)=>{
-    const body=JSON.parse(init.body);requests.push(body);
-    return {ok:true,json:async()=>body.questions.category?categoryAnswer('content_feed'):answer('keep')};
-  });await h.configure();
-  const item={...block('a'),text:'科技文章摘要',structural:'parent role=list; sibling count=10'};
-  assert.equal((await h.send('classifyCategories',{blocks:[item]})).data.results[0].category,'content_feed');
-  await h.send('classifyCategories',{blocks:[{...item,id:'b'}]});
-  assert.equal(requests.length,1);
-  assert.equal(requests[0].state.block.structural,item.structural);
-  assert.equal(requests[0].state.user_context,undefined);
-  assert.match(requests[0].questions.category.instructions,/不可信网页数据/);
-  assert.match(requests[0].questions.category.instructions,/体育、技术、生活/);
-  await h.send('configSet',{enabled:true,context:'另一种偏好'},h.popup);
-  await h.send('classifyCategories',{blocks:[item]});assert.equal(requests.length,1);
-  assert.equal((await h.send('classify',{blocks:[item]})).data.results[0].hide,false);
-  assert.equal(requests.length,2);
+test('retired category requests are rejected even with AI enabled',async()=>{
+ let calls=0;const h=harness(async()=>{calls++;return {ok:true,json:async()=>categoryAnswer('advertisement')};});
+ await h.configure();
+ assert.equal((await h.send('classifyCategories',{blocks:[block('a')]})).ok,false);
+ assert.equal(calls,0);
 });
-test('categories require opt in and key, validate batches, and never cache malformed responses',async()=>{
-  let calls=0;
-  const h=harness(async()=>{calls++;return {ok:true,json:async()=>answer('hide')};});
-  assert.equal((await h.send('classifyCategories',{blocks:[block('a')]})).ok,false);
-  await h.configure();
-  const generic={...h.content,url:'https://example.org/'};
-  assert.equal((await h.send('classifyCategories',{blocks:[block('a')]},generic)).data.errors.length,1);
-  assert.equal(calls,0);
-  for(let i=0;i<2;i++) {
-    const result=await h.send('classifyCategories',{blocks:[block('a')]});
-    assert.deepEqual(result.data.results,[]);assert.equal(result.data.errors.length,1);
-  }
-  assert.equal(calls,2);
-  assert.equal((await h.send('classifyCategories',{blocks:Array.from({length:6},(_,i)=>block(String(i)))})).ok,false);
-  assert.equal((await h.send('classifyCategories',{blocks:[{...block('a'),structural:{}}]})).ok,false);
-  await h.send('configSet',{enabled:false,context:''},h.popup);
-  assert.deepEqual((await h.send('classifyCategories',{blocks:[block('a')]})).data,{results:[],errors:[]});
-  assert.equal(calls,2);
-});
-test('category rules persist without selectors and coexist with legacy rules',async()=>{
-  const h=harness(),key='https://www.zhihu.com|site';
-  const rules=[{category:'content_feed',label:'普通信息流'},{selector:'aside.legacy',label:'旧规则'}];
-  assert.equal((await h.send('rulesSet',{key,rules})).ok,true);
-  assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules}]);
-  assert.equal(Object.hasOwn(h.api.storage.local.values['rules:'+key][0],'selector'),false);
-  for(const rule of [{category:'other',label:''},{category:'unknown',label:''},{category:'advertisement',selector:':nth-child(2)',label:''}]) assert.equal((await h.send('rulesSet',{key,rules:[rule]})).ok,false);
-});
-test('category requests share concurrency limiter and deduplicate across tabs',async()=>{
-  let calls=0,active=0,maximum=0;
-  const h=harness(async(url,init)=>{calls++;active++;maximum=Math.max(maximum,active);await new Promise(resolve=>setTimeout(resolve,10));active--;return {ok:true,json:async()=>JSON.parse(init.body).questions.category?categoryAnswer('advertisement'):answer('hide')};});
-  await h.configure();
-  const blocks=Array.from({length:5},(_,i)=>({...block(String(i)),text:'block'+i}));
-  await Promise.all([h.send('classifyCategories',{blocks}),h.send('classifyCategories',{blocks}, {...h.content,tab:{id:2}}),h.send('classify',{blocks:[blocks[0]]})]);
-  assert.equal(calls,6);assert.equal(maximum,3);
+test('retired category rules are inert on read and rejected on save',async()=>{
+ const h=harness(),key='https://www.zhihu.com|site',values=h.api.storage.local.values;
+ const category={category:'promotion',label:'Promotion',overrides:['.promo']},manual={selector:'.ad',label:'Ad'};
+ values['rules:'+key]=[category,manual];
+ assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[manual]}]);
+ assert.deepEqual(values['rules:'+key],[category,manual]);
+ for(const rule of [category,{category:'advertisement',label:'Ad',selector:'.ad'},{category:'navigation',label:'Navigation',action:'keep'}]) {
+  assert.equal((await h.send('rulesSet',{key,rules:[rule]})).ok,false);
+  assert.equal((await h.send('rulesSet',{key,rules:[],baseRules:[rule]})).ok,false);
+ }
+ values['rules:'+key]=[category];
+ assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[]}]);
 });
 test('key stays private; only exact popup can mutate settings',async()=>{
   const h=harness(); await h.configure();
@@ -332,22 +297,9 @@ test('popup page actions forward to their embedded tab and reject unsupported op
   assert.equal((await h.send('pageAction',{action:'preview'})).ok,false);
 });
 
-test('category rules persist manual overrides and reject malformed override selectors',async()=>{
+test('hide and keep actions persist for selector rules without changing legacy rules',async()=>{
   const h=harness(),key='https://www.zhihu.com|site';
-  const rule={category:'promotion',label:'推广服务',overrides:['aside .CreatorCard','aside .CreatorCard','aside .SponsorCard']};
-  assert.equal((await h.send('rulesSet',{key,rules:[rule]})).ok,true);
-  const persisted={...rule,overrides:['aside .CreatorCard','aside .SponsorCard']};
-  assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data,{groups:[{key,rules:[persisted]}]});
-  for(const overrides of [null,{},'aside',Array(101).fill('aside'),[''],['  '],[1],['x'.repeat(1501)]]) {
-    assert.equal((await h.send('rulesSet',{key,rules:[{...rule,overrides}]})).ok,false);
-  }
-  assert.equal((await h.send('rulesSet',{key,rules:[{selector:'aside',label:'旧规则',overrides:['aside']}]})).ok,false);
-  assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data,{groups:[{key,rules:[persisted]}]});
-});
-
-test('hide and keep actions persist for category and selector rules without changing legacy rules',async()=>{
-  const h=harness(),key='https://www.zhihu.com|site';
-  const rules=[{category:'promotion',label:'推广',action:'hide'},{selector:'.article',label:'正文',action:'keep'},{category:'navigation',label:'导航',action:'keep'},{selector:'.legacy',label:'旧版'}];
+  const rules=[{selector:'.promo',label:'推广',action:'hide'},{selector:'.article',label:'正文',action:'keep'},{selector:'.nav',label:'导航',action:'keep'},{selector:'.legacy',label:'旧版'}];
   assert.equal((await h.send('rulesSet',{key,rules})).ok,true);
   assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules}]);
   for(const action of ['remove',null,false,0]) assert.equal((await h.send('rulesSet',{key,rules:[{...rules[0],action}]})).ok,false);
@@ -356,7 +308,7 @@ test('hide and keep actions persist for category and selector rules without chan
 
 test('undo restores the last save once per scope and survives a background restart',async()=>{
   const h=harness(),key='https://www.zhihu.com|site',other='https://www.zhihu.com|type:/question/*';
-  const first=[{category:'promotion',label:'推广'}],second=[{selector:'.reading',label:'阅读',action:'keep'}];
+  const first=[{selector:'.promo',label:'推广'}],second=[{selector:'.reading',label:'阅读',action:'keep'}];
   await h.send('rulesSet',{key,rules:first});
   await h.send('rulesSet',{key,rules:second});
   await h.send('rulesSet',{key:other,rules:second});
@@ -400,21 +352,21 @@ test('CSDN homepage and blog settings, rules, notifications stay isolated',async
  assert.deepEqual((await h.send('rulesGet',{keys:[key]},sender)).data.groups,[]);
  h.api.tabs.query=async()=>[{id:1,url:'https://www.csdn.net/'},{id:2,url:sender.url}];
  h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
- await h.send('rulesSet',{key,rules:[{category:'promotion',label:'推广'}]},sender);
+ await h.send('rulesSet',{key,rules:[{selector:'.promo',label:'推广'}]},sender);
  assert.deepEqual(messages,[{id:2,message:{type:'rulesChanged'}}]);
  assert.equal(local['rules:https://www.csdn.net|type:/'][0].category,'advertisement');
 });
 
-test('legacy blog author rules stay local and semantic fallback excludes selectors and homepage',async()=>{
+test('legacy blog author selectors stay local and category fallback is retired',async()=>{
  const h=harness(),local=h.api.storage.local.values;
  const key='https://blog.csdn.net|type:/:author/article/details/:id';
  const old='https://blog.csdn.net|type:/alice/article/details/:id';
  local['rules:'+old]=[{category:'promotion',label:'推广',overrides:['.ad']},{selector:'.local',label:'区域'}];
  local['rules:https://www.csdn.net|site']=[{category:'content_feed',label:'信息流'}];
  const sender=author=>({...h.content,url:`https://blog.csdn.net/${author}/article/details/123`});
- assert.deepEqual((await h.send('rulesGet',{keys:[key]},sender('alice'))).data.groups,[{key:old,rules:local['rules:'+old],legacy:true}]);
+ assert.deepEqual((await h.send('rulesGet',{keys:[key]},sender('alice'))).data.groups,[{key:old,rules:[{selector:'.local',label:'区域'}],legacy:true}]);
  const migrated=(await h.send('rulesGet',{keys:[key]},sender('bob'))).data.groups;
- assert.deepEqual(migrated,[{key,rules:[{category:'promotion',label:'推广'}],migratedFrom:[old]}]);
+ assert.deepEqual(migrated,[]);
  await h.send('rulesSet',{key,rules:[]},sender('bob'));
  assert.deepEqual((await h.send('rulesGet',{keys:[key]},sender('alice'))).data.groups,[{key,rules:[]}]);
 });
@@ -444,11 +396,11 @@ test('reading goals are per origin and legacy Zhihu defaults do not leak into CS
 
 test('site delta saves preserve additions from stale route tabs and explicit edits',async()=>{
   const h=harness(),key='https://www.zhihu.com|site';
-  const ad={category:'advertisement',label:'广告'}, creator={category:'creator',label:'创作'}, direct={selector:'.promo',label:'推广'};
+  const ad={selector:'.ad',label:'广告'}, creator={selector:'.creator',label:'创作'}, direct={selector:'.promo',label:'推广'};
   assert.equal((await h.send('rulesSet',{key,baseRules:[],rules:[ad]})).ok,true);
   assert.equal((await h.send('rulesSet',{key,baseRules:[],rules:[creator,direct]})).ok,true);
   assert.deepEqual(h.api.storage.local.values['rules:'+key],[ad,creator,direct]);
-  const keep={...creator,action:'keep',overrides:['.exception']};
+  const keep={...creator,action:'keep'};
   await h.send('rulesSet',{key,baseRules:[ad,creator],rules:[keep]});
   assert.deepEqual(h.api.storage.local.values['rules:'+key],[keep,direct]);
   await h.send('rulesUndo',{keys:[key]});
@@ -517,12 +469,12 @@ test('site split boundaries merge by route type and parent',async()=>{
   assert.equal((await h.send('rulesSet',{key,rules:[],partitions:[{...home,pageType:'https://evil.com|type:/'}]})).ok,false);
 });
 
-test('site default derives semantic preferences only from same origin and respects explicit empty rules',async()=>{
+test('site default never derives retired categories and respects explicit empty rules',async()=>{
   const h=harness(),origin='https://www.zhihu.com',key=origin+'|site',values=h.api.storage.local.values;
   values['rules:'+origin+'|type:/']=[{category:'advertisement',label:'广告',overrides:['.ad']},{selector:'.sidebar',label:'侧栏'}];
   values['rules:'+origin+'|page:/question/1']=[{category:'advertisement',label:'保留广告',action:'keep'}];
   values['rules:https://other.com|type:/']=[{category:'creator',label:'创作'}];
-  assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[{category:'advertisement',label:'保留广告',action:'keep'}]}]);
+  assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[]);
   assert.equal(values['rules:'+key],undefined);
   values['rules:'+key]=[];
   assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[]}]);
@@ -564,12 +516,12 @@ test('manager groups inline page exceptions and clears only selected address end
 });
 test('manager clear keeps empty scope marker so legacy categories cannot resurrect',async()=>{
  const h=harness(),site='https://www.zhihu.com|site',type='https://www.zhihu.com|type:/';
- h.api.storage.local.values['rules:'+site]=[{category:'advertisement',label:'Ad'}];
+ h.api.storage.local.values['rules:'+site]=[{selector:'.ad',label:'Ad'}];
  h.api.storage.local.values['rules:'+type]=[{category:'promotion',label:'Promotion'}];
  const list=(await h.send('rulesManagerList',{},managerSender(h))).data;
  await h.send('rulesManagerDelete',{ids:[site],revision:list.revision},managerSender(h));
  const groups=(await h.send('rulesGet',{keys:[site,type]})).data.groups;
- assert.deepEqual(groups.find(g=>g.key===site).rules,[]);assert.equal(groups.find(g=>g.key===type).rules.length,1);
+ assert.deepEqual(groups.find(g=>g.key===site).rules,[]);assert.equal(groups.find(g=>g.key===type).rules.length,0);
 });
 test('manager rejects stale confirmation after save and serializes simultaneous clears',async()=>{
  const h=harness(),site='https://www.zhihu.com|site';
@@ -580,4 +532,15 @@ test('manager rejects stale confirmation after save and serializes simultaneous 
  const current=(await h.send('rulesManagerList',{},managerSender(h))).data;
  const result=await Promise.all([1,2].map(()=>h.send('rulesManagerDelete',{ids:[site],revision:current.revision},managerSender(h))));
  assert.equal(result.filter(r=>r.ok).length,1);
+});
+
+test('saving and undoing mixed legacy storage never reactivates categories',async()=>{
+ const h=harness(),key='https://www.zhihu.com|site',values=h.api.storage.local.values;
+ const category={category:'advertisement',label:'Ad'},old={selector:'.old',label:'Old'},next={selector:'.next',label:'Next'};
+ values['rules:'+key]=[category,old];
+ assert.equal((await h.send('rulesSet',{key,baseRules:[old],rules:[old,next]})).ok,true);
+ assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[old,next]}]);
+ await h.send('rulesUndo',{keys:[key]});
+ assert.deepEqual(values['rules:'+key],[category,old]);
+ assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[old]}]);
 });

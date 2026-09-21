@@ -121,7 +121,7 @@ test('AI opt-in is saved separately and manual rules can be cleared', async () =
   env.document.querySelector('#clearRules').click();
   await env.flush();
   assert.ok(env.requests.some(message => message.type === 'pageAction' && message.payload.action === 'clearRules'));
-  assert.match(env.document.querySelector('#status').textContent,/类别规则及旧版选块规则/);
+  assert.match(env.document.querySelector('#status').textContent,/适用于本页的净化规则/);
 });
 
 test('manual preview works without a key or AI consent and advanced settings start collapsed', async () => {

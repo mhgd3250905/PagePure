@@ -108,7 +108,7 @@ document.querySelector('#manageRules').addEventListener('click', () => perform(a
 
 document.querySelector('#clearRules').addEventListener('click', () => perform(async () => {
   await request('pageAction', {action: 'clearRules'});
-  showMessage('已清除适用于本页的类别规则及旧版选块规则');
+  showMessage('已清除适用于本页的净化规则');
   await refreshStatus();
 }));
 const reconnect = document.querySelector('#reconnect');

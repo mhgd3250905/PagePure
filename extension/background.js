@@ -1,6 +1,6 @@
 import {managerRequest} from './rules-manager-store.mjs';
 import {snapshotRequest} from './snapshots.mjs';
-import {classifyBlock, classifyCategory, splitBlock, CATEGORY_LABELS} from './classifier.mjs';
+import {classifyBlock, splitBlock} from './classifier.mjs';
 const LEGACY_CONTEXT = '只保留知乎的文章、问题、回答等真实阅读内容及其必要操作。隐藏广告、活动横幅、创作入口、推广服务、推荐关注、热搜、帮助中心、举报说明、关于网站和备案页脚。不要按文章主题筛选。';
 export const DEFAULT_CONTEXT = '保留当前网站的主要内容、导航、搜索和必要操作。隐藏广告、无关推广、悬浮营销及重复推荐。不要按内容主题筛选；功能不明确或与正文混合时保留。';
 function defaultContext(url) {
@@ -83,7 +83,7 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
     const popup = ['popup.html','popup.html?embedded=1'].some(path => sender.url === chromeApi.runtime.getURL(path)) && (!sender.id || sender.id === chromeApi.runtime.id);
     const manager = sender.url === chromeApi.runtime.getURL('rules-manager.html') && sender.id === chromeApi.runtime.id;
     const content = Boolean(sender.tab) && sender.frameId !== undefined && sender.frameId === 0 && onWeb(sender.url) && (!sender.id || sender.id === chromeApi.runtime.id);
-    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : content ? ['configGet','classify','classifyCategories','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
+    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : content ? ['configGet','classify','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
     if (!allowed.includes(message?.type)) {respond({ok:false,error:'不允许的插件请求'}); return false;}
     const work = async () => {
       await ready;
@@ -116,34 +116,16 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
         if (!Array.isArray(keys) || !keys.length || keys.length > 3 || !keys.every(validKey)) throw new Error('规则范围无效');
         if (type === 'rulesGet') {
           const values = await chromeApi.storage.local.get(keys.flatMap(key=>['rules:'+key,'partitions:'+key]));
-          const groups=keys.filter(key=>Array.isArray(values['rules:'+key])).map(key=>({key,rules:values['rules:'+key],...(Array.isArray(values['partitions:'+key])?{partitions:values['partitions:'+key]}:{})}));
-          const siteKey=origin+'|site';
-          if(keys.includes(siteKey)&&!Array.isArray(values['rules:'+siteKey])) {
-            const all=await chromeApi.storage.local.get(null), categories=new Map();
-            for(const [key,rules] of Object.entries(all)) {
-              if(!(key.startsWith('rules:'+origin+'|type:')||key.startsWith('rules:'+origin+'|page:'))||!Array.isArray(rules))continue;
-              for(const rule of rules)if(rule?.category&&rule.category!=='other'&&Object.hasOwn(CATEGORY_LABELS,rule.category)&&(!categories.has(rule.category)||rule.action==='keep'))categories.set(rule.category,{category:rule.category,label:rule.label,...(rule.action?{action:rule.action}:{})});
-            }
-            if(categories.size)groups.unshift({key:siteKey,rules:[...categories.values()]});
-          }
+          const groups=keys.filter(key=>Array.isArray(values['rules:'+key])).map(key=>({key,rules:values['rules:'+key].filter(rule=>rule && !Object.hasOwn(rule,'category') && typeof rule.selector==='string'),...(Array.isArray(values['partitions:'+key])?{partitions:values['partitions:'+key]}:{})}));
           // Older versions included the author in article type keys. Keep local
-          // selectors on that author's pages; only semantic preferences can cross authors.
+          // selectors on that author's pages without reviving retired category rules.
           const articleKey = origin+'|type:/:author/article/details/:id';
           if (!groups.length && csdnArticle(sender.url) && keys.includes(articleKey)) {
             const author = new URL(sender.url).pathname.split('/')[1];
             const legacyKey = origin+'|type:/'+author+'/article/details/:id';
             const all = await chromeApi.storage.local.get(null);
             if (Array.isArray(all['rules:'+legacyKey])) {
-              groups.push({key:legacyKey,rules:all['rules:'+legacyKey],legacy:true,...(Array.isArray(all['partitions:'+legacyKey])?{partitions:all['partitions:'+legacyKey]}:{})});
-            } else {
-              const sources = Object.keys(all).filter(key=>/^rules:https:\/\/blog\.csdn\.net\|type:\/[^/:]+\/article\/details\/:id\/?$/.test(key) && Array.isArray(all[key])).sort();
-              const categories = new Map();
-              for (const source of sources) for (const rule of all[source]) {
-                if (!rule?.category || rule.category === 'other' || !Object.hasOwn(CATEGORY_LABELS,rule.category)) continue;
-                // Preserve keep exceptions if older authors have conflicting preferences.
-                if (!categories.has(rule.category) || rule.action === 'keep') categories.set(rule.category,{category:rule.category,label:rule.label,...(rule.action?{action:rule.action}:{})});
-              }
-              if (categories.size) groups.push({key:articleKey,rules:[...categories.values()],migratedFrom:sources.map(key=>key.slice(6))});
+              groups.push({key:legacyKey,rules:all['rules:'+legacyKey].filter(rule=>rule && !Object.hasOwn(rule,'category') && typeof rule.selector==='string'),legacy:true,...(Array.isArray(all['partitions:'+legacyKey])?{partitions:all['partitions:'+legacyKey]}:{})});
             }
           }
           return {groups};
@@ -155,8 +137,7 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
             if (!rule || typeof rule.label !== 'string' || rule.label.length > 100) return false;
             if (Object.hasOwn(rule,'action') && !['hide','keep'].includes(rule.action)) return false;
             if (Object.hasOwn(rule, 'page') && (typeof rule.page !== 'string' || rule.page.length > 3000 || !rule.page.startsWith(origin+'|page:/'))) return false;
-            if (Object.hasOwn(rule, 'category')) return !Object.hasOwn(rule, 'selector') && !Object.hasOwn(rule, 'page') && rule.category !== 'other' && Object.hasOwn(CATEGORY_LABELS, rule.category)
-              && (!Object.hasOwn(rule, 'overrides') || (Array.isArray(rule.overrides) && rule.overrides.length <= 100 && rule.overrides.every(validSelector)));
+            if (Object.hasOwn(rule, 'category')) return false;
             return !Object.hasOwn(rule, 'overrides') && validSelector(rule.selector);
           };
           if (!Array.isArray(payload.rules) || payload.rules.length > 100 || !payload.rules.every(validRule)) throw new Error('规则内容无效');
@@ -172,12 +153,12 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
           const saved=(await chromeApi.storage.local.get(experienceKey))[experienceKey];
           const provisional=(await chromeApi.storage.session.get(provisionalKey))[provisionalKey];
           const examples=provisional?.scope===learningScope?provisional.examples:[];
-          const cleanRule=rule=>({...('category' in rule?{category:rule.category,label:rule.label,...('overrides' in rule?{overrides:[...new Set(rule.overrides)]}:{})}:{selector:rule.selector,label:rule.label,...('page' in rule?{page:rule.page}:{})}),...('action' in rule?{action:rule.action}:{})});
+          const cleanRule=rule=>({selector:rule.selector,label:rule.label,...('page' in rule?{page:rule.page}:{}),...('action' in rule?{action:rule.action}:{})});
           let rules=payload.rules.map(cleanRule);
           if(mergeSite) {
-            const identity=rule=>'category' in rule?'category:'+rule.category:'page' in rule?'page-selector:'+JSON.stringify([rule.page,rule.selector]):'selector:'+rule.selector;
+            const identity=rule=>'page' in rule?'page-selector:'+JSON.stringify([rule.page,rule.selector]):'selector:'+rule.selector;
             const base=new Map(payload.baseRules.map(rule=>[identity(rule),cleanRule(rule)])), next=new Map(rules.map(rule=>[identity(rule),rule]));
-            const merged=new Map((Array.isArray(previous)?previous:payload.baseRules).map(rule=>[identity(rule),cleanRule(rule)]));
+            const merged=new Map((Array.isArray(previous)?previous.filter(validRule):payload.baseRules).map(rule=>[identity(rule),cleanRule(rule)]));
             for(const id of base.keys())if(!next.has(id))merged.delete(id);
             for(const [id,rule] of next)if(!base.has(id)||JSON.stringify(base.get(id))!==JSON.stringify(rule))merged.set(id,rule);
             rules=[...merged.values()];
@@ -275,18 +256,17 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
       const {jevApiKey} = await chromeApi.storage.local.get('jevApiKey');
       if (!jevApiKey) throw new Error('请先在插件中保存 Jev API Key');
       const results = [],errors = [];
-      const categoryMode = type === 'classifyCategories';
       await Promise.all(blocks.map(async block => {
         try {
           const {id,...descriptor} = block;
-          const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([categoryMode ? 'category-v2' : settings.context,descriptor])));
-          const key = (categoryMode ? 'category:' : 'result:')+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
+          const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([settings.context,descriptor])));
+          const key = 'result:'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
           const cached = (await chromeApi.storage.session.get(key))[key];
           if (cached) {results.push({...cached,id}); return;}
           if (!pending.has(key)) {
             const promise = limited(async () => {
-              const result = categoryMode ? await classifyCategory(block,jevApiKey,fetchImpl) : await classifyBlock(block,settings.context,jevApiKey,fetchImpl);
-              const answer = categoryMode ? {category:result.category,confidence:result.confidence} : {hide:result.hide,confidence:result.confidence};
+              const result = await classifyBlock(block,settings.context,jevApiKey,fetchImpl);
+              const answer = {hide:result.hide,confidence:result.confidence};
               await chromeApi.storage.session.set({[key]:answer}); return answer;
             });
             pending.set(key,promise);
