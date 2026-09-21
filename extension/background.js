@@ -50,7 +50,10 @@ function splitScope(raw) {
 }
 const compactSplitDescriptor = block => ({tag:block.tag,role:block.role,text:block.text.slice(0,400),structural:(block.structural||'').slice(0,500)});
 export function createMessageHandler(chromeApi, fetchImpl = fetch) {
-  const ready = Promise.all([chromeApi.storage.local.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'}),chromeApi.storage.session.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'})]);
+  // Some Chromium forks expose storage without the optional access-level API.
+  // Do not throw before the message listener can be registered in those builds.
+  const ready = Promise.all([chromeApi.storage.local,chromeApi.storage.session].map(area =>
+    typeof area?.setAccessLevel === 'function' ? area.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'}) : undefined));
   let ruleWrites = Promise.resolve();
   const pending = new Map();
   let active = 0;

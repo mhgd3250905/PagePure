@@ -20,6 +20,18 @@ function harness(fetchImpl=async()=>({ok:true,json:async()=>answer('hide')})) {
   return {api,popup,content,send,configure};
 }
 
+test('fresh install can read settings when the browser lacks storage access-level APIs',async()=>{
+  const h=harness();
+  delete h.api.storage.local.setAccessLevel;
+  delete h.api.storage.session.setAccessLevel;
+  const handler=createMessageHandler(h.api);
+  const result=await new Promise(resolve=>handler({type:'configGet'},h.popup,resolve));
+  assert.equal(result.ok,true);
+  assert.equal(result.data.enabled,true);
+  assert.equal(result.data.configured,false);
+  assert.equal('jevApiKey' in result.data,false);
+});
+
 test('saved split boundaries survive restart and undo with their scoped rules',async()=>{
   const h=harness(), key='https://www.zhihu.com|site';
   const rules=[{selector:'.creator',label:'创作入口'}];
