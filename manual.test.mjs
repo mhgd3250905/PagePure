@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
 import './i18n-support.mjs';
 import './extension/manual.js';
-const {scope, describeRule, matches} = globalThis.JevManual;
+const {scope, describeRule, describeGroupRule, matches} = globalThis.JevManual;
 const documentFor = html => parseHTML(`<html><body>${html}</body></html>`).document;
 
 test('repeated image blocks use distant region ancestor without positional selectors',()=>{
@@ -90,4 +90,63 @@ test('split anonymous service card uses descendant entry and survives sibling re
  assert.ok(rule);assert.doesNotMatch(rule.selector,/:nth-|^html/);assert.match(rule.selector,/:has/);
  doc.querySelector('aside').prepend(doc.querySelectorAll('.Card')[2]);target.querySelector('a').textContent='Updated content';
  assert.deepEqual([...matches(doc,[rule])],[target]);
+});
+
+test('anonymous media wrapper uses its sidebar and survives campaign changes and reorder',()=>{
+ const doc=documentFor('<main><div class="Card"><img src="/feed.jpg"></div></main><aside id="rail"><div class="Card"><span>Links</span></div><div class="Card"><img src="/campaign-123456.jpg"></div></aside>');
+ const target=doc.querySelector('aside img').parentElement,rule=describeRule(target);
+ assert.doesNotMatch(rule.selector,/:nth-|^html|campaign/);
+ assert.match(rule.selector,/:has/);
+ doc.querySelector('aside').prepend(target);
+ target.querySelector('img').setAttribute('src','/new-campaign.jpg');
+ assert.deepEqual([...matches(doc,[rule])],[target]);
+});
+
+test('duplicate descendant signatures are scoped to their layout region',()=>{
+ const doc=documentFor('<main><div class="Card"><span class="Sponsor">Feed</span></div></main><aside id="rail"><div class="Card"><span>Links</span></div><div class="Card"><span class="Sponsor">Ad</span></div></aside>');
+ const target=doc.querySelector('aside .Sponsor').parentElement,rule=describeRule(target);
+ assert.doesNotMatch(rule.selector,/:nth-|^html/);
+ assert.deepEqual([...matches(doc,[rule])],[target]);
+});
+
+test('indistinguishable neighboring media cards still require a positional fallback',()=>{
+ const doc=documentFor('<aside><div class="Card"><img src="/one.jpg"></div><div class="Card"><img src="/two.jpg"></div></aside>');
+ const rule=describeRule(doc.querySelector('.Card'));
+ assert.match(rule.selector,/:nth-/);
+});
+
+const adCard = '<div class="Pc-card Card"><a class="Banner-link"><div class="AdvertImg Banner-image"><img src="/campaign.jpg"></div></a></div>';
+test('on-demand group uses a stable region and structural paths through generated wrappers',()=>{
+ const doc=documentFor('<main>'+adCard+'</main><div class="Topstory-container"><div class="css-bkewaf"><div class="css-18888ld">'+adCard+adCard+'</div></div></div>');
+ const cards=[...doc.querySelectorAll('.Topstory-container .Pc-card')],rule=describeGroupRule(cards[0]);
+ assert.ok(rule);assert.equal(rule.nodes.length,2);
+ assert.doesNotMatch(rule.selector,/:nth-|css-|campaign|href|src/);
+ assert.match(rule.selector,/Topstory-container/);assert.match(rule.selector,/Banner-link/);
+ const parent=cards[0].parentElement;
+ parent.prepend(cards[1]);parent.insertAdjacentHTML('afterbegin','<div class="Card">unrelated</div>');
+ cards[0].querySelector('img').src='/replacement.jpg';cards[1].querySelector('a').setAttribute('href','/new-campaign');
+ parent.className='css-newgenerated';parent.parentElement.className='css-another';
+ assert.deepEqual(new Set(matches(doc,[rule])),new Set(cards));
+ parent.insertAdjacentHTML('beforeend',adCard);
+ assert.equal(matches(doc,[rule]).size,3);
+ const reloaded=documentFor(doc.body.innerHTML);
+ assert.equal(matches(reloaded,[rule]).size,3);
+});
+
+test('group rejects generic cards, bare images, unique blocks and broad multi-parent matches',()=>{
+ for(const html of [
+  '<aside><div class="Card"><img></div><div class="Card"><img></div></aside>',
+  '<aside><img class="AdvertImg"><img class="AdvertImg"></aside>',
+  '<aside>'+adCard+'</aside>',
+  '<div class="Topstory-container"><div>'+adCard+adCard+'</div><div>'+adCard+adCard+'</div></div>',
+  '<aside>'+adCard.repeat(21)+'</aside>'
+ ]) {
+  const doc=documentFor(html),target=doc.querySelector('.Pc-card,.Card,img');
+  assert.equal(describeGroupRule(target),null,html);
+ }
+});
+
+test('group does not combine components whose shallow structures differ',()=>{
+ const doc=documentFor('<aside>'+adCard+adCard.replace('</a>','<span>other component</span></a>')+'</aside>');
+ assert.equal(describeGroupRule(doc.querySelector('.Pc-card')),null);
 });

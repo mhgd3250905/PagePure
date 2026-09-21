@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "Purificazione visiva"
+  },
+  "collapseHidden": {
+    "message": "Comprimi le aree nascoste"
+  },
+  "expandHidden": {
+    "message": "Espandi le aree nascoste"
+  },
+  "areaHideConflict": {
+    "message": "Questa area non è nascosta: è ancora attiva una regola di ripristino. Controlla le regole di questa pagina o di altri ambiti."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "Diagnostica elementi nascosti"
+  },
+  "diagnosticsHint": {
+    "message": "Ultime 20 azioni di questa pagina, cancellate al ricaricamento. Solo locale, nessun invio. Seleziona tutto per copiare. relatedKeeps: regole di ripristino correlate; draft-marked: nascosto nella bozza; not-marked: non nascosto; selector-rejected: selettore instabile."
+  },
+  "diagnosticsEmpty": {
+    "message": "Nessuna voce. Prova a nascondere o ripristinare un’area."
+  },
+  "groupHideOffer": {
+    "message": "Sono state trovate ed evidenziate {1} aree con la stessa struttura. Conferma per nasconderle tutte."
+  },
+  "groupHideConfirm": {
+    "message": "Nascondi queste {1} aree"
+  },
+  "groupHideCancel": {
+    "message": "Annulla"
+  },
+  "groupKeepOffer": {
+    "message": "Sono state trovate ed evidenziate {1} aree con la stessa struttura. Conferma per ripristinarle tutte."
+  },
+  "groupKeepConfirm": {
+    "message": "Ripristina queste {1} aree"
   }
 }

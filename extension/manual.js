@@ -60,11 +60,15 @@
       }
     }
     if(snapshotOnly)return null;
-    const anchors=[...node.querySelectorAll('[data-testid],[data-component],[id],a[href],[aria-label],[class]')].filter(anchor =>
+    const anchors=[...node.querySelectorAll('[data-testid],[data-component],[id],a[href],[aria-label],[class],img,iframe,video')].filter(anchor =>
       !anchor.closest('svg,script,style,[contenteditable],[data-jev-ui]')).slice(0,80);
     for(const anchor of anchors) {
       if(anchor.closest('script,style,[contenteditable],[data-jev-ui]'))continue;
       const hints=segments(anchor).filter(value=>value!==anchor.localName);
+      // Image-only advertisements often have no stable class or link. Their
+      // media structure can identify the wrapper without persisting a campaign
+      // URL or a sibling index that would move when another card is inserted.
+      if(anchor.matches('img,iframe,video'))hints.push(anchor.localName);
       const href=anchor.getAttribute('href');
       if(href && !/^(?:javascript:|#)/i.test(href)) {
         const base=href.split(/[?#]/)[0];
@@ -76,7 +80,17 @@
         if(current!==node)continue;
         for(const prefix of segments(node)) {
           const selector=prefix+':has(> '+relative+')';
-          if(selector.length<=1500&&unique(selector))return {selector,label};
+          const mediaOnly=hint===anchor.localName;
+          if(!mediaOnly&&selector.length<=1500&&unique(selector))return {selector,label};
+          // The same media wrapper can occur in both the feed and sidebar.
+          // Scope its descendant signature to a semantic layout ancestor.
+          for(let ancestor=node.parentElement,depth=0;ancestor&&ancestor!==doc.body&&depth++<8;ancestor=ancestor.parentElement) {
+            for(const region of segments(ancestor)) {
+              if(mediaOnly&&region===ancestor.localName&&!ancestor.matches('aside,main,nav,header,footer'))continue;
+              const scoped=region+' '+selector;
+              if(scoped.length<=1500&&unique(scoped))return {selector:scoped,label};
+            }
+          }
         }
       }
     }
@@ -101,6 +115,54 @@
     return unique(selector) ? {selector, label} : null;
   }
 
+  // Only requested after a user selects an ambiguous component; never scan the
+  // page for component families during startup or mutation handling.
+  function describeGroupRule(node, doc = node?.ownerDocument) {
+    if (!node || !doc || node.matches(forbidden) || node.closest('[data-jev-ui]') || node.querySelector('[data-jev-ui]')) return null;
+    const single = describeRule(node, doc);
+    if (single && !/:nth-/.test(single.selector)) return null;
+    const classes = element => [...element.classList].filter(value => stable(value) && !/^jev[-_]/.test(value)).sort();
+    const componentClasses = element => classes(element).filter(value =>
+      !/^(?:card|container|wrapper|item|box|row|col|column|active|selected|hidden|visible|clearfix)$/i.test(value));
+    if (!componentClasses(node).length || !node.parentElement) return null;
+    const segment = element => element.localName + classes(element).map(value => '.' + escape(value)).join('');
+    function structure(root) {
+      let count = 0, meaningfulDescendant = false;
+      const paths = [];
+      function visit(element, depth, path) {
+        if (++count > 40 || depth > 4 || element.matches(forbidden) || element.hasAttribute('data-jev-ui')) return null;
+        if (depth && componentClasses(element).length) meaningfulDescendant = true;
+        if (depth) paths.push(path);
+        const children = [...element.children].map(child => visit(child, depth + 1, path ? path + ' > ' + segment(child) : segment(child)));
+        if (children.some(child => child === null)) return null;
+        return segment(element) + '(' + children.join(',') + ')';
+      }
+      const signature = visit(root, 0, '');
+      return signature && meaningfulDescendant ? {signature, paths} : null;
+    }
+    const shape = structure(node);
+    if (!shape) return null;
+    const component = segment(node) + shape.paths.map(path => ':has(> ' + path + ')').join('');
+    let path = '';
+    for (let ancestor = node.parentElement, depth = 0; ancestor && ancestor !== doc.body && depth++ < 8; ancestor = ancestor.parentElement) {
+      const anchor = describeRule(ancestor, doc);
+      // Region anchors must not depend on campaign content or sibling position.
+      if (anchor && !/:nth-|:has\(|\[href|aria-label/.test(anchor.selector)) {
+        const selector = anchor.selector + path + ' > ' + component;
+        if (selector.length <= 1500) {
+          let found;
+          try { found = [...doc.querySelectorAll(selector)]; } catch { return null; }
+          if (found.length >= 2 && found.length <= 20 && found.includes(node) && found.every(other =>
+            other.parentElement === node.parentElement && !other.closest('[data-jev-ui]') && structure(other)?.signature === shape.signature)) {
+            return {selector, label: single?.label || node.localName, nodes: found};
+          }
+        }
+      }
+      path = ' > ' + ancestor.localName + path;
+    }
+    return null;
+  }
+
   function matches(doc, rules) {
     const result = new Set();
     for (const rule of Array.isArray(rules) ? rules : []) {
@@ -113,5 +175,5 @@
     }
     return result;
   }
-  globalThis.JevManual = {scope, describeRule, matches};
+  globalThis.JevManual = {scope, describeRule, describeGroupRule, matches};
 })();

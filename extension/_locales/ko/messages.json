@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "시각적 정화"
+  },
+  "collapseHidden": {
+    "message": "숨긴 영역 접기"
+  },
+  "expandHidden": {
+    "message": "숨긴 영역 펼치기"
+  },
+  "areaHideConflict": {
+    "message": "이 영역은 숨겨지지 않았습니다. 복원 규칙이 적용 중입니다. 이 페이지 또는 다른 범위의 규칙을 확인하세요."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "숨김 진단 로그"
+  },
+  "diagnosticsHint": {
+    "message": "이 페이지의 최근 작업 20개를 기록하며 새로고침하면 삭제됩니다. 페이지 안에서만 보관하며 전송하지 않습니다. 전체 선택하여 복사하세요. relatedKeeps: 관련 복원 규칙, draft-marked: 초안에서 숨김, not-marked: 숨겨지지 않음, selector-rejected: 안정적으로 지정할 수 없음."
+  },
+  "diagnosticsEmpty": {
+    "message": "기록이 없습니다. 영역 숨기기 또는 복원을 시도하세요."
+  },
+  "groupHideOffer": {
+    "message": "구조가 같은 영역 {1}개를 찾아 강조 표시했습니다. 확인하면 모두 숨겨집니다."
+  },
+  "groupHideConfirm": {
+    "message": "이 영역 {1}개 숨기기"
+  },
+  "groupHideCancel": {
+    "message": "취소"
+  },
+  "groupKeepOffer": {
+    "message": "구조가 같은 영역 {1}개를 찾아 강조 표시했습니다. 확인하면 모두 복원됩니다."
+  },
+  "groupKeepConfirm": {
+    "message": "이 영역 {1}개 복원"
   }
 }

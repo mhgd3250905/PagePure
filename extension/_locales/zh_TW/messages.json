@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "可視化淨化"
+  },
+  "collapseHidden": {
+    "message": "收起已隱藏區域"
+  },
+  "expandHidden": {
+    "message": "展開已隱藏區域"
+  },
+  "areaHideConflict": {
+    "message": "目前區域未隱藏：仍有還原規則生效，請檢查此頁或其他範圍的規則。"
+  }
+,
+  "diagnosticsTitle": {
+    "message": "隱藏診斷記錄"
+  },
+  "diagnosticsHint": {
+    "message": "記錄本頁最近 20 次隱藏／恢復操作，重新整理後清空。僅保存在本頁，不上傳。可全選複製；relatedKeeps 為相關恢復規則，draft-marked 表示草稿已隱藏，not-marked 表示未隱藏，selector-rejected 表示無法穩定定位。"
+  },
+  "diagnosticsEmpty": {
+    "message": "尚無記錄，請先嘗試隱藏或恢復區域。"
+  },
+  "groupHideOffer": {
+    "message": "發現 {1} 個相同結構的區域，已醒目顯示。確認後將一併隱藏。"
+  },
+  "groupHideConfirm": {
+    "message": "隱藏這 {1} 處"
+  },
+  "groupHideCancel": {
+    "message": "取消"
+  },
+  "groupKeepOffer": {
+    "message": "發現 {1} 個相同結構的區域，已醒目顯示。確認後將一併還原。"
+  },
+  "groupKeepConfirm": {
+    "message": "還原這 {1} 處"
   }
 }

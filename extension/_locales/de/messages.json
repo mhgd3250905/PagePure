@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "Visuelle Bereinigung"
+  },
+  "collapseHidden": {
+    "message": "Ausgeblendete Bereiche einklappen"
+  },
+  "expandHidden": {
+    "message": "Ausgeblendete Bereiche aufklappen"
+  },
+  "areaHideConflict": {
+    "message": "Dieser Bereich ist nicht ausgeblendet: Eine Wiederherstellungsregel ist noch aktiv. Prüfe die Regeln dieser Seite oder anderer Geltungsbereiche."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "Ausblendungsdiagnose"
+  },
+  "diagnosticsHint": {
+    "message": "Die letzten 20 Aktionen dieser Seite, beim Neuladen gelöscht. Nur lokal, kein Upload. Zum Kopieren alles auswählen. relatedKeeps: zugehörige Wiederherstellungsregeln; draft-marked: im Entwurf ausgeblendet; not-marked: nicht ausgeblendet; selector-rejected: kein stabiler Selektor."
+  },
+  "diagnosticsEmpty": {
+    "message": "Noch keine Einträge. Einen Bereich ausblenden oder wiederherstellen."
+  },
+  "groupHideOffer": {
+    "message": "{1} Bereiche mit gleicher Struktur gefunden und hervorgehoben. Bestätigen, um alle auszublenden."
+  },
+  "groupHideConfirm": {
+    "message": "Diese {1} Bereiche ausblenden"
+  },
+  "groupHideCancel": {
+    "message": "Abbrechen"
+  },
+  "groupKeepOffer": {
+    "message": "{1} Bereiche mit gleicher Struktur gefunden und hervorgehoben. Bestätigen, um alle wiederherzustellen."
+  },
+  "groupKeepConfirm": {
+    "message": "Diese {1} Bereiche wiederherstellen"
   }
 }

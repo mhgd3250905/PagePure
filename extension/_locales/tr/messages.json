@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "Görsel temizleme"
+  },
+  "collapseHidden": {
+    "message": "Gizli alanları daralt"
+  },
+  "expandHidden": {
+    "message": "Gizli alanları genişlet"
+  },
+  "areaHideConflict": {
+    "message": "Bu alan gizlenmedi: bir geri yükleme kuralı hâlâ etkin. Bu sayfanın veya diğer kapsamların kurallarını kontrol edin."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "Gizleme tanılama günlüğü"
+  },
+  "diagnosticsHint": {
+    "message": "Bu sayfadaki son 20 işlem; yenilemede silinir. Yalnızca yerel, yüklenmez. Kopyalamak için tümünü seçin. relatedKeeps: ilgili geri yükleme kuralları; draft-marked: taslakta gizli; not-marked: gizlenmedi; selector-rejected: kararlı seçici yok."
+  },
+  "diagnosticsEmpty": {
+    "message": "Kayıt yok. Bir alanı gizlemeyi veya geri yüklemeyi deneyin."
+  },
+  "groupHideOffer": {
+    "message": "Aynı yapıya sahip {1} alan bulundu ve vurgulandı. Tümünü gizlemek için onaylayın."
+  },
+  "groupHideConfirm": {
+    "message": "Bu {1} alanı gizle"
+  },
+  "groupHideCancel": {
+    "message": "İptal"
+  },
+  "groupKeepOffer": {
+    "message": "Aynı yapıya sahip {1} alan bulundu ve vurgulandı. Tümünü geri yüklemek için onaylayın."
+  },
+  "groupKeepConfirm": {
+    "message": "Bu {1} alanı geri yükle"
   }
 }

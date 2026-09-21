@@ -586,5 +586,39 @@
   },
   "managerLanguageHint": {
     "message": "Saved right away and this page reloads; the in-page toolbar applies the next time you enter selection mode, the popup when reopened."
+  },
+  "collapseHidden": {
+    "message": "Collapse hidden regions"
+  },
+  "expandHidden": {
+    "message": "Expand hidden regions"
+  },
+  "areaHideConflict": {
+    "message": "This region is not hidden: a restore rule still applies. Check this page or other rule scopes."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "Hiding diagnostics"
+  },
+  "diagnosticsHint": {
+    "message": "Last 20 hide/restore and preview/collapse actions on this page; cleared on reload. Kept locally, never uploaded. Select all to copy. relatedKeeps lists related restore rules; draft-marked means marked in the draft (see display and targetRect for actual layout), not-marked means unmarked, selector-rejected means no stable selector."
+  },
+  "diagnosticsEmpty": {
+    "message": "No entries yet. Try hiding or restoring an area."
+  },
+  "groupHideOffer": {
+    "message": "Found {1} regions with the same structure. They are highlighted. Confirm to hide them all."
+  },
+  "groupHideConfirm": {
+    "message": "Hide these {1} regions"
+  },
+  "groupHideCancel": {
+    "message": "Cancel"
+  },
+  "groupKeepOffer": {
+    "message": "Found {1} regions with the same structure. They are highlighted. Confirm to restore them all."
+  },
+  "groupKeepConfirm": {
+    "message": "Restore these {1} regions"
   }
 }

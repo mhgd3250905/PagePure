@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "視覚的な浄化"
+  },
+  "collapseHidden": {
+    "message": "非表示領域を折りたたむ"
+  },
+  "expandHidden": {
+    "message": "非表示領域を展開"
+  },
+  "areaHideConflict": {
+    "message": "この領域は非表示になっていません。復元ルールが有効です。このページや他の範囲のルールを確認してください。"
+  }
+,
+  "diagnosticsTitle": {
+    "message": "非表示の診断ログ"
+  },
+  "diagnosticsHint": {
+    "message": "このページの直近20件の操作を記録し、再読み込みで消去します。ページ内のみで保持し、送信しません。全選択でコピーできます。relatedKeeps: 関連する復元ルール、draft-marked: 下書きで非表示、not-marked: 非表示にならず、selector-rejected: 安定した特定ができません。"
+  },
+  "diagnosticsEmpty": {
+    "message": "記録はありません。領域の非表示または復元を試してください。"
+  },
+  "groupHideOffer": {
+    "message": "同じ構造の領域が {1} 個見つかり、強調表示されています。確認すると、すべて非表示になります。"
+  },
+  "groupHideConfirm": {
+    "message": "この {1} 個の領域を非表示"
+  },
+  "groupHideCancel": {
+    "message": "キャンセル"
+  },
+  "groupKeepOffer": {
+    "message": "同じ構造の領域が {1} 個見つかり、強調表示されています。確認すると、すべて再表示されます。"
+  },
+  "groupKeepConfirm": {
+    "message": "この {1} 個の領域を再表示"
   }
 }

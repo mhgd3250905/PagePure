@@ -151,6 +151,53 @@ test('original region toolbar retains actions without a standalone instruction p
  assert.equal(next.calls.some(c=>c.type==='rulesSet'),false);
 });
 
+test('collapsing draft hidden regions keeps editing available and expanding preserves draft rules',async()=>{
+ const env=await environment([],feedPage);await env.start();
+ const collapsed=id=>env.document.querySelector('#'+id).hasAttribute('data-jev-preview-hide');
+ await env.click(env.document.querySelector('#sports'));await env.click(env.ui.querySelector('#q-hide'));
+ assert.equal(collapsed('sports'),false,'marking a region retains the initial editing display');
+ await env.click(env.ui.querySelector('#collapse'));
+ assert.equal(collapsed('sports'),true);
+ assert.equal(env.ui.querySelector('#effect').textContent,'预览效果','collapse must not enter preview-only mode');
+ await env.click(env.document.querySelector('#promotion'));await env.click(env.ui.querySelector('#q-hide'));
+ assert.equal(selected(env,'promotion'),true,'another region remains selectable while collapsed');
+ assert.equal(collapsed('promotion'),true,'new hide actions also collapse immediately');
+ await env.click(env.document.querySelector('#technology'));await env.click(env.ui.querySelector('#q-keep'));
+ assert.equal(collapsed('technology'),false,'keep actions remain available during collapsed editing');
+ await env.click(env.ui.querySelector('#collapse'));
+ assert.equal(collapsed('sports'),false);assert.equal(collapsed('promotion'),false);
+ assert.equal(selected(env,'sports'),true);assert.equal(selected(env,'promotion'),true);
+ assert.equal(env.calls.some(c=>c.type==='rulesSet'),false,'collapse and expand do not save');
+ await env.click(env.document.querySelector('#promotion'));await env.click(env.ui.querySelector('#q-keep'));
+ assert.equal(selected(env,'promotion'),false,'expanded regions can be restored');
+ await env.click(env.ui.querySelector('#q-save'));
+ const rules=env.calls.find(c=>c.type==='rulesSet').payload.rules;
+ assert.ok(rules.some(rule=>rule.selector==='#sports'&&rule.action==='hide'));
+ assert.equal(rules.some(rule=>rule.selector==='#promotion'&&rule.action==='hide'),false);
+});
+
+test('cancelling collapsed editing clears temporary hiding and preserves saved rules',async()=>{
+ const initial={key:'https://example.com|site',rules:[{selector:'#promotion',action:'hide',label:'Promotion'}]};
+ const env=await environment([initial]);await env.start();
+ await env.click(env.document.querySelector('#reading'));await env.click(env.ui.querySelector('#q-hide'));
+ await env.click(env.ui.querySelector('#collapse'));
+ assert.equal(env.document.querySelector('#reading').hasAttribute('data-jev-preview-hide'),true);
+ await env.click(env.ui.querySelector('#cancel'));
+ assert.equal(env.ui,undefined);assert.equal(env.document.querySelectorAll('[data-jev-preview-hide]').length,0);
+ assert.equal(hidden(env,'reading'),false);assert.equal(hidden(env,'promotion'),true);
+ assert.equal(env.calls.some(c=>c.type==='rulesSet'),false);assert.deepEqual(env.stored.get(initial.key),initial);
+});
+
+test('saving while collapsed persists hidden regions and cleans temporary editing attributes',async()=>{
+ const env=await environment();await env.start();
+ await env.click(env.document.querySelector('#promotion'));await env.click(env.ui.querySelector('#q-hide'));
+ await env.click(env.ui.querySelector('#collapse'));await env.click(env.ui.querySelector('#q-save'));
+ assert.equal(env.ui,undefined);assert.equal(env.document.querySelectorAll('[data-jev-preview-hide]').length,0);
+ assert.equal(hidden(env,'promotion'),true);assert.equal(hidden(env,'reading'),false);
+ const reopened=await environment([...env.stored.values()]);
+ assert.equal(hidden(reopened,'promotion'),true);
+});
+
 test('explicit child hide survives inherited parent keep and leaves its siblings visible without AI',async()=>{
  for(const pageOnly of [false,true]) {
   const rules=[{category:'advertisement',label:'Ads'},{selector:'#A',action:'keep',label:'Keep A'},{selector:'#A1',action:'hide',label:'Hide A1',...(pageOnly?{page:'https://example.com|page:/articles/123'}:{})}];
@@ -168,6 +215,36 @@ test('hidden parent covers new children while explicit child restoration still r
  assert.equal(hidden(env,'A'),true);env.document.querySelector('#A').insertAdjacentHTML('beforeend','<article id="A3">New child</article>');await env.mutate();assert.equal(hidden(env,'A'),true);
  const restored=await environment([{key:'https://example.com|site',rules:[...rules,{selector:'#A1',action:'keep',label:'Restore A1'}]}],body,{realCollect:true});
  assert.equal(hidden(restored,'A'),false);assert.equal(hidden(restored,'A1'),false);
+});
+
+test('hiding a parent replaces contained local keep rules and persists actual hiding',async()=>{
+ const body='<html><body><main><article id="A"><section id="A1">Child one</section><section id="A2">Child two</section></article><aside id="outside">Outside</aside></main></body></html>';
+ for(const selector of ['#A1','article#A']) {
+  const rules=[{selector,action:'keep',label:'Old restore'},{selector:'#outside',action:'keep',label:'Outside'}];
+  const env=await environment([{key:'https://example.com|site',rules}],body);
+  await env.start();await env.click(env.document.querySelector('#A'));await env.click(env.ui.querySelector('#q-hide'));
+  assert.equal(selected(env,'A'),true,`${selector} must not silently defeat the new parent hide`);
+  await env.click(env.ui.querySelector('#q-save'));
+  const saved=env.calls.find(c=>c.type==='rulesSet').payload.rules;
+  assert.equal(saved.some(rule=>rule.selector===selector&&rule.action==='keep'),false);
+  assert.ok(saved.some(rule=>rule.selector==='#outside'&&rule.action==='keep'));
+  assert.equal(hidden(env,'A'),true);
+  const reopened=await environment([...env.stored.values()],body);
+  assert.equal(hidden(reopened,'A'),true);
+  assert.equal(hidden(reopened,'outside'),false);
+ }
+});
+
+test('a keep from another scope is preserved and reports when parent hiding is blocked',async()=>{
+ const body='<html><body><main><article id="A"><section id="A1">Child one</section><section id="A2">Child two</section></article></main></body></html>';
+ const other={key:'https://example.com|page:/articles/123',rules:[{selector:'#A1',action:'keep',label:'Page restore'}]};
+ const env=await environment([other],body);
+ await env.start();await env.click(env.document.querySelector('#A'));await env.click(env.ui.querySelector('#q-hide'));
+ assert.equal(selected(env,'A'),false);
+ assert.match(env.ui.querySelector('#status').textContent,/当前区域未隐藏/);
+ await env.click(env.ui.querySelector('#q-save'));
+ assert.deepEqual(env.stored.get(other.key),other,'editing site rules must not remove another group’s keep');
+ assert.equal(hidden(env,'A'),false);
 });
 
 test('scroll-style rescans never remove unchanged hidden attributes',async()=>{
@@ -367,4 +444,64 @@ test('selection scroll positioning coalesces within a frame and resumes after re
  const work=[...frames.values()];frames.clear();work.forEach(fn=>fn());assert.ok(reads>0);
  scroll();await env.click(env.ui.querySelector('#cancel'));assert.equal(frames.size,0);
  await env.start();scroll();assert.equal(frames.size,1);
+});
+
+test('split anonymous image card saves without position or campaign URL and reloads safely',async()=>{
+ const body='<html><body><main><div class="Card"><img src="/feed.jpg"></div><article id="rail"><div class="Card"><span>Links</span></div><div class="Card"><img src="/campaign-123456.jpg"></div></article></main></body></html>';
+ const env=await environment([],body);
+ await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-split'));
+ await env.click(overlay(env,1));await env.click(env.ui.querySelector('#q-hide'));
+ await env.click(env.ui.querySelector('#q-save'));
+ const saved=env.calls.find(c=>c.type==='rulesSet');assert.ok(saved);
+ assert.equal(saved.payload.rules.length,1);
+ assert.doesNotMatch(saved.payload.rules[0].selector,/:nth-|campaign/);
+ const reload=await environment([...env.stored.values()],body.replace('/campaign-123456.jpg','/changed.jpg'));
+ assert.ok(reload.document.querySelector('#rail img').parentElement.hasAttribute('data-jev-manual-hidden'));
+ assert.equal(reload.document.querySelector('main > .Card').hasAttribute('data-jev-manual-hidden'),false);
+});
+
+test('ambiguous sibling adverts require explicit group confirmation and persist without classification',async()=>{
+ const body='<html><body><main class="Topstory-container"><div class="Topstory-mainColumn"><div class="Pc-card Card"><a class="Banner-link"><div class="AdvertImg Banner-image"><img></div></a></div></div><div class="css-bkewaf"><div class="css-18888ld"><div class="Pc-card Card"><a class="Banner-link"><div class="AdvertImg Banner-image"><img></div></a></div><section>Following</section><div class="Pc-card Card"><a class="Banner-link"><div class="AdvertImg Banner-image"><img></div></a></div></div></div></main></body></html>';
+ const env=await environment([],body);await env.start();
+ const cards=env.document.querySelectorAll('.Pc-card');
+ await env.click(cards[1]);await env.click(env.ui.querySelector('#q-hide'));
+ assert.equal(env.ui.querySelector('#group-offer').hidden,false);
+ assert.equal(env.document.querySelectorAll('[data-jev-group-offer]').length,2);
+ assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.match(env.ui.querySelector('#group-confirm').textContent,/2/);
+ await env.click(env.ui.querySelector('#group-cancel'));
+ assert.equal(env.document.querySelectorAll('[data-jev-group-offer]').length,0);
+ await env.click(env.ui.querySelector('#q-hide'));await env.click(env.ui.querySelector('#group-confirm'));
+ assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,2);
+ assert.equal(cards[0].hasAttribute('data-jev-selected'),false);
+ await env.click(env.ui.querySelector('#q-save'));
+ const saved=env.calls.find(c=>c.type==='rulesSet');assert.equal(saved.payload.rules.length,1);
+ assert.equal(env.calls.some(c=>c.type==='classifyCategories'||c.type==='splitBlock'),false);
+ const reload=await environment([...env.stored.values()],body);
+ assert.equal(reload.document.querySelectorAll('[data-jev-manual-hidden]').length,2);
+ assert.equal(reload.document.querySelector('.Pc-card').hasAttribute('data-jev-manual-hidden'),false);
+});
+
+test('group confirmation refreshes its offer after matching siblings change',async()=>{
+ const env=await environment([], '<html><body><aside id="rail"><div class="Pc-card Card"><a class="Banner-link"><img></a></div><div class="Pc-card Card"><a class="Banner-link"><img></a></div></aside></body></html>');
+ await env.start();await env.click(overlay(env,1));await env.click(env.ui.querySelector('#q-hide'));
+ const clone=env.document.querySelector('.Pc-card').cloneNode(true);clone.removeAttribute('data-jev-focus');clone.removeAttribute('data-jev-group-offer');env.document.querySelector('aside').append(clone);
+ await env.click(env.ui.querySelector('#group-confirm'));
+ assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.match(env.ui.querySelector('#group-confirm').textContent,/3/);
+ await env.click(env.ui.querySelector('#cancel'));
+ assert.equal(env.document.querySelectorAll('[data-jev-group-offer]').length,0);
+ assert.equal(env.calls.some(c=>c.type==='rulesSet'),false);
+});
+
+test('confirmed group hiding can be restored with the same explicit group confirmation',async()=>{
+ const env=await environment([], '<html><body><main><div class="Pc-card Card"><a class="Banner-link"><img></a></div><div class="Pc-card Card"><a class="Banner-link"><img></a></div></main></body></html>');
+ await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-hide'));await env.click(env.ui.querySelector('#group-confirm'));
+ assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,2);
+ await env.click(env.ui.querySelector('#q-keep'));
+ assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,2);
+ await env.click(env.ui.querySelector('#group-confirm'));
+ assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ await env.click(env.ui.querySelector('#q-save'));
+ assert.equal(env.document.querySelectorAll('[data-jev-manual-hidden]').length,0);
 });

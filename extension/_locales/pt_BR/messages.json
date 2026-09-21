@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "Depuração visual"
+  },
+  "collapseHidden": {
+    "message": "Recolher áreas ocultas"
+  },
+  "expandHidden": {
+    "message": "Expandir áreas ocultas"
+  },
+  "areaHideConflict": {
+    "message": "Esta área não foi ocultada: uma regra de restauração continua ativa. Verifique as regras desta página ou de outros escopos."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "Diagnóstico de ocultação"
+  },
+  "diagnosticsHint": {
+    "message": "Últimas 20 ações desta página, apagadas ao recarregar. Apenas local, sem envio. Selecione tudo para copiar. relatedKeeps: regras de restauração relacionadas; draft-marked: oculto no rascunho; not-marked: não oculto; selector-rejected: seletor instável."
+  },
+  "diagnosticsEmpty": {
+    "message": "Nenhum registro. Tente ocultar ou restaurar uma área."
+  },
+  "groupHideOffer": {
+    "message": "Foram encontradas e destacadas {1} áreas com a mesma estrutura. Confirme para ocultar todas."
+  },
+  "groupHideConfirm": {
+    "message": "Ocultar estas {1} áreas"
+  },
+  "groupHideCancel": {
+    "message": "Cancelar"
+  },
+  "groupKeepOffer": {
+    "message": "Foram encontradas e destacadas {1} áreas com a mesma estrutura. Confirme para restaurar todas."
+  },
+  "groupKeepConfirm": {
+    "message": "Restaurar estas {1} áreas"
   }
 }

@@ -586,5 +586,39 @@
   },
   "popupManualToolsAria": {
     "message": "Purification visuelle"
+  },
+  "collapseHidden": {
+    "message": "Replier les zones masquées"
+  },
+  "expandHidden": {
+    "message": "Déplier les zones masquées"
+  },
+  "areaHideConflict": {
+    "message": "Cette zone reste visible : une règle de restauration est active. Vérifiez les règles de cette page ou des autres portées."
+  }
+,
+  "diagnosticsTitle": {
+    "message": "Diagnostic du masquage"
+  },
+  "diagnosticsHint": {
+    "message": "Les 20 dernières actions de cette page, effacées au rechargement. Stockage local, aucun envoi. Tout sélectionner pour copier. relatedKeeps : règles de restauration liées ; draft-marked : masqué dans le brouillon ; not-marked : non masqué ; selector-rejected : sélecteur instable."
+  },
+  "diagnosticsEmpty": {
+    "message": "Aucune entrée. Essayez de masquer ou restaurer une zone."
+  },
+  "groupHideOffer": {
+    "message": "{1} zones de même structure ont été trouvées et mises en évidence. Confirmez pour toutes les masquer."
+  },
+  "groupHideConfirm": {
+    "message": "Masquer ces {1} zones"
+  },
+  "groupHideCancel": {
+    "message": "Annuler"
+  },
+  "groupKeepOffer": {
+    "message": "{1} zones de même structure ont été trouvées et mises en évidence. Confirmez pour toutes les restaurer."
+  },
+  "groupKeepConfirm": {
+    "message": "Restaurer ces {1} zones"
   }
 }

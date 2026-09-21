@@ -586,5 +586,39 @@
   },
   "managerLanguageHint": {
     "message": "选择后立即保存并刷新本页；网页内工具条在下次进入选择模式时生效，弹窗重新打开时生效。"
+  },
+  "collapseHidden": {
+    "message": "收起已隐藏区域"
+  },
+  "expandHidden": {
+    "message": "展开已隐藏区域"
+  },
+  "areaHideConflict": {
+    "message": "当前区域未隐藏：仍有恢复规则生效，请检查此页或其他范围的规则。"
+  }
+,
+  "diagnosticsTitle": {
+    "message": "隐藏诊断日志"
+  },
+  "diagnosticsHint": {
+    "message": "记录本页最近 20 次隐藏、恢复、预览/收起操作，刷新后清空。仅保存在本页，不上传。展开后可全选复制日志；relatedKeeps 为相关恢复规则，draft-marked 仅表示草稿已标记，实际效果请看 display 和 targetRect；not-marked 表示未标记，selector-rejected 表示无法稳定定位。"
+  },
+  "diagnosticsEmpty": {
+    "message": "暂无记录，请先尝试隐藏或恢复区域。"
+  },
+  "groupHideOffer": {
+    "message": "发现 {1} 个相同结构的区域，已高亮。确认后将一并隐藏。"
+  },
+  "groupHideConfirm": {
+    "message": "隐藏这 {1} 处"
+  },
+  "groupHideCancel": {
+    "message": "取消"
+  },
+  "groupKeepOffer": {
+    "message": "发现 {1} 个相同结构的区域，已高亮。确认后将一并恢复。"
+  },
+  "groupKeepConfirm": {
+    "message": "恢复这 {1} 处"
   }
 }

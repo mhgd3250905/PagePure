@@ -3,7 +3,41 @@
   const {scope, matches} = globalThis.JevManual;
   let active = false, host, ui, layer, layerRoot, resizing, toolbarResizing, timer;
   let candidates = [], selected = new Set(), hidden = new Set();
-  let groups = [], config = {}, url = '', revision = 0, previewing = false;
+  let groups = [], config = {}, url = '', revision = 0, previewing = false, collapsed = false;
+  let groupOffer=null;
+  function clearGroupOffer(){
+    groupOffer?.nodes.forEach(node=>node.removeAttribute('data-jev-group-offer'));
+    groupOffer=null;
+    if(ui)ui.querySelector('#group-offer').hidden=true;
+  }
+  function offerGroup(action,pageOnly){
+    clearGroupOffer();
+    const rule=globalThis.JevManual.describeGroupRule(focusNode);
+    if(!rule)return false;
+    groupOffer={...rule,action,pageOnly,focus:focusNode,url:page()};
+    rule.nodes.forEach(node=>node.setAttribute('data-jev-group-offer',''));
+    ui.querySelector('#group-offer').hidden=false;
+    ui.querySelector('#group-message').textContent=t(action==='hide'?'groupHideOffer':'groupKeepOffer',rule.nodes.length);
+    ui.querySelector('#group-confirm').textContent=t(action==='hide'?'groupHideConfirm':'groupKeepConfirm',rule.nodes.length);
+    position();
+    return true;
+  }
+  const diagnostics=[];
+  const diagnosticSelector=selector=>(selector||'').replace(/\[(?:href|src)[^\]]*\]/gi,'[URL-attribute]').replace(/https?:\/\/[^\s"'\]]+/g,'[URL]').slice(0,1500);
+  function renderDiagnostics(){
+    const output=ui?.querySelector('#diagnostic-log');
+    if(output)output.value=diagnostics.length?JSON.stringify(diagnostics,null,2):t('diagnosticsEmpty');
+  }
+  function recordDiagnostic(action,pageOnly,rule,rejected=false){
+    const node=focusNode,covered=[...previewTargets].some(n=>n===node||n.contains(node));
+    const current=scope(page(),'page'),editing=scope(page(),ui?.querySelector('#scope').value||'site');
+    const sources=[...groups.filter(g=>g.key!==editing),{key:editing,rules:draftRules()}];
+    const relatedKeeps=sources.flatMap(group=>group.rules.filter(r=>r.action==='keep'&&r.selector&&(!r.page||r.page===current)).filter(r=>[...matches(document,[r])].some(n=>n===node||n.contains(node)||node?.contains(n))).map(r=>({scope:r.page||group.key===current?'page':group.key.endsWith('|site')?'site':'type',selector:diagnosticSelector(r.selector)})));
+    const rect=node?.getBoundingClientRect(),style=node&&globalThis.getComputedStyle?.(node);
+    diagnostics.push({time:new Date().toISOString(),action,scope:pageOnly?'page':ui?.querySelector('#scope').value||'site',selector:diagnosticSelector(rule?.selector),reason:rejected?(!rule?'no-stable-selector':rule.selector.length>1500?'selector-too-long':/:nth-/.test(rule.selector)?'positional-selector':'document-root-selector'):action==='hide'&&!covered?(relatedKeeps.length?'related-keep-rules':'target-not-covered'):'draft-evaluated',result:rejected?'selector-rejected':covered?'draft-marked':'not-marked',matchedCount:rule?[...matches(document,[rule])].length:0,targetConnected:!!node?.isConnected,targetMatched:!!rule&&matches(document,[rule]).has(node),targetCovered:!!covered,candidateCount:candidates.length,selectedCount:selected.size,relatedKeeps,mode:previewing?'preview':collapsed?'collapsed':'editing',previewing,collapsed,display:style?.display||'',visibility:style?.visibility||'',previewHideAttribute:!!node?.hasAttribute('data-jev-preview-hide'),manualHideAttribute:!!node?.hasAttribute('data-jev-manual-hidden'),targetRect:rect?{top:Math.round(rect.top),left:Math.round(rect.left),width:Math.round(rect.width),height:Math.round(rect.height)}:null});
+    if(diagnostics.length>20)diagnostics.shift();
+    renderDiagnostics();
+  }
   let syncing = false, applying = false, localRules = [], focusNode = null, focusTrail = [], showOriginal = false, previewNodes = new Set();
   const signature=node=>{const {id,...data}=globalThis.JevZhihu.describe(node);return JSON.stringify(data);};
   const page = () => document.location.href;
@@ -78,14 +112,17 @@
     for(const node of candidates) {
       const picked=[...targeted].some(n=>n===node||n.contains(node));
       node.toggleAttribute('data-jev-selected',picked);
-      node.toggleAttribute('data-jev-preview-hide',picked&&previewing);
-      if(picked){selected.add(node);if(previewing)previewNodes.add(node);}
+      node.toggleAttribute('data-jev-preview-hide',picked&&(previewing||collapsed));
+      if(picked){selected.add(node);if(previewing||collapsed)previewNodes.add(node);}
     }
-    if(previewing)for(const node of targeted){node.setAttribute('data-jev-preview-hide','');previewNodes.add(node);}
+    if(previewing||collapsed)for(const node of targeted){node.setAttribute('data-jev-preview-hide','');previewNodes.add(node);}
   }
   function renderStatus() {
     if(!ui)return;
-    ui.querySelector('#status').textContent=selected.size ? t('toolbarStatusHidden', selected.size) : '';
+    const rules=applicableRules(true);
+    const requestedHide=focusNode&&matches(document,rules.filter(r=>r.action!=='keep')).has(focusNode);
+    const focusHidden=focusNode&&[...previewTargets].some(node=>node===focusNode||node.contains(focusNode));
+    ui.querySelector('#status').textContent=requestedHide&&!focusHidden?t('areaHideConflict'):(selected.size ? t('toolbarStatusHidden', selected.size) : '');
     ui.querySelector('#legacy').textContent=localRules.length?t('toolbarStatusLegacy', localRules.length):'';
     const rulesList=ui.querySelector('#rule-list');rulesList.replaceChildren();
     localRules.forEach((rule,index)=>{if(rule.page&&rule.page!==scope(page(),'page'))return;const b=document.createElement('button');b.type='button';b.textContent=t('ruleEntry', rule.page?t('rulePagePrefix'):'', rule.action==='keep'?t('actionKeep'):t('actionHide'), rule.label);b.addEventListener('click',()=>{localRules.splice(index,1);selectKnown();position();renderStatus();});rulesList.append(b);});
@@ -174,26 +211,39 @@
   }
   function focus(node, reset=true) {
     if(previewing||!node?.isConnected)return;
+    clearGroupOffer();
     focusNode?.removeAttribute('data-jev-focus');focusNode=node;
     if(reset)focusTrail=[];
     node.setAttribute('data-jev-focus','');
     ui.querySelector('#selection').hidden=false;
     ui.querySelector('#selection-name').textContent=t('selectionName', moduleName(node));
-    ui.querySelector('#smaller').disabled=!focusTrail.length;positionQuick();
+    ui.querySelector('#smaller').disabled=!focusTrail.length;positionQuick();renderStatus();
   }
   function toggle(node,event) {quickAnchor=event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)?{x:event.clientX,y:event.clientY}:null;focus(node);}
-  function areaRule(action,pageOnly=false) {
-    const rule=globalThis.JevManual.describeRule(focusNode);
+  function areaRule(action,pageOnly=false,confirmedRule=null) {
+    if(!confirmedRule)clearGroupOffer();
+    const rule=confirmedRule||globalThis.JevManual.describeRule(focusNode);
     if(!rule || rule.selector.length>1500 || /:nth-|^html(?: |>)/.test(rule.selector)) {
+      recordDiagnostic(action,pageOnly,rule,true);
+      if(offerGroup(action,pageOnly))return;
       const message=t('areaRuleFallback');
       ui.querySelector('#status').textContent=message;ui.querySelector('#quick-name').textContent=message;
       return;
     }
     const current=scope(page(),'page');
     localRules=localRules.filter(r=>r.selector!==rule.selector||(pageOnly?r.page!==current:!!r.page&&r.page!==current));
+    if(action==='hide')localRules=localRules.filter(r=>{
+      if(r.action!=='keep'||(pageOnly?r.page!==current:!!r.page&&r.page!==current))return true;
+      const nodes=[...matches(document,[r])];
+      // Replace an earlier restoration only when all its matches are inside
+      // this explicit selection. Preserve rules for other areas and scopes.
+      const targets=confirmedRule?[...matches(document,[confirmedRule])]:[focusNode];
+      return !nodes.length||!nodes.every(node=>targets.some(target=>node===target||target.contains(node)));
+    });
     localRules.push({...rule,label:moduleName(focusNode),action,...(pageOnly?{page:current}:{})});
     selectKnown();position();renderStatus();
-    if(pageOnly)ui.querySelector('#status').textContent=t(action==='keep'?'previewPageOnlyKeep':'previewPageOnlyHide');
+    recordDiagnostic(action,pageOnly,rule);
+    if(pageOnly&&(action==='keep'||[...previewTargets].some(node=>node===focusNode||node.contains(focusNode))))ui.querySelector('#status').textContent=t(action==='keep'?'previewPageOnlyKeep':'previewPageOnlyHide');
   }
   function coverageRect(node) {
     const base=node.getBoundingClientRect();
@@ -215,14 +265,14 @@
     if(!layerRoot)return;
     [...layerRoot.querySelectorAll('button')].forEach((button,index)=>{
       const node=candidates[index],r=coverageRect(node);
-      button.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;display:${previewing||r.width<1||r.height<1?'none':'block'};border:2px ${selected.has(node)?'solid #64748b':'dashed #3886f5'};background:${selected.has(node)?'transparent':'transparent'};padding:0;margin:0;pointer-events:auto;cursor:crosshair;box-sizing:border-box;`;
+      button.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;display:${previewing||node.closest('[data-jev-preview-hide]')||r.width<1||r.height<1?'none':'block'};border:2px ${selected.has(node)?'solid #64748b':'dashed #3886f5'};background:${selected.has(node)?'transparent':'transparent'};padding:0;margin:0;pointer-events:auto;cursor:crosshair;box-sizing:border-box;`;
       button.setAttribute('aria-pressed',String(selected.has(node)));
       button.setAttribute('aria-label',t('candidateAria', index+1));
       button.title=t('candidateTitle');
     });
     layerRoot.querySelectorAll('[data-mask]').forEach(n=>n.remove());
     const targets=new Set([...selected,...previewTargets]);
-    if(!previewing)for(const node of targets) {
+    if(!previewing&&!collapsed)for(const node of targets) {
       if([...targets].some(p=>p!==node&&p.contains(node)))continue;
       const r=coverageRect(node);if(r.width<1||r.height<1)continue;
       const mask=document.createElement('div');mask.setAttribute('data-mask','');
@@ -256,7 +306,8 @@
     }finally{syncing=false;}
   }
   function leave() {
-    globalThis.cancelAnimationFrame?.(positionFrame);positionFrame=null;clearMarks();partitions.clear();learnedSplit=false;focusNode?.removeAttribute('data-jev-focus');focusNode=null;quickAnchor=null;active=false;previewing=false;
+    clearGroupOffer();
+    globalThis.cancelAnimationFrame?.(positionFrame);positionFrame=null;clearMarks();partitions.clear();learnedSplit=false;focusNode?.removeAttribute('data-jev-focus');focusNode=null;quickAnchor=null;active=false;previewing=false;collapsed=false;
     layer?.remove();layer=null;layerRoot=null;resizing?.disconnect();resizing=null;toolbarResizing?.disconnect();toolbarResizing=null;
     globalThis.removeEventListener?.('scroll',afterLayout,true);globalThis.removeEventListener?.('resize',afterLayout);
     host?.remove();host=null;ui=null;
@@ -286,6 +337,9 @@
       .action-row button{background:#fff;box-shadow:0 1px 2px #172b3a06;font-size:12px;padding:0 6px}
       #q-hide{color:#155bc6;background:#edf4ff;border-color:#c9dcfa}#q-hide:hover{background:#dceaff}
       #more-actions{margin-top:6px}
+      #group-offer{margin-top:8px;padding:10px;border:1px solid #9bbef5;border-radius:8px;background:#edf4ff}#group-message{margin:0 0 8px;font-size:12px;line-height:1.6}#group-offer button{white-space:normal;height:auto;min-height:32px;margin-right:5px}#group-confirm{background:#1768ed;color:#fff;border-color:#1768ed}
+      #diagnostics{margin-top:8px;font-size:12px;color:#53647b}#diagnostics summary{padding:6px 0;color:#155bc6}#diagnostics p{line-height:1.5;margin:4px 0}#diagnostic-log{display:block;width:100%;height:150px;resize:vertical;border:1px solid #d8e1ec;border-radius:7px;padding:6px;background:#f6f8fb;color:#263549;font:11px ui-monospace,monospace}
+      #collapse{width:100%;height:auto;min-height:32px;white-space:normal;margin-top:6px;font-size:12px;color:#155bc6;background:#f5f8ff;border-color:#dbe6fa}#collapse[aria-pressed=true]{background:#edf4ff;border-color:#9bbef5}
       .footer-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;border-top:1px solid #e8edf4;margin-top:10px;padding-top:10px}
       #quick:has(#more[open]) .footer-actions{margin-top:0}
       #q-save{background:#1768ed;color:#fff;border-color:#1768ed;box-shadow:0 2px 5px #1768ed25}#q-save:hover{background:#1255c5}
@@ -302,7 +356,10 @@
       <div class="action-row" role="group" aria-label="${t('areaGroupAria')}"><span class="scope-label">${t('areaScopeLabel')}</span><button id="q-hide">${t('hideAreaBtn')}</button><button id="q-keep">${t('keepAreaBtn')}</button></div>
       <div id="more-actions" hidden>
         <div class="action-row" role="group" aria-label="${t('pageGroupAria')}"><span class="scope-label">${t('pageScopeLabel')}</span><button id="q-page-hide" aria-label="${t('pageHideAria')}">${t('hideAreaBtn')}</button><button id="q-page-keep" aria-label="${t('pageKeepAria')}">${t('keepAreaBtn')}</button></div>
+        <details id="diagnostics"><summary>${t('diagnosticsTitle')}</summary><p>${t('diagnosticsHint')}</p><textarea id="diagnostic-log" readonly aria-label="${t('diagnosticsTitle')}" spellcheck="false"></textarea></details>
       </div>
+      <div id="group-offer" hidden><p id="group-message" role="status"></p><button id="group-confirm"></button><button id="group-cancel">${t('groupHideCancel')}</button></div>
+      <button id="collapse" aria-pressed="false">${t('collapseHidden')}</button>
       <div class="footer-actions"><button id="effect">${t('effectPreview')}</button><button id="q-save">${t('saveBtn')}</button></div>
       <p id="status" role="status" aria-live="polite"></p>
     </div>
@@ -318,7 +375,28 @@
     if(globalThis.ResizeObserver){resizing=new ResizeObserver(position);toolbarResizing=new ResizeObserver(positionQuick);toolbarResizing.observe(ui.querySelector('#quick'));}
     globalThis.addEventListener?.('scroll',afterLayout,true);globalThis.addEventListener?.('resize',afterLayout);
     ui.querySelector('#cancel').addEventListener('click',leave);
+    ui.querySelector('#group-cancel').addEventListener('click',()=>{clearGroupOffer();position();renderStatus();});
+    ui.querySelector('#group-confirm').addEventListener('click',()=>{
+      const offer=groupOffer;
+      if(!offer)return;
+      const fresh=globalThis.JevManual.describeGroupRule(focusNode);
+      const unchanged=offer.focus===focusNode&&offer.url===page()&&fresh?.selector===offer.selector&&fresh.nodes.length===offer.nodes.length&&fresh.nodes.every(node=>offer.nodes.includes(node)&&node.isConnected);
+      clearGroupOffer();
+      if(!unchanged){areaRule(offer.action,offer.pageOnly);return;}
+      areaRule(offer.action,offer.pageOnly,{selector:offer.selector,label:offer.label});
+      position();
+    });
     ui.querySelector('#q-split').addEventListener('click',splitFocus);
+    ui.querySelector('#collapse').addEventListener('click',()=>{
+      collapsed=!collapsed;
+      ui.querySelector('#collapse').textContent=t(collapsed?'expandHidden':'collapseHidden');
+      ui.querySelector('#collapse').setAttribute('aria-pressed',String(collapsed));
+      if(previewing)selectKnown();else syncCandidates();
+      position();
+      if(focusNode)recordDiagnostic('collapse-toggle',false,globalThis.JevManual.describeRule(focusNode));
+    });
+    renderDiagnostics();
+    ui.querySelector('#diagnostics').addEventListener('toggle',positionQuick);
     for(const [quick,target] of [['q-larger','larger'],['q-smaller','smaller'],['q-hide','hide-area'],['q-save','save'],['q-keep','keep-area'],['q-page-hide','page-hide'],['q-page-keep','page-keep']])ui.querySelector('#'+quick).addEventListener('click',()=>ui.querySelector('#'+target).click());
     ui.querySelector('#hide-area').addEventListener('click',()=>areaRule('hide'));
     ui.querySelector('#keep-area').addEventListener('click',()=>areaRule('keep'));
@@ -331,7 +409,7 @@
     });
     ui.querySelector('#smaller').addEventListener('click',()=>{const child=focusTrail.pop();if(child)focus(child,false);});
     ui.querySelector('#scope').addEventListener('change',()=>{clearMarks();focusNode?.removeAttribute('data-jev-focus');focusNode=null;ui.querySelector('#selection').hidden=true;loadRules();previewing=false;ui.querySelector('#effect').textContent=t('effectPreview');syncCandidates();});
-    ui.querySelector('#effect').addEventListener('click',()=>{previewing=!previewing;selectKnown();ui.querySelector('#effect').textContent=previewing?t('effectBack'):t('effectPreview');if(!previewing)syncCandidates();position();});
+    ui.querySelector('#effect').addEventListener('click',()=>{previewing=!previewing;selectKnown();ui.querySelector('#effect').textContent=previewing?t('effectBack'):t('effectPreview');if(!previewing)syncCandidates();position();if(focusNode)recordDiagnostic('preview-toggle',false,globalThis.JevManual.describeRule(focusNode));});
     ui.querySelector('#retry').addEventListener('click',async()=>{await refresh();syncCandidates();});
     ui.querySelector('#save').addEventListener('click',async()=>{
       const button=ui.querySelector('#save');button.disabled=true;positionQuick();
