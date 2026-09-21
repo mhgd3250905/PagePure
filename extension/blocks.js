@@ -111,14 +111,17 @@
     }
     [...root.children].forEach(walk);
     // Site toolbars can live outside the main reading root or inside zero-size wrappers.
-    for(const node of doc.querySelectorAll('body *')) {
-      if(node.closest(ignored)||result.some(parent=>parent===node||parent.contains(node)))continue;
-      // Already-hidden floating blocks have no measurable layout. Keep them
-      // tracked without temporarily revealing them to rediscover their size.
-      if(node.matches(hidden)||regions.has(node)){result.push(node);continue;}
-      const rect=measure(node);if(rect.width<24||rect.height<24)continue;
-      if(doc.defaultView?.getComputedStyle?.(node)?.position==='fixed')result.push(node);
+    const covered=new Set(result);
+    function visitFloating(node) {
+      // A known block owns its subtree. Do not enumerate thousands of answer
+      // descendants only to test each against every block again.
+      if(node.matches(ignored)||covered.has(node))return;
+      if(node.matches(hidden)||regions.has(node)){result.push(node);return;}
+      const rect=measure(node);
+      if(rect.width>=24&&rect.height>=24&&doc.defaultView?.getComputedStyle?.(node)?.position==='fixed'){result.push(node);return;}
+      for(const child of node.children)visitFloating(child);
     }
+    if(doc.body)for(const node of doc.body.children)visitFloating(node);
     return result;
   }
   globalThis.JevZhihu = {collect, describe};

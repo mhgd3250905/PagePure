@@ -122,3 +122,11 @@ test('narrow fixed toolbar outside reading root and zero-size wrapper is selecta
  const measure=n=>n.id==='zero'?{width:0,height:0}:n.id==='tools'?{width:44,height:220}:rect();
  assert.ok(collect(document,measure).some(n=>n.id==='tools'));
 });
+
+test('floating discovery skips descendants of already collected reading blocks',()=>{
+ const {document,collect}=setup('<div class="Topstory-container">'+Array.from({length:50},(_,i)=>`<article id="card${i}">${'<p><span>Reading</span></p>'.repeat(30)}</article>`).join('')+'</div>');
+ let containmentChecks=0;
+ for(const article of document.querySelectorAll('article')){const contains=article.contains.bind(article);article.contains=node=>{containmentChecks++;return contains(node);};}
+ assert.equal(collect(document,rect).length,50);
+ assert.equal(containmentChecks,0,'floating discovery must prune known blocks instead of checking every descendant against them');
+});

@@ -147,14 +147,14 @@
   function apply() {
     if (applying) return;
     applying = true;
-    signatureCache=new WeakMap();layoutCache=new WeakMap();descriptorCache=new WeakMap();categoryCache=new WeakMap();regionCache=restoreRegions();
+    signatureCache=new WeakMap();layoutCache=new WeakMap();descriptorCache=new WeakMap();categoryCache=new WeakMap();regionCache=persistedCategories().size?restoreRegions():new Map();
     try {
       if(active || showOriginal || !config.enabled) {restore();globalThis.JevPage?.report?.();return;}
       const rules = applicableRules();
       const categories = persistedCategories();
       const explicit=matches(document,rules);
       const pending=new Set();
-      const nodes = collectRegions();
+      const nodes = categories.size ? collectRegions() : [];
       if(categories.size) {
         remember(nodes);
         categoryCache=new WeakMap();
@@ -398,8 +398,9 @@
   }
   let positionFrame;
   function afterLayout() {
-    position();
-    if(globalThis.requestAnimationFrame){globalThis.cancelAnimationFrame?.(positionFrame);positionFrame=requestAnimationFrame(position);}
+    if(!globalThis.requestAnimationFrame){position();return;}
+    if(positionFrame)return;
+    positionFrame=requestAnimationFrame(()=>{positionFrame=null;position();});
   }
   function position() {
     if(!layerRoot)return;
@@ -446,7 +447,7 @@
     }finally{syncing=false;}
   }
   function leave() {
-    globalThis.cancelAnimationFrame?.(positionFrame);clearMarks();partitions.clear();learnedSplit=false;focusNode?.removeAttribute('data-jev-focus');focusNode=null;quickAnchor=null;correctionNode=null;active=false;previewing=false;focusCategory='';
+    globalThis.cancelAnimationFrame?.(positionFrame);positionFrame=null;clearMarks();partitions.clear();learnedSplit=false;focusNode?.removeAttribute('data-jev-focus');focusNode=null;quickAnchor=null;correctionNode=null;active=false;previewing=false;focusCategory='';
     layer?.remove();layer=null;layerRoot=null;resizing?.disconnect();resizing=null;toolbarResizing?.disconnect();toolbarResizing=null;
     globalThis.removeEventListener?.('scroll',afterLayout,true);globalThis.removeEventListener?.('resize',afterLayout);
     host?.remove();host=null;ui=null;
@@ -561,7 +562,7 @@
     if(changes.length&&changes.every(change=>change.target?.closest?.('[data-jev-ui]')))return;
     // Mutation callbacks run before paint: protect newly inserted modules now,
     // rather than letting them render during the debounce/classification delay.
-    if(url===page()&&!active&&groups.length)apply();
+    if(url===page()&&!active&&groups.length){clearTimeout(timer);apply();return;}
     clearTimeout(timer);timer=setTimeout(()=>{if(url!==page()){if(active)leave();void refresh();}else if(active)syncCandidates();else apply();},200);
   }).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','id','role','data-testid','data-test','data-component','src','href','style','data-jev-manual-hidden','data-jev-awaiting']});
   chrome.runtime.onMessage.addListener((msg,_sender,respond)=>{

@@ -28,11 +28,12 @@ async function environment(initialGroups = [], body = null, options = {}) {
     return node;
   };
   const context = {
+    requestAnimationFrame:options.requestAnimationFrame, cancelAnimationFrame:options.cancelAnimationFrame,
     document, window, URL, getComputedStyle:node=>({position:node.style.position||'static'}), innerWidth:1280, innerHeight:900,
     addEventListener:window.addEventListener.bind(window),
     removeEventListener:window.removeEventListener.bind(window),
     JevPage: {suspend() {suspended++;}, resume() {resumed++;}},
-    JevZhihu: {describe(node) {options.onDescribe?.(node);return {text:node.textContent,role:node.tagName,structural:node.querySelector('iframe,img') ? 'media' : ''};}, collect() {return [...document.querySelectorAll('article, aside, .Pc-card')];}},
+    JevZhihu: {describe(node) {options.onDescribe?.(node);return {text:node.textContent,role:node.tagName,structural:node.querySelector('iframe,img') ? 'media' : ''};}, collect() {options.onCollect?.();return [...document.querySelectorAll('article, aside, .Pc-card')];}},
     setTimeout(callback) {timers.set(++timerId, callback); return timerId;},
     clearTimeout(id) {timers.delete(id);},
     MutationObserver: class {constructor(callback) {mutation = callback;} observe(_target,config) {options.onObserve?.(config);}},
@@ -204,7 +205,7 @@ test('page region snapshots cannot leak into a different answer with the same ty
 test('unchanged module descriptions are built once per application and own marker mutations do not rescan',async()=>{
  let descriptions=0;
  const env=await environment([{key:'https://example.com|site',rules:[{category:'promotion',label:'Promotion'}]}],null,{onDescribe:()=>descriptions++});
- descriptions=0;await env.mutate();assert.ok(descriptions<=4,`two nodes over two apply calls, received ${descriptions}`);
+ descriptions=0;await env.mutate();assert.ok(descriptions<=2,`one apply per mutation batch for two nodes, received ${descriptions}`);
  descriptions=0;await env.mutate([{type:'attributes',attributeName:'data-jev-manual-hidden',target:env.document.querySelector('#promotion')}]);assert.equal(descriptions,0);
 });
 
@@ -654,4 +655,22 @@ test('manager clear notification closes stale selection drafts',async()=>{
  assert.ok(env.ui);
  await env.notify('rulesChanged', {source:'manager'});
  assert.equal(env.ui,undefined);assert.equal(env.calls.some(c=>c.type==='rulesSet'),false);
+});
+
+test('manual-only rules avoid classification collection at load and during page changes',async()=>{
+ let scans=0;const env=await environment([{key:'https://example.com|site',rules:[{selector:'#promotion',label:'Promotion'}]}],null,{onCollect:()=>scans++});
+ assert.equal(scans,0);assert.equal(hidden(env,'promotion'),true);
+ await env.mutate();assert.equal(scans,0);assert.equal(hidden(env,'promotion'),true);
+ await env.start();assert.ok(scans>0);
+});
+
+test('selection scroll positioning coalesces within a frame and resumes after reopen',async()=>{
+ const frames=new Map();let serial=0;
+ const env=await environment([],null,{requestAnimationFrame:fn=>{frames.set(++serial,fn);return serial;},cancelAnimationFrame:id=>frames.delete(id)});
+ await env.start();let reads=0;const node=env.document.querySelector('#reading'),measure=node.getBoundingClientRect.bind(node);node.getBoundingClientRect=()=>{reads++;return measure();};
+ const scroll=()=>env.context.window.dispatchEvent(new env.context.window.Event('scroll'));
+ scroll();scroll();assert.equal(reads,0);assert.equal(frames.size,1);
+ const work=[...frames.values()];frames.clear();work.forEach(fn=>fn());assert.ok(reads>0);
+ scroll();await env.click(env.ui.querySelector('#cancel'));assert.equal(frames.size,0);
+ await env.start();scroll();assert.equal(frames.size,1);
 });
