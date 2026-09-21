@@ -23,10 +23,22 @@
     records.clear();
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(scan, 250); }
+  function ready() {
+    return config.enabled && config.aiEnabled !== false && config.configured && !paused &&
+      !globalThis.JevPreview?.active && globalThis.JevPreview?.aiReady !== false &&
+      globalThis.JevStartup?.released !== false;
+  }
+  const allows = node => node.isConnected && (globalThis.JevPreview?.aiAllows?.(node) ?? true);
+  function clearProtected() {
+    for (const [node] of records) {
+      if (!allows(node)) { node.removeAttribute('data-jev-zhihu-hidden'); records.delete(node); }
+    }
+  }
   function scan() {
     if (pageUrl !== currentPage()) { void reload(); return; }
-    if (!config.enabled || config.aiEnabled === false || !config.configured || paused || globalThis.JevPreview?.active || globalThis.JevPreview?.hasRules) return;
-    const nodes = new Set(collect(document));
+    clearProtected();
+    if (!ready()) return;
+    const nodes = new Set(collect(document).filter(allows));
     for (const [node] of records) {
       if (!node.isConnected || !nodes.has(node)) {
         node.removeAttribute('data-jev-zhihu-hidden'); records.delete(node);
@@ -46,8 +58,9 @@
     if (active) return;
     active = true;
     try {
-      while (dirty && config.enabled && config.aiEnabled !== false && config.configured && !globalThis.JevPreview?.active && !globalThis.JevPreview?.hasRules) {
+      while (dirty && ready()) {
         dirty = false;
+        clearProtected();
         const batch = [...records.values()].filter(r => r.state === 'pending').slice(0, 5);
         if (!batch.length) break;
         const version = generation;
@@ -59,6 +72,12 @@
           const results = new Map((answer.results || []).map(r => [r.id, r]));
           for (const record of batch) {
             if (records.get(record.node) !== record) continue;
+            if (!ready() || !allows(record.node) || JSON.stringify(describe(record.node)) !== record.signature) {
+              record.node.removeAttribute('data-jev-zhihu-hidden');
+              records.delete(record.node);
+              schedule();
+              continue;
+            }
             const result = results.get(record.id);
             record.state = result ? 'done' : 'error';
             if (result?.hide === true && record.node.isConnected) record.node.setAttribute('data-jev-zhihu-hidden', '');
@@ -103,6 +122,7 @@
   globalThis.addEventListener?.('popstate', schedule);
   globalThis.addEventListener?.('pageshow', schedule);
   globalThis.navigation?.addEventListener('navigatesuccess', schedule);
+  document.addEventListener('pagepure-rules-applied', () => { clearProtected(); schedule(); report(); });
   globalThis.JevPage = {suspend() { generation++; restore(); }, resume: reload, report};
   void reload();
 })();

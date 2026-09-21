@@ -6,8 +6,9 @@ import {parseHTML} from 'linkedom';
 import {i18nSource, i18nChrome} from './i18n-support.mjs';
 
 const source = readFileSync(new URL('./extension/console.js', import.meta.url), 'utf8');
-function environment(bodyReady = true) {
+function environment(bodyReady = true, options = {}) {
   const {document, window} = parseHTML('<html><body></body></html>');
+  window.innerWidth = 1024; window.innerHeight = 768;
   let root;
   const attach = window.HTMLElement.prototype.attachShadow;
   window.HTMLElement.prototype.attachShadow = function(options) {
@@ -22,6 +23,7 @@ function environment(bodyReady = true) {
   }});
   const context = {document:contentDocument, window, chrome:{...i18nChrome, runtime:{getURL:path => `chrome-extension://test/${path}`}}};
   runInNewContext(i18nSource, context);
+  if(options.i18n) context.PagePureI18n = options.i18n;
   const run = () => runInNewContext(source, context);
   run();
   return {document, window, run, get root() {return root;}, ready() {
@@ -35,6 +37,9 @@ test('floating console is isolated, lazy, toggleable, and removes iframe on clos
   const host = env.document.querySelector('[data-jev-ui="console"]');
   assert.ok(host);
   assert.equal(host.shadowRoot, null);
+  assert.equal(env.root.querySelector('.brand-name').textContent,'网页净化');
+  assert.equal(env.root.querySelector('.brand-seal-word').textContent,'净化');
+  assert.equal(env.root.querySelector('.brand img'),null);
   const launcher = env.root.querySelector('.launcher');
   assert.equal(launcher.getAttribute('aria-expanded'), 'false');
   assert.equal(env.root.querySelector('iframe'), null);
@@ -62,6 +67,33 @@ test('document_start waits for body and Escape collapses the console', () => {
   env.document.dispatchEvent(escape);
   assert.equal(env.root.querySelector('iframe'), null);
   assert.equal(env.root.querySelector('.launcher').getAttribute('aria-expanded'), 'false');
+});
+
+test('search-style body clearing and replacement restore the same console without duplicate handlers', async () => {
+  const env = environment();
+  const settle = () => new Promise(resolve => setImmediate(resolve));
+  const host = env.document.querySelector('[data-jev-ui="console"]');
+  const launcher = env.root.querySelector('.launcher');
+  const left = host.style.left, top = host.style.top;
+  launcher.click();
+  env.document.body.replaceChildren(env.document.createElement('main'));
+  await settle();
+  assert.equal(host.parentNode, env.document.body);
+  assert.equal(host.style.left, left);
+  assert.equal(host.style.top, top);
+  assert.equal(env.root.querySelector('iframe'), null, 'discard the old page settings panel');
+  const replacement = env.document.createElement('body');
+  env.document.body.replaceWith(replacement);
+  await settle();
+  assert.equal(host.parentNode, replacement);
+  host.remove();
+  await settle();
+  assert.equal(host.parentNode, replacement);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui="console"]').length, 1);
+  launcher.click();
+  assert.equal(env.root.querySelectorAll('iframe').length, 1);
+  launcher.click();
+  assert.equal(env.root.querySelector('iframe'), null);
 });
 
 async function popupEnvironment(config = {}) {
@@ -137,9 +169,10 @@ test('manual preview works without a key or AI consent and advanced settings sta
   assert.equal(env.messages.at(-1).type, 'jev-console-close');
 });
 
-test('restore and undo buttons dispatch their page actions', async () => {
+test('original-page toggle remains and obsolete undo button is absent', async () => {
   const env = await popupEnvironment();
-  for (const action of ['toggleVisibility', 'undoSave']) {
+  assert.equal(env.document.querySelector('#undoSave'),null);
+  for (const action of ['toggleVisibility']) {
     env.document.querySelector(`#${action}`).click();
     await env.flush();
     assert.ok(env.requests.some(message => message.type === 'pageAction' && message.payload.action === action));
@@ -162,4 +195,70 @@ test('embedded console opens the dedicated rule manager and closes its panel',as
  env.document.querySelector('#manageRules').click();await env.flush();
  assert.ok(env.requests.some(message=>message.type==='rulesManagerOpen'));
  assert.equal(env.messages.at(-1).type,'jev-console-close');
+});
+
+function pointer(env,type,x,y) {
+  const event = new env.window.Event(type,{cancelable:true});
+  Object.assign(event,{pointerId:1,button:0,isPrimary:true,clientX:x,clientY:y});
+  env.root.querySelector('.launcher').dispatchEvent(event);
+}
+function physicalClick(env) {
+  const event = new env.window.Event('click',{cancelable:true});
+  event.detail = 1;
+  env.root.querySelector('.launcher').dispatchEvent(event);
+}
+test('floating seal drags without opening and ordinary click still toggles',()=>{
+  const env = environment();
+  const host = env.document.querySelector('[data-jev-ui="console"]');
+  pointer(env,'pointerdown',30,700);
+  pointer(env,'pointermove',400,200);
+  pointer(env,'pointerup',400,200);
+  physicalClick(env);
+  assert.equal(host.style.left,'386px');
+  assert.equal(host.style.top,'188px');
+  assert.equal(env.root.querySelector('iframe'),null);
+  pointer(env,'pointerdown',400,200);
+  pointer(env,'pointerup',400,200);
+  physicalClick(env);
+  assert.ok(env.root.querySelector('iframe'));
+});
+test('cancelled gestures do not open the panel and keyboard click remains available',()=>{
+  const env = environment();
+  pointer(env,'pointerdown',20,700);
+  pointer(env,'pointercancel',20,700);
+  physicalClick(env);
+  assert.equal(env.root.querySelector('iframe'),null);
+  const keyboard = new env.window.Event('click'); keyboard.detail = 0;
+  env.root.querySelector('.launcher').dispatchEvent(keyboard);
+  assert.ok(env.root.querySelector('iframe'));
+});
+test('dragging and resizing keep the seal and open panel within the viewport',()=>{
+  const env = environment();
+  pointer(env,'pointerdown',20,700);
+  pointer(env,'pointermove',5000,-5000);
+  pointer(env,'pointerup',5000,-5000);
+  physicalClick(env);
+  const host = env.document.querySelector('[data-jev-ui="console"]');
+  assert.equal(host.style.left,'960px'); assert.equal(host.style.top,'0px');
+  env.root.querySelector('.launcher').click();
+  env.window.innerWidth=320; env.window.innerHeight=260;
+  env.window.dispatchEvent(new env.window.Event('resize'));
+  const panel = env.root.querySelector('.panel');
+  assert.equal(host.style.left,'256px');
+  assert.equal(panel.style.left,'8px'); assert.equal(panel.style.top,'8px');
+  assert.equal(panel.style.width,'304px'); assert.equal(panel.style.height,'244px');
+});
+test('seal localizes after initial settings load and on live locale changes',async()=>{
+  let language = '净化', resolve;
+  const ready = new Promise(done=>{resolve=done;});
+  const env = environment(true,{i18n:{t:key=>key==='toolbarStamp'?language:`${language} ${key}`,ready}});
+  const word=env.root.querySelector('.seal-word');
+  assert.equal(word.textContent,'净化'); assert.equal(word.style.fontSize,'18px');
+  language='Clean'; resolve(); await ready;
+  assert.equal(word.textContent,'Clean'); assert.equal(word.style.fontSize,'12px');
+  assert.equal(env.root.querySelector('.brand-name').textContent,'Clean brandName');
+  assert.equal(env.root.querySelector('.brand-seal-word').textContent,'Clean');
+  language='净化'; env.document.dispatchEvent(new env.window.Event('pagepure-locale-changed'));
+  assert.equal(word.textContent,'净化');
+  assert.equal(env.root.querySelector('.launcher').getAttribute('aria-label'),'净化 consoleLauncherAria');
 });

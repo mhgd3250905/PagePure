@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "Web limpio"
+  },
   "extName": {
     "message": "PagePure - Purificador web"
   },
@@ -24,7 +27,7 @@
     "message": "Deshacer último guardado"
   },
   "popupManageRules": {
-    "message": "Administrar reglas"
+    "message": "Ajustes"
   },
   "popupPageStatusLoading": {
     "message": "Leyendo el estado de la página…"
@@ -36,7 +39,7 @@
     "message": "Usar IA en este sitio"
   },
   "popupAiHint": {
-    "message": "Necesita una clave de API de Jev. Desactivado en sitios nuevos."
+    "message": "Requiere una clave Jev; desactivado por defecto en sitios nuevos. Tras aplicar las reglas, la IA analiza las áreas restantes de forma asíncrona."
   },
   "popupContextLabel": {
     "message": "Preferencias de depuración para este sitio"
@@ -45,10 +48,10 @@
     "message": "Preferencias de depuración para {1}"
   },
   "popupContextPlaceholder": {
-    "message": "Ej.: conservar preguntas, respuestas y artículos; ocultar promociones, accesos de creadores, recomendaciones y pies de página."
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "Se usa cuando no hay reglas; las manuales tienen prioridad."
+    "message": "Usa «屏蔽：elemento、elemento». La página aparece primero y la IA la limpia después. Las reglas manuales tienen prioridad; las áreas conservadas explícitamente siguen visibles."
   },
   "popupKeyStateOn": {
     "message": "Configurada"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "Esta área no se ha ocultado: sigue activa una regla de restauración. Revisa las reglas de esta página u otros ámbitos."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "Diagnóstico de ocultación"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "Restaurar estas {1} áreas"
+  },
+  "popupContextFormat": {
+    "message": "Escribe tus criterios, por ejemplo: 屏蔽：Anuncios, promociones."
   }
 }

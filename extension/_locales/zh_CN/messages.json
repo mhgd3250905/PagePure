@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "网页净化"
+  },
   "extName": {
     "message": "网页净化助手 · PagePure"
   },
@@ -24,7 +27,7 @@
     "message": "撤销上次保存"
   },
   "popupManageRules": {
-    "message": "管理净化规则"
+    "message": "设置"
   },
   "popupPageStatusLoading": {
     "message": "正在读取页面状态…"
@@ -36,7 +39,7 @@
     "message": "此网站使用 AI 判断"
   },
   "popupAiHint": {
-    "message": "需配置 Jev 密钥，新网站默认关闭。"
+    "message": "需配置 Jev 密钥，新网站默认关闭。规则执行后，AI 异步判断未覆盖区域。"
   },
   "popupContextLabel": {
     "message": "此网站的自动净化需求"
@@ -45,10 +48,10 @@
     "message": "此网站的自动净化需求（{1}）"
   },
   "popupContextPlaceholder": {
-    "message": "例如：保留问题、回答和文章，隐藏推广、创作入口、推荐关注及页脚。"
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "未设置规则时使用，手动规则优先。"
+    "message": "按“屏蔽：项目、项目”填写。页面先显示，AI 随后净化；手动规则优先，明确保留的区域不受 AI 影响。"
   },
   "popupKeyStateOn": {
     "message": "已配置"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "当前区域未隐藏：仍有恢复规则生效，请检查此页或其他范围的规则。"
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "隐藏诊断日志"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "恢复这 {1} 处"
+  },
+  "popupContextFormat": {
+    "message": "请填写净化需求，例如：屏蔽：广告、推广。"
   }
 }

@@ -37,11 +37,14 @@
     const copy = node.cloneNode(true);
     copy.querySelectorAll(ignored).forEach(item => item.remove());
     const elements = selector => [...(copy.matches(selector) ? [copy] : []), ...copy.querySelectorAll(selector)];
+    const embeds = elements('iframe,object,embed').slice(0, 3).map(item =>
+      `${item.tagName} ${compact(item.getAttribute('title')).slice(0, 100)} ${pathOnly(item.getAttribute('src') || item.getAttribute('data') || '', node.ownerDocument.baseURI)}`
+    ).join('; ').slice(0, 600);
     return {
       text: compact(copy.textContent).slice(0, 5000),
       tag: node.tagName,
       role: compact(`${node.getAttribute('role') || ''} ${node.className || ''}`).slice(0, 80),
-      structural: compact(`Section ${sectionContext(node)}; Regions ${regionContext(node)}; Parent ${node.parentElement?.tagName || ''} ${node.parentElement?.className || ''}; ${node.parentElement?.children.length > 1 ? 'multiple sibling blocks' : 'single child'}; headings ${copy.querySelectorAll('h1,h2,h3').length}; paragraphs ${copy.querySelectorAll('p').length}; text length ${compact(copy.textContent).length}; ancestor ${node.closest('main,aside,nav,footer,[role="main"],[role="feed"]')?.tagName || ''}`).slice(0,1500),
+      structural: compact(`Embeds ${embeds}; Section ${sectionContext(node)}; Regions ${regionContext(node)}; Parent ${node.parentElement?.tagName || ''} ${node.parentElement?.className || ''}; ${node.parentElement?.children.length > 1 ? 'multiple sibling blocks' : 'single child'}; headings ${copy.querySelectorAll('h1,h2,h3').length}; paragraphs ${copy.querySelectorAll('p').length}; text length ${compact(copy.textContent).length}; ancestor ${node.closest('main,aside,nav,footer,[role="main"],[role="feed"]')?.tagName || ''}`).slice(0,1500),
       images: elements('img').slice(0, 6).map(img => ({
         alt: compact(`${img.alt || ''} ${img.title || ''} ${img.parentElement?.className || ''}`).slice(0, 200),
         src: pathOnly(img.getAttribute('src') || img.getAttribute('data-src') || '', node.ownerDocument.baseURI)

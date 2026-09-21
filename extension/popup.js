@@ -6,7 +6,14 @@ if (new URLSearchParams(location.search).get('embedded') === '1') {
   });
 }
 const {t} = globalThis.PagePureI18n;
-globalThis.PagePureI18n.ready.then(() => globalThis.PagePureI18n.applyStatic());
+globalThis.PagePureI18n.ready.then(() => {
+  globalThis.PagePureI18n.applyStatic();
+  const word=document.querySelector('.brand-seal-word');
+  const length=[...word.textContent].length;
+  word.style.fontSize=(length<=2?10:Math.min(8,28/(length*.65)))+'px';
+});
+const manifestVersion=chrome.runtime.getManifest?.().version;
+if(manifestVersion)document.querySelector('#version').textContent=manifestVersion;
 const controls = document.querySelector('#controls');
 const enabled = document.querySelector('#enabled');
 const aiEnabled = document.querySelector('#aiEnabled');
@@ -17,6 +24,7 @@ const clearKey = document.querySelector('#clearKey');
 const status = document.querySelector('#status');
 const pageStatus = document.querySelector('#pageStatus');
 let configured = false;
+let savedContext = '';
 async function request(type, payload, timeoutMs = 0) {
   let timer;
   const response = chrome.runtime.sendMessage({type, ...(payload ? {payload} : {})});
@@ -68,12 +76,16 @@ enabled.addEventListener('change', () => {
 });
 document.querySelector('#settings').addEventListener('submit', event => {
   event.preventDefault();
-  const goal = context.value.trim();
-  if (!goal) { showMessage(t('popupErrorNeedGoal'), true); context.focus(); return; }
+  const goal = context.value === savedContext ? savedContext : context.value.trim();
+  // Keep custom wording intact; the blocking-list format is a suggested template.
+  if (context.value !== savedContext && (!goal || /^\u5c4f\u853d\s*[:\uff1a][\s\u3001\uff0c,]*$/.test(goal))) {
+    showMessage(t('popupContextFormat'), true); context.focus(); return;
+  }
   perform(async () => {
     const payload = {enabled: enabled.checked, aiEnabled: aiEnabled.checked, context: goal};
     if (key.value.trim()) payload.key = key.value.trim();
     const saved = await request('configSet', payload);
+    savedContext = context.value = goal;
     showKeyState(saved?.configured ?? (Boolean(payload.key) || configured));
     key.value = '';
     showMessage(!enabled.checked ? t('popupSavedOff') : !configured && aiEnabled.checked ? t('popupSavedManual') : t('popupSavedOn'));
@@ -96,7 +108,7 @@ document.querySelector('#preview').addEventListener('click', () => perform(async
   } else window.close();
 }));
 
-for (const [action, message] of [['toggleVisibility', 'popupToggledVisibility'], ['undoSave', 'popupUndone']]) {
+for (const [action, message] of [['toggleVisibility', 'popupToggledVisibility']]) {
   document.querySelector(`#${action}`).addEventListener('click', () => perform(async () => {
     await request('pageAction', {action});
     showMessage(t(message));
@@ -128,6 +140,7 @@ async function initialize() {
     enabled.checked = Boolean(config.enabled);
     aiEnabled.checked = Boolean(config.aiEnabled);
     context.value = config.context || '';
+    savedContext = context.value;
     if(config.origin)document.querySelector('label[for="context"]').textContent=t('popupContextSiteHost', new URL(config.origin).hostname);
     showKeyState(config.configured);
     controls.disabled = false;

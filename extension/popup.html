@@ -2,23 +2,23 @@
 <html lang="zh-CN">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title data-i18n="extName">网页净化助手 · PagePure</title><link rel="stylesheet" href="popup.css"></head>
 <body>
-<header><img class="brand" src="icons/pagepure-48.png" alt=""><div><h1>PagePure</h1><p data-i18n="appTagline">让阅读更纯粹</p></div></header>
+<header><span class="brand-seal" aria-hidden="true"><span class="seal-mark"></span><span class="brand-seal-word" data-i18n="toolbarStamp">净化</span></span><div><h1 data-i18n="brandName">网页净化</h1><p data-i18n="appTagline">让阅读更纯粹</p></div></header>
 <main>
 <form id="settings"><fieldset id="controls" disabled>
 <label class="master" for="enabled"><span data-i18n="popupPurify">网页净化</span><input type="checkbox" id="enabled" role="switch"></label>
 <section class="manual-tools" data-i18n-aria-label="popupManualToolsAria" aria-label="可视化净化">
 <button type="button" id="preview" class="primary" data-i18n="popupPreviewButton">选择要隐藏的内容</button>
 <p class="hint" data-i18n="popupPreviewHint">点选隐藏，随时恢复。</p>
-<div class="quick-actions"><button type="button" id="toggleVisibility" class="secondary" data-i18n="popupToggleVisibility">原网页 / 净化</button><button type="button" id="undoSave" class="secondary" data-i18n="popupUndo">撤销上次保存</button></div>
+<div class="quick-actions"><button type="button" id="toggleVisibility" class="secondary" data-i18n="popupToggleVisibility">原网页 / 净化</button></div>
 </section>
-<button type="button" id="manageRules" class="secondary manager-link"><span data-i18n="popupManageRules">管理净化规则</span> <span aria-hidden="true">↗</span></button>
+<button type="button" id="manageRules" class="secondary manager-link"><span data-i18n="popupManageRules">设置</span> <span aria-hidden="true">↗</span></button>
 <div class="page-status"><span id="pageStatus" data-i18n="popupPageStatusLoading">正在读取页面状态…</span></div>
 <details class="advanced"><summary data-i18n="popupAdvanced">自动判断与设置</summary>
 <label class="ai-toggle" for="aiEnabled"><span data-i18n="popupAiToggle">此网站使用 AI 判断</span><input type="checkbox" id="aiEnabled" role="switch"></label>
-<p class="hint" data-i18n="popupAiHint">需配置 Jev 密钥，新网站默认关闭。</p>
+<p class="hint" data-i18n="popupAiHint">需配置 Jev 密钥，新网站默认关闭。规则执行后，AI 异步判断未覆盖区域。</p>
 <label class="field" for="context" data-i18n="popupContextLabel">此网站的自动净化需求</label>
-<textarea id="context" rows="4" maxlength="4000" required data-i18n-placeholder="popupContextPlaceholder" placeholder="例如：保留问题、回答和文章，隐藏推广、创作入口、推荐关注及页脚。"></textarea>
-<p class="hint" data-i18n="popupContextHint">未设置规则时使用，手动规则优先。</p>
+<textarea id="context" rows="4" maxlength="4000" data-i18n-placeholder="popupContextPlaceholder" placeholder="屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"></textarea>
+<p class="hint" data-i18n="popupContextHint">按“屏蔽：项目、项目”填写。页面先显示，AI 随后净化；手动规则优先，明确保留的区域不受 AI 影响。</p>
 <label class="field key-label" for="key"><span>Jev API Key</span><span id="keyState" data-i18n="popupKeyStateOff">未配置</span></label>
 <input type="password" id="key" autocomplete="off" spellcheck="false" data-i18n-placeholder="popupKeyPlaceholder" placeholder="填写你的 API Key">
 <div class="key-actions"><span class="hint" data-i18n="popupKeyHint">留空保留已保存的密钥</span><button type="button" id="clearKey" class="text-button" data-i18n="popupClearKey">清除密钥</button></div>
@@ -30,7 +30,7 @@
 <p id="status" role="status" aria-live="polite" data-i18n="popupStatusLoading">正在读取设置…</p>
 <button type="button" id="reconnect" class="secondary" hidden data-i18n="popupReconnect">重新连接</button>
 </main>
-<footer><span data-i18n="popupFocusReading">专注阅读</span> <span>0.7.1</span></footer>
+<footer><span data-i18n="popupFocusReading">专注阅读</span> <span id="version">0.7.5</span></footer>
 <script src="i18n.js"></script>
 <script src="popup.js"></script>
 </body></html>

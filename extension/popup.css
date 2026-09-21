@@ -58,3 +58,7 @@ footer{padding-inline:14px}
 }
 
 .manager-link{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:12px;padding:11px 13px}
+.brand-seal{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:36px;height:36px;border:1px solid #83aaa5;border-radius:50%;background:linear-gradient(145deg,#fff,#e8f3ee);color:#235d57;box-shadow:0 2px 6px #1e413c14}
+.brand-seal::before{content:"";position:absolute;inset:3px;border:1px dashed #235d5766;border-radius:50%}
+.seal-mark{width:6px;height:3px;border-left:1px solid #38766a;border-bottom:1px solid #38766a;transform:rotate(-53deg);margin-bottom:3px}
+.brand-seal-word{font-size:10px;font-weight:650;line-height:1.2;transform:rotate(-8deg)}

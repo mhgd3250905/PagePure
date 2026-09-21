@@ -505,3 +505,30 @@ test('confirmed group hiding can be restored with the same explicit group confir
  await env.click(env.ui.querySelector('#q-save'));
  assert.equal(env.document.querySelectorAll('[data-jev-manual-hidden]').length,0);
 });
+
+test('visible purification stamps update language without losing the editing draft',async()=>{
+ const env=await environment();await env.start();await env.click(env.document.querySelector('#promotion'));await env.click(env.ui.querySelector('#q-hide'));
+ const oldI18n=env.context.chrome.i18n;
+ env.context.chrome.i18n={...oldI18n,getMessage:key=>key==='toolbarStamp'?'Clean':oldI18n.getMessage(key)};
+ env.document.dispatchEvent(new env.context.window.Event('pagepure-locale-changed'));
+ assert.match(env.layer.querySelector('[data-purify-seal]').textContent,/Clean/);
+ assert.equal(selected(env,'promotion'),true);
+ assert.equal(env.calls.some(c=>c.type==='rulesSet'),false);
+});
+
+test('AI outlet protects every explicit rule and waits for reveal while leaving uncovered blocks eligible',async()=>{
+ const body='<html><body><main id="layout"><article id="reading">Reading</article><aside id="promotion">Promotion</aside><section id="free">Free</section></main></body></html>';
+ const env=await environment([{key:'https://example.com|site',rules:[{selector:'#reading',action:'keep'},{selector:'#promotion',action:'hide'}]}],body);
+ const outlet=env.context.JevPreview;
+ assert.equal(outlet.aiReady,true);
+ assert.equal(outlet.aiAllows(env.document.querySelector('#reading')),false);
+ assert.equal(outlet.aiAllows(env.document.querySelector('#promotion')),false);
+ assert.equal(outlet.aiAllows(env.document.querySelector('#layout')),false,'AI cannot hide a container of a protected region');
+ assert.equal(outlet.aiAllows(env.document.querySelector('#free')),true);
+ env.context.JevStartup={released:false};assert.equal(outlet.aiReady,false);
+ env.context.JevStartup.released=true;assert.equal(outlet.aiReady,true);
+ delete env.context.JevStartup;
+ await env.start();assert.equal(outlet.aiReady,false);
+ await env.click(env.ui.querySelector('#cancel'));assert.equal(outlet.aiReady,true);
+ await env.action('toggleVisibility');assert.equal(outlet.aiReady,false);
+});

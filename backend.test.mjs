@@ -132,7 +132,7 @@ test('split requires permission and key and rejects invalid candidates before se
   assert.equal((await h.send('splitBlock',payload,{...h.content,url:'https://example.com/'})).ok,false);
   assert.equal((await h.send('splitBlock',payload,h.popup)).ok,false);
   for(const blocks of [[block('a')],Array.from({length:21},(_,i)=>block('b'+i)),[block('parent'),block('a')],Array.from({length:6},()=>block('duplicate')),[block('a'),{...block('b'),structural:42}]]) assert.equal((await h.send('splitBlock',{...payload,blocks})).ok,false);
-  await h.send('configSet',{enabled:false,context:''},h.popup);
+  await h.send('configSet',{enabled:false,context:DEFAULT_CONTEXT},h.popup);
   assert.equal((await h.send('splitBlock',payload)).ok,false);assert.equal(calls,0);
 });
 test('split rejects partial or invented model output instead of changing regions',async()=>{
@@ -174,7 +174,7 @@ test('key stays private; only exact popup can mutate settings',async()=>{
   assert.equal(JSON.stringify(await h.send('configGet')).includes('test-key'),false);
   assert.equal((await h.send('configSet',{enabled:false,context:''})).ok,false);
   assert.equal((await h.send('configGet',{}, {...h.content,url:'https://www.zhihu.com.evil.test/'})).data.aiEnabled,false);
-  await h.send('configSet',{enabled:true,context:'changed',key:''},h.popup);
+  await h.send('configSet',{enabled:true,context:'屏蔽：广告',key:''},h.popup);
   assert.equal(h.api.storage.local.values.jevApiKey,'test-key-1234567890');
 });
 test('caches by descriptor and context across ids; changed context reclassifies',async()=>{
@@ -184,7 +184,7 @@ test('caches by descriptor and context across ids; changed context reclassifies'
   assert.equal((await h.send('classify',{blocks:[block('a')]})).data.results[0].hide,true);
   assert.equal((await h.send('classify',{blocks:[block('b')]})).data.results[0].id,'b');
   assert.equal(calls,1);
-  await h.send('configSet',{enabled:true,context:'新需求'},h.popup);
+  await h.send('configSet',{enabled:true,context:'屏蔽：推广'},h.popup);
   await h.send('classify',{blocks:[block('c')]});assert.equal(calls,2);
 });
 test('deduplicates concurrent requests and globally limits concurrency to three',async()=>{
@@ -205,7 +205,7 @@ test('status is scoped to tab and disabled state avoids requests',async()=>{
   const h=harness();await h.configure();
   await h.send('statusSet',{hidden:4,pending:2,error:''});
   assert.equal((await h.send('statusGet',{},h.popup)).data.hidden,4);
-  await h.send('configSet',{enabled:false,context:''},h.popup);
+  await h.send('configSet',{enabled:false,context:DEFAULT_CONTEXT},h.popup);
   assert.deepEqual((await h.send('classify',{blocks:[block('a')]})).data,{results:[],errors:[]});
 });
 test('settings and key removal notify every web tab despite missing content scripts',async()=>{
@@ -229,7 +229,7 @@ test('embedded extension console reads and retries its own Zhihu tab',async()=>{
   assert.equal((await h.send('statusGet',{tabId:1},embedded)).data.hidden,6);
   assert.equal((await h.send('retry',{tabId:1},embedded)).ok,true);
   assert.deepEqual(messages,[{id:9,message:{type:'retry'}}]);
-  assert.equal((await h.send('configSet',{enabled:true,context:'仅保留阅读内容',key:'test-key-1234567890'},embedded)).ok,true);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,key:'test-key-1234567890'},embedded)).ok,true);
   assert.equal(JSON.stringify(await h.send('configGet',{},embedded)).includes('test-key'),false);
 });
 
@@ -264,7 +264,7 @@ test('generic sites require per-origin AI opt in before sending any content',asy
   assert.equal((await h.send('configGet',{},generic)).data.aiEnabled,false);
   assert.equal((await h.send('classify',{blocks:[block('x')]},generic)).data.errors.length,1);
   assert.equal(calls,0);
-  assert.equal((await h.send('configSet',{enabled:true,context:'正文',aiEnabled:true},embedded)).ok,true);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true},embedded)).ok,true);
   assert.equal((await h.send('configGet',{},generic)).data.aiEnabled,true);
   assert.equal((await h.send('classify',{blocks:[block('x')]},generic)).data.results[0].hide,true);
   assert.equal(calls,1);
@@ -385,11 +385,11 @@ test('reading goals are per origin and legacy Zhihu defaults do not leak into CS
  const h=harness();h.api.storage.local.values.context='只保留知乎的文章';
  const home={...h.popup,url:h.api.runtime.getURL('popup.html?embedded=1'),tab:{id:2,url:'https://www.csdn.net/'}};
  const blog={...home,tab:{id:3,url:'https://blog.csdn.net/a/article/details/1'}};
- const c=await h.send('configGet',undefined,home);assert.match(c.data.context,/CSDN 首页/);assert.doesNotMatch(c.data.context,/知乎/);
- await h.send('configSet',{enabled:true,context:'首页个人需求'},home);
- await h.send('configSet',{enabled:true,context:'文章个人需求'},blog);
- assert.equal((await h.send('configGet',undefined,home)).data.context,'首页个人需求');
- assert.equal((await h.send('configGet',undefined,blog)).data.context,'文章个人需求');
+ const c=await h.send('configGet',undefined,home);assert.equal(c.data.context,DEFAULT_CONTEXT);assert.doesNotMatch(c.data.context,/知乎/);
+ await h.send('configSet',{enabled:true,context:'屏蔽：首页推广'},home);
+ await h.send('configSet',{enabled:true,context:'屏蔽：文章推广'},blog);
+ assert.equal((await h.send('configGet',undefined,home)).data.context,'屏蔽：首页推广');
+ assert.equal((await h.send('configGet',undefined,blog)).data.context,'屏蔽：文章推广');
  assert.equal((await h.send('configGet')).data.context,'只保留知乎的文章');
  const other={...h.content,url:'https://example.net/'};
  assert.equal((await h.send('configGet',undefined,other)).data.context,DEFAULT_CONTEXT);
@@ -556,4 +556,68 @@ test('content scripts can request the active locale table',async()=>{
  await h.api.storage.local.remove('uiLocale');await h.api.storage.local.remove('uiMessages');
  const empty=await h.send('i18nGet');
  assert.deepEqual(empty.data,{});
+});
+
+
+test('visibility only hides high-confidence matches and sends the blocking list without categories',async()=>{
+  const low=answer('hide');low.answers.visibility.confidence=0.79;
+  assert.equal(parseAnswer('a',low).hide,false);
+  low.answers.visibility.confidence=0.8;
+  assert.equal(parseAnswer('a',low).hide,true);
+  let request;
+  const h=harness(async(url,init)=>{request=JSON.parse(init.body);return {ok:true,json:async()=>answer('keep')};});
+  await h.configure();
+  await h.send('classify',{blocks:[block('a')]});
+  assert.equal(request.state.user_context,DEFAULT_CONTEXT);
+  assert.deepEqual(Object.keys(request.questions),['visibility']);
+  assert.match(request.questions.visibility.instructions,/不可信/);
+  assert.match(request.questions.visibility.instructions,/屏蔽/);
+});
+
+test('custom requirements persist verbatim while empty edits are rejected and toggle saves preserve old goals',async()=>{
+  const h=harness();
+  assert.equal((await h.send('configGet')).data.context,DEFAULT_CONTEXT);
+  for(const context of ['', '屏蔽：', '屏蔽:   ', '屏蔽：、，']) {
+    assert.equal((await h.send('configSet',{enabled:true,context},h.popup)).ok,false,context);
+  }
+  for(const context of ['屏蔽：广告、推广', '屏蔽: Ads, Sponsored', '屏蔽：广告，营销']) {
+    assert.equal((await h.send('configSet',{enabled:true,context},h.popup)).ok,true,context);
+    assert.equal((await h.send('configGet')).data.context,context);
+  }
+  h.api.storage.local.values['context:https://www.zhihu.com']='保留旧的阅读需求';
+  assert.equal((await h.send('configSet',{enabled:false,context:'保留旧的阅读需求'},h.popup)).ok,true);
+  assert.equal((await h.send('configGet')).data.context,'保留旧的阅读需求');
+  assert.equal((await h.send('configSet',{enabled:true,context:'新的自由文本'},h.popup)).ok,true);
+  assert.equal((await h.send('configGet')).data.context,'新的自由文本');
+});
+
+test('freeform requirements reach visibility with full-intent and mixed-content protections',async()=>{
+  let request;
+  const h=harness(async(url,init)=>{request=JSON.parse(init.body);return {ok:true,json:async()=>answer('hide')};});
+  await h.configure();
+  const context='屏蔽所有广告和所有与播客文章不相关的内容';
+  assert.equal((await h.send('configSet',{enabled:true,context},h.popup)).ok,true);
+  const result=await h.send('classify',{blocks:[block('a')]});
+  assert.equal(result.data.results[0].hide,true);
+  assert.equal(request.state.user_context,context);
+  const instructions=request.questions.visibility.instructions;
+  assert.match(instructions,/完整 user_context/);
+  assert.match(instructions,/自由文字，不要求固定前缀/);
+  assert.match(instructions,/独立的课程、直播、商品/);
+  assert.match(instructions,/导航不自动豁免/);
+  assert.match(instructions,/混合了需要保留的正文或必要阅读操作/);
+  assert.match(instructions,/信息不足或不确定时选择 keep/);
+});
+
+
+test('new visibility policy does not reuse results cached under the previous prompt',async()=>{
+  let calls=0;
+  const h=harness(async()=>{calls++;return {ok:true,json:async()=>answer('keep')};});
+  await h.configure();
+  const {id,...descriptor}=block('a');
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(['blocking-list-v1',DEFAULT_CONTEXT,descriptor])));
+  const key='result:'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
+  h.api.storage.session.values[key]={hide:true,confidence:0.6};
+  assert.equal((await h.send('classify',{blocks:[block('a')]})).data.results[0].hide,false);
+  assert.equal(calls,1);
 });

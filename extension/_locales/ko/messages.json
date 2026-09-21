@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "웹 정화"
+  },
   "extName": {
     "message": "PagePure - 웹 페이지 정화"
   },
@@ -24,7 +27,7 @@
     "message": "마지막 저장 취소"
   },
   "popupManageRules": {
-    "message": "정화 규칙 관리"
+    "message": "설정"
   },
   "popupPageStatusLoading": {
     "message": "페이지 상태를 확인하는 중…"
@@ -36,7 +39,7 @@
     "message": "이 사이트에서 AI 판정 사용"
   },
   "popupAiHint": {
-    "message": "Jev API 키가 필요합니다. 새 사이트는 기본 꺼짐."
+    "message": "Jev 키가 필요하며 새 사이트에서는 기본적으로 꺼져 있습니다. 규칙 적용 후 AI가 규칙이 없는 영역을 비동기로 판단합니다."
   },
   "popupContextLabel": {
     "message": "이 사이트의 자동 정화 기준"
@@ -45,10 +48,10 @@
     "message": "{1}의 자동 정화 기준"
   },
   "popupContextPlaceholder": {
-    "message": "예: 질문·답변·본문은 유지하고, 광고·홍보·프로필 추천·푸터는 숨기기"
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "규칙이 없을 때 사용되며 수동 규칙이 우선합니다."
+    "message": "“屏蔽：항목、항목” 형식으로 입력하세요. 페이지가 먼저 표시되고 AI가 나중에 정리합니다. 수동 규칙이 우선하며 명시적으로 유지한 영역은 표시됩니다."
   },
   "popupKeyStateOn": {
     "message": "구성됨"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "이 영역은 숨겨지지 않았습니다. 복원 규칙이 적용 중입니다. 이 페이지 또는 다른 범위의 규칙을 확인하세요."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "숨김 진단 로그"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "이 영역 {1}개 복원"
+  },
+  "popupContextFormat": {
+    "message": "정화 조건을 입력하세요. 예: 屏蔽：광고, 홍보."
   }
 }

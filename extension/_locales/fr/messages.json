@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "Web épuré"
+  },
   "extName": {
     "message": "PagePure - Purificateur web"
   },
@@ -24,7 +27,7 @@
     "message": "Annuler le dernier enregistrement"
   },
   "popupManageRules": {
-    "message": "Gérer les règles"
+    "message": "Réglages"
   },
   "popupPageStatusLoading": {
     "message": "Lecture de l'état de la page…"
@@ -36,7 +39,7 @@
     "message": "Utiliser l'IA sur ce site"
   },
   "popupAiHint": {
-    "message": "Nécessite une clé API Jev. Désactivé sur les nouveaux sites."
+    "message": "Nécessite une clé Jev ; désactivé par défaut sur les nouveaux sites. Après les règles, l’IA analyse les zones restantes de manière asynchrone."
   },
   "popupContextLabel": {
     "message": "Préférences de purification pour ce site"
@@ -45,10 +48,10 @@
     "message": "Préférences de purification pour {1}"
   },
   "popupContextPlaceholder": {
-    "message": "Ex. : garder questions, réponses et articles ; masquer promos, accès créateurs, recommandations et pieds de page."
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "Utilisé en l'absence de règles ; les règles manuelles priment."
+    "message": "Format : « 屏蔽：élément、élément ». La page apparaît avant le nettoyage par l’IA. Les règles manuelles sont prioritaires ; les zones explicitement conservées restent visibles."
   },
   "popupKeyStateOn": {
     "message": "Configurée"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "Cette zone reste visible : une règle de restauration est active. Vérifiez les règles de cette page ou des autres portées."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "Diagnostic du masquage"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "Restaurer ces {1} zones"
+  },
+  "popupContextFormat": {
+    "message": "Indiquez vos critères, par exemple : 屏蔽：Publicités, promotions."
   }
 }

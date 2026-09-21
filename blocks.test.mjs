@@ -58,6 +58,15 @@ test('hidden blocks remain tracked when their layout parent collapses', () => {
   assert.deepEqual(Array.from(collect(document, () => ({width: 0, height: 0})), n => n.id), ['hidden']);
 });
 
+test('iframe descriptions include embed evidence without query tokens or editable content', () => {
+  const {document, describe} = setup('<div id="embed"><iframe title="Sponsored placement" src="https://ads.example/placement?token=SECRET#SECRET"></iframe><div contenteditable="true"><iframe src="https://draft.example/SECRET"></iframe></div></div>');
+  const data = describe(document.querySelector('#embed'));
+  assert.match(data.structural, /IFRAME Sponsored placement https:\/\/ads.example\/placement/);
+  assert.doesNotMatch(JSON.stringify(data), /SECRET/);
+  assert.match(describe(document.querySelector('iframe')).structural, /IFRAME Sponsored placement/);
+  assert.ok(data.structural.length <= 1500);
+});
+
 test('manually hidden blocks remain tracked when their layout parent collapses', () => {
   const {document, collect} = setup('<div class="Topstory-container"><aside><section id="hidden" class="Card" data-jev-manual-hidden>推广</section></aside></div>');
   assert.deepEqual(Array.from(collect(document, () => ({width: 0, height: 0})), n => n.id), ['hidden']);

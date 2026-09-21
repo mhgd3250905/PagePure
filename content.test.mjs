@@ -9,14 +9,14 @@ const blocksSource = readFileSync(new URL('./extension/blocks.js', import.meta.u
 const contentSource = readFileSync(new URL('./extension/content.js', import.meta.url), 'utf8');
 const settle = async () => { for (let i = 0; i < 16; i++) await Promise.resolve(); };
 
-async function environment() {
+async function environment({preview, startup} = {}) {
   const {document, window} = parseHTML('<html><body><div class="Topstory-container"><main><article id="reading" class="Card TopstoryItem--advertCard">阅读文章</article><article id="promotion" class="Card">推广活动</article></main></div></body></html>');
   window.HTMLElement.prototype.getBoundingClientRect = () => ({width: 650, height: 180});
   let config = {enabled: true, configured: true, context: '保留阅读内容'};
   let listener, mutation, timerId = 0;
   const timers = new Map(), calls = [], reports = [];
   const context = {
-    document, URL,
+    document, URL, JevPreview: preview, JevStartup: startup,
     setTimeout(callback) { timers.set(++timerId, callback); return timerId; },
     clearTimeout(id) { timers.delete(id); },
     MutationObserver: class { constructor(callback) { mutation = callback; } observe() {} },
@@ -41,6 +41,7 @@ async function environment() {
   await flush();
   return {
     document, calls, reports, flush,
+    rulesApplied: async () => { document.dispatchEvent(new window.Event('pagepure-rules-applied')); await flush(); },
     mutate: () => mutation([]),
     change: async values => { config = {...config, ...values}; listener({type: 'configChanged'}, {}, () => {}); await settle(); await flush(); },
     answer: async (call, hide) => {
@@ -107,4 +108,62 @@ test('SPA transition into question details invalidates homepage requests and sta
   assert.ok(env.calls[1].blocks.some(block => block.text === '新页面的回答'));
   await env.answer(env.calls[1], block => block.text === '广告推广');
   assert.deepEqual(env.marked(), ['sidebar']);
+});
+
+test('saved rules allow asynchronous classification of uncovered blocks and protect explicit keeps', async () => {
+  const preview = {hasRules: true, aiReady: true, aiAllows: node => node.id !== 'reading'};
+  const env = await environment({preview});
+  assert.equal(env.calls.length, 1);
+  assert.equal(env.calls[0].blocks.length, 1);
+  assert.equal(env.calls[0].blocks[0].text, '推广活动');
+  await env.answer(env.calls[0], () => true);
+  assert.deepEqual(env.marked(), ['promotion']);
+  preview.aiAllows = () => false;
+  await env.rulesApplied();
+  assert.deepEqual(env.marked(), [], 'new rules remove existing AI hiding');
+  assert.equal(env.calls.length, 1);
+});
+
+test('rules applied during a request discard late AI decisions for protected blocks', async () => {
+  const preview = {aiReady: true, aiAllows: () => true};
+  const env = await environment({preview});
+  preview.aiAllows = node => node.id !== 'promotion';
+  await env.rulesApplied();
+  await env.answer(env.calls[0], () => true);
+  assert.deepEqual(env.marked(), ['reading']);
+});
+
+test('late AI results recheck rule protection even before the rules event', async () => {
+  const preview = {aiReady: true, aiAllows: () => true};
+  const env = await environment({preview});
+  preview.aiAllows = () => false;
+  await env.answer(env.calls[0], () => true);
+  assert.deepEqual(env.marked(), []);
+});
+
+test('changed or disconnected content discards late classification before mutation scan', async () => {
+  const env = await environment();
+  env.document.querySelector('#reading').textContent = '替换后的文章';
+  env.document.querySelector('#promotion').remove();
+  await env.answer(env.calls[0], () => true);
+  assert.deepEqual(env.marked(), []);
+  await env.flush();
+  assert.equal(env.calls.length, 2);
+  assert.equal(env.calls[1].blocks.length, 1);
+  assert.equal(env.calls[1].blocks[0].text, '替换后的文章');
+});
+
+test('AI waits until startup is released and rule application is ready', async () => {
+  const preview = {aiReady: false}, startup = {released: false};
+  const env = await environment({preview, startup});
+  assert.equal(env.calls.length, 0);
+  preview.aiReady = true;
+  await env.rulesApplied();
+  assert.equal(env.calls.length, 0);
+  startup.released = true;
+  await env.rulesApplied();
+  assert.equal(env.calls.length, 1);
+  preview.aiReady = false;
+  await env.answer(env.calls[0], () => true);
+  assert.deepEqual(env.marked(), [], 'editing or original-page mode invalidates late results');
 });

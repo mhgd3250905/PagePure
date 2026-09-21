@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "Temiz Web"
+  },
   "extName": {
     "message": "PagePure - Web Temizleyici"
   },
@@ -24,7 +27,7 @@
     "message": "Son kaydı geri al"
   },
   "popupManageRules": {
-    "message": "Kuralları yönet"
+    "message": "Ayarlar"
   },
   "popupPageStatusLoading": {
     "message": "Sayfa durumu okunuyor…"
@@ -36,7 +39,7 @@
     "message": "Bu sitede yapay zekâ kullan"
   },
   "popupAiHint": {
-    "message": "Jev API anahtarı gerekir. Yeni sitelerde kapalıdır."
+    "message": "Jev anahtarı gerekir; yeni sitelerde varsayılan olarak kapalıdır. Kurallardan sonra yapay zekâ kalan alanları eşzamansız değerlendirir."
   },
   "popupContextLabel": {
     "message": "Bu site için otomatik temizlik tercihleri"
@@ -45,10 +48,10 @@
     "message": "{1} için otomatik temizlik tercihleri"
   },
   "popupContextPlaceholder": {
-    "message": "Örn.: sorular, yanıtlar ve yazılar kalsın; reklamlar, tanıtımlar, öneriler ve alt bilgi gizlensin."
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "Kural yokken kullanılır; elle yapılan kurallar önceliklidir."
+    "message": "“屏蔽：öğe、öğe” biçimini kullanın. Önce sayfa görünür, ardından yapay zekâ temizler. Elle belirlenen kurallar önceliklidir; açıkça korunan alanlar görünür kalır."
   },
   "popupKeyStateOn": {
     "message": "Yapılandırıldı"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "Bu alan gizlenmedi: bir geri yükleme kuralı hâlâ etkin. Bu sayfanın veya diğer kapsamların kurallarını kontrol edin."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "Gizleme tanılama günlüğü"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "Bu {1} alanı geri yükle"
+  },
+  "popupContextFormat": {
+    "message": "Temizleme tercihlerinizi yazın, örneğin: 屏蔽：Reklamlar, tanıtımlar."
   }
 }

@@ -3,17 +3,7 @@ import {snapshotRequest} from './snapshots.mjs';
 import {classifyBlock, splitBlock} from './classifier.mjs';
 import './i18n.js';
 const {t} = globalThis.PagePureI18n;
-const LEGACY_CONTEXT = '只保留知乎的文章、问题、回答等真实阅读内容及其必要操作。隐藏广告、活动横幅、创作入口、推广服务、推荐关注、热搜、帮助中心、举报说明、关于网站和备案页脚。不要按文章主题筛选。';
-export const DEFAULT_CONTEXT = '保留当前网站的主要内容、导航、搜索和必要操作。隐藏广告、无关推广、悬浮营销及重复推荐。不要按内容主题筛选；功能不明确或与正文混合时保留。';
-function defaultContext(url) {
-  try {
-    const host=new URL(url).hostname;
-    if(host==='blog.csdn.net')return '保留 CSDN 文章正文、代码、目录、作者信息及必要阅读操作。隐藏广告、会员营销、课程推广、活动推荐和无关侧栏推荐。不要按文章主题筛选；与正文混合时保留。';
-    if(host==='www.csdn.net')return '保留 CSDN 首页的文章信息流、技术资讯、开源项目、导航和搜索。隐藏广告、会员营销、课程推广和活动推荐。不要按内容主题筛选；功能不明确时保留。';
-    if(host==='www.zhihu.com'||host==='zhuanlan.zhihu.com')return LEGACY_CONTEXT;
-  }catch{}
-  return DEFAULT_CONTEXT;
-}
+export const DEFAULT_CONTEXT = '屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块';
 function validateBlocks(payload) {
   if (!Array.isArray(payload?.blocks) || !payload.blocks.length || payload.blocks.length > 5) throw new Error(t('bgErrorBatchCount'));
   const ids = new Set();
@@ -74,7 +64,7 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
     const legacy=onZhihu(url)&&typeof values.context==='string'?values.context:undefined;
     const experienceKey=origin?'splitExperience:'+splitScope(url):'';
     const experience=experienceKey?(await chromeApi.storage.local.get(experienceKey))[experienceKey]:null;
-    return {splitExperienceAvailable:Array.isArray(experience)&&experience.length>0,aiEnabled: typeof site === 'boolean' ? site : onZhihu(url), enabled: values.enabled !== false, origin, context: typeof localContext==='string'?localContext:legacy??defaultContext(url), configured: Boolean(values.jevApiKey)};
+    return {splitExperienceAvailable:Array.isArray(experience)&&experience.length>0,aiEnabled: typeof site === 'boolean' ? site : onZhihu(url), enabled: values.enabled !== false, origin, context: typeof localContext==='string'?localContext:legacy??DEFAULT_CONTEXT, configured: Boolean(values.jevApiKey)};
   };
   const activeTab = async () => (await chromeApi.tabs.query({active:true,currentWindow:true})).find(tab => onWeb(tab.url));
   const notifyConfig = async () => {
@@ -107,6 +97,9 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
       if (type === 'configSet') {
         if (typeof payload?.enabled !== 'boolean' || typeof payload.context !== 'string' || payload.context.length > 4000) throw new Error(t('bgErrorSettings'));
         if(!onWeb(targetUrl))throw new Error(t('bgErrorSaveOnWeb'));
+        const current = await config(targetUrl);
+        // Older saved free-form goals remain usable when only toggling settings.
+        if (payload.context !== current.context && (!payload.context.trim() || /^屏蔽\s*[:：][\s、，,]*$/u.test(payload.context.trim()))) throw new Error(t('bgErrorSettings'));
         const update = {enabled:payload.enabled,['context:'+new URL(targetUrl).origin]:payload.context};
         if (payload.aiEnabled !== undefined) {
           if (typeof payload.aiEnabled !== 'boolean' || !onWeb(targetUrl)) throw new Error(t('bgErrorAiOnWeb'));
@@ -269,7 +262,7 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
       await Promise.all(blocks.map(async block => {
         try {
           const {id,...descriptor} = block;
-          const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([settings.context,descriptor])));
+          const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(['full-context-v2',settings.context,descriptor])));
           const key = 'result:'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
           const cached = (await chromeApi.storage.session.get(key))[key];
           if (cached) {results.push({...cached,id}); return;}

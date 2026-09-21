@@ -91,37 +91,80 @@ test('localized UI scripts keep no hardcoded Chinese outside messages', () => {
 test('content scripts receive the locale table from the service worker', async () => {
   const {runInNewContext} = await import('node:vm');
   const enTable = {managerSettingsNav: {message: 'Settings'}};
+  let fetches = 0, storageReads = 0;
   const context = {
     location: {protocol: 'https:'},
     chrome: {
+      storage: {local: {get: async () => { storageReads++; throw new Error('forbidden'); }}},
       i18n: {getMessage: key => zh[key]?.message || '', getUILanguage: () => 'zh-CN'},
       runtime: {sendMessage: async message => {
         assert.equal(message.type, 'i18nGet', 'content scripts must ask, not read storage');
         return {ok: true, data: {locale: 'en', messages: enTable}};
       }, onMessage: {addListener() {}}}
     },
-    fetch: async () => { throw new Error('content scripts must not fetch extension files'); }
+    fetch: async () => { fetches++; throw new Error('content scripts must not fetch extension files'); }
   };
   runInNewContext(i18nSource2(), context);
   await context.PagePureI18n.ready;
   assert.equal(context.PagePureI18n.t('managerSettingsNav'), 'Settings');
   assert.equal(context.PagePureI18n.t('extName'), zh.extName.message, 'keys missing from the override fall back to the browser locale');
+  assert.equal(fetches, 0);
+  assert.equal(storageReads, 0);
 });
 
-test('extension pages read the persisted table directly, without any fetch', async () => {
+test('trusted contexts replace stale cached messages from the current bundle without storage event loops', async () => {
   const {runInNewContext} = await import('node:vm');
   const jaTable = {managerSettingsNav: {message: '設定'}};
+  let cachedTable = {managerSettingsNav: {message: 'Old settings'}}, listener;
+  let writes = 0, fetches = 0;
   const context = {
     location: {protocol: 'chrome-extension:'},
     chrome: {
       i18n: {getMessage: key => zh[key]?.message || '', getUILanguage: () => 'zh-CN'},
-      storage: {local: {get: async () => ({uiLocale: 'ja', uiMessages: jaTable})}, onChanged: {addListener() {}}}
+      runtime: {getURL: path => path},
+      storage: {local: {
+        get: async () => ({uiLocale: 'ja', uiMessages: cachedTable}),
+        set: async entries => {
+          writes++;
+          cachedTable = entries.uiMessages;
+          listener({uiMessages: {newValue: cachedTable}}, 'local');
+        }
+      }, onChanged: {addListener(fn) { listener = fn; }}}
     },
-    fetch: async () => { throw new Error('the table is already stored; no fetch allowed'); }
+    fetch: async path => {
+      fetches++;
+      assert.equal(path, '_locales/ja/messages.json');
+      return {ok: true, json: async () => jaTable};
+    }
   };
   runInNewContext(i18nSource2(), context);
   await context.PagePureI18n.ready;
+  await context.PagePureI18n.ready;
   assert.equal(context.PagePureI18n.t('managerSettingsNav'), '設定');
+  assert.equal(writes, 1, 'the refresh event must not write the same table again');
+  assert.equal(fetches, 2);
+  assert.deepEqual(cachedTable, jaTable);
+});
+
+test('trusted contexts retain cached translations when the bundled table cannot load', async () => {
+  const {runInNewContext} = await import('node:vm');
+  for (const failure of ['network', 'http']) {
+    const context = {
+      location: {protocol: 'chrome-extension:'},
+      chrome: {
+        i18n: {getMessage: key => zh[key]?.message || ''},
+        runtime: {getURL: path => path},
+        storage: {local: {get: async () => ({uiLocale: 'ja', uiMessages: {managerSettingsNav: {message: '設定'}}})}, onChanged: {addListener() {}}}
+      },
+      fetch: async () => {
+        if (failure === 'network') throw new Error('unavailable');
+        return {ok: false};
+      }
+    };
+    runInNewContext(i18nSource2(), context);
+    await context.PagePureI18n.ready;
+    assert.equal(context.PagePureI18n.t('managerSettingsNav'), '設定');
+  }
 });
 
 test('extension pages heal a locale saved without its table', async () => {
@@ -190,4 +233,16 @@ test('a localeChanged broadcast switches language without a reload', async () =>
   broadcast({type: 'localeChanged'});
   await context.PagePureI18n.ready;
   assert.equal(context.PagePureI18n.t('managerSettingsNav'), '設定');
+});
+
+test('locale notification reaches mounted page UI only after its translated table is ready', async()=>{
+ const {runInNewContext}=await import('node:vm');
+ const {document}=parseHTML('<html><body></body></html>');
+ let broadcast,current=null;
+ const context={document,location:{protocol:'https:'},chrome:{i18n:{getMessage:key=>zh[key]?.message||''},runtime:{sendMessage:async()=>({ok:true,data:current||{}}),onMessage:{addListener(fn){broadcast=fn;}}}}};
+ runInNewContext(i18nSource2(),context);await context.PagePureI18n.ready;
+ const seen=[];document.addEventListener('pagepure-locale-changed',()=>seen.push(context.PagePureI18n.t('toolbarStamp')));
+ current={locale:'en',messages:en};broadcast({type:'localeChanged'});await context.PagePureI18n.ready;
+ current={locale:'zh_CN',messages:zh};broadcast({type:'localeChanged'});await context.PagePureI18n.ready;
+ assert.deepEqual(seen,['Clean','净化']);
 });

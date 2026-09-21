@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "PagePure"
+  },
   "extName": {
     "message": "PagePure - Web Purifier"
   },
@@ -24,7 +27,7 @@
     "message": "Undo last save"
   },
   "popupManageRules": {
-    "message": "Manage rules"
+    "message": "Settings"
   },
   "popupPageStatusLoading": {
     "message": "Reading page status…"
@@ -36,7 +39,7 @@
     "message": "Use AI on this site"
   },
   "popupAiHint": {
-    "message": "Needs a Jev API key. Off for new sites."
+    "message": "Requires a Jev key; off by default on new sites. After rules run, AI checks uncovered regions asynchronously."
   },
   "popupContextLabel": {
     "message": "Auto-purify preferences for this site"
@@ -45,10 +48,10 @@
     "message": "Auto-purify preferences for {1}"
   },
   "popupContextPlaceholder": {
-    "message": "e.g. Keep questions, answers and articles; hide promotions, creator entries, follow recommendations and footers."
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "Used when no rules are set; manual rules win."
+    "message": "Use “屏蔽：item、item”. The page appears first; AI cleans it afterward. Manual rules take priority, and explicitly kept regions stay visible."
   },
   "popupKeyStateOn": {
     "message": "Configured"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "This region is not hidden: a restore rule still applies. Check this page or other rule scopes."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "Hiding diagnostics"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "Restore these {1} regions"
+  },
+  "popupContextFormat": {
+    "message": "Enter your purification requirements, for example: 屏蔽：Ads, promotions."
   }
 }

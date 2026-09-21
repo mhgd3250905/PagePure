@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "ウェブ浄化"
+  },
   "extName": {
     "message": "PagePure - ウェブ浄化"
   },
@@ -24,7 +27,7 @@
     "message": "直前の保存を取り消す"
   },
   "popupManageRules": {
-    "message": "ルールを管理"
+    "message": "設定"
   },
   "popupPageStatusLoading": {
     "message": "ページの状態を取得中…"
@@ -36,7 +39,7 @@
     "message": "このサイトで AI 判定を使う"
   },
   "popupAiHint": {
-    "message": "Jev API キーが必要です。新しいサイトではオフ。"
+    "message": "Jev キーが必要です。新しいサイトでは初期状態でオフです。ルール適用後、対象外の領域を AI が非同期で判定します。"
   },
   "popupContextLabel": {
     "message": "このサイトの自動浄化設定"
@@ -45,10 +48,10 @@
     "message": "{1} の自動浄化設定"
   },
   "popupContextPlaceholder": {
-    "message": "例：質問・回答・記事は残し、広告・投稿導線・フォロー推荐・フッターは隠す。"
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "ルール未設定時に使用。手動ルールが優先。"
+    "message": "「屏蔽：項目、項目」の形式で入力します。先にページを表示し、その後 AI が非表示にします。手動ルールが優先され、明示的に保持した領域は表示されます。"
   },
   "popupKeyStateOn": {
     "message": "設定済み"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "この領域は非表示になっていません。復元ルールが有効です。このページや他の範囲のルールを確認してください。"
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "非表示の診断ログ"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "この {1} 個の領域を再表示"
+  },
+  "popupContextFormat": {
+    "message": "浄化の条件を入力してください。例：屏蔽：広告、宣伝。"
   }
 }

@@ -4,6 +4,11 @@
   let active = false, host, ui, layer, layerRoot, resizing, toolbarResizing, timer;
   let candidates = [], selected = new Set(), hidden = new Set();
   let groups = [], config = {}, url = '', revision = 0, previewing = false, collapsed = false;
+  let rulesReady=false, ruleCovered=new Set();
+  function notifyRulesApplied(){
+    const EventType=document.defaultView?.Event;
+    if(EventType)document.dispatchEvent(new EventType('pagepure-rules-applied'));
+  }
   let groupOffer=null;
   function clearGroupOffer(){
     groupOffer?.nodes.forEach(node=>node.removeAttribute('data-jev-group-offer'));
@@ -77,23 +82,24 @@
     if(applying)return;
     applying=true;
     try {
+      ruleCovered=matches(document,applicableRules());
       if(active||showOriginal||!config.enabled){restore();globalThis.JevPage?.report?.();return;}
       const nextHidden=visibility(applicableRules()).hidden;
       for(const node of nextHidden)if(!node.hasAttribute('data-jev-manual-hidden'))node.setAttribute('data-jev-manual-hidden','');
       for(const node of hidden)if(!nextHidden.has(node))node.removeAttribute('data-jev-manual-hidden');
       hidden=nextHidden;
       globalThis.JevPage?.report?.();
-    }finally{applying=false;}
+    }finally{applying=false;notifyRulesApplied();}
   }
   async function refresh() {
+    rulesReady=false;
     const version=++revision, nextUrl=page();
     if(url!==nextUrl){partitions.clear();showOriginal=false;}
     url=nextUrl;
     try {
       const [data,nextConfig]=await Promise.all([request('rulesGet',{keys:keys()}),request('configGet')]);
       if(version!==revision || url!==page())return;
-      groups=data.groups;config=nextConfig;
-      if(groups.length)globalThis.JevPage?.suspend();
+      groups=data.groups;config=nextConfig;rulesReady=true;
       if(active)syncCandidates();else apply();
       if(config.enabled&&groups.some(g=>g.rules.some(r=>r.selector)))globalThis.JevStartup?.prepare(apply);
       else globalThis.JevStartup?.release();
@@ -445,7 +451,8 @@
       work.then(()=>respond({ok:true})).catch(error=>respond({ok:false,error:error.message}));return true;
     }
   });
-  globalThis.JevPreview={get active(){return active;},get hasRules(){return showOriginal || groups.length>0;},get pending(){return 0;},get error(){return undefined;},start};
+  globalThis.JevPreview={get active(){return active;},get hasRules(){return showOriginal || groups.length>0;},get aiReady(){return rulesReady&&url===page()&&!active&&!showOriginal&&config.enabled&&globalThis.JevStartup?.released!==false;},aiAllows(node){return !!node?.isConnected&&![...ruleCovered].some(target=>target===node||target.contains(node)||node.contains(target));},get pending(){return 0;},get error(){return undefined;},start};
+  document.addEventListener('pagepure-locale-changed',()=>{if(active)position();});
   globalThis.addEventListener?.('popstate',()=>{if(active)leave();void refresh();});
   globalThis.navigation?.addEventListener('navigatesuccess',()=>{if(active)leave();void refresh();});
   void refresh();

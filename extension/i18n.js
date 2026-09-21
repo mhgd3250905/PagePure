@@ -34,13 +34,17 @@
       if (trusted) {
         const {uiLocale, uiMessages} = await chrome.storage.local.get(['uiLocale', 'uiMessages']);
         if (!uiLocale) { overrideTable = null; overrideLocale = ''; return; }
-        if (uiMessages && typeof uiMessages === 'object') { overrideTable = uiMessages; overrideLocale = uiLocale; return; }
-        // Heal a preference saved before its table was persisted.
+        overrideTable = uiMessages && typeof uiMessages === 'object' ? uiMessages : null;
+        overrideLocale = uiLocale;
+        // Refresh from the installed bundle even when a previous release left
+        // a cached table. Content scripts continue to use the worker's cache.
         const response = await fetch(chrome.runtime.getURL(`_locales/${uiLocale}/messages.json`));
         if (response.ok) {
           const messages = await response.json();
           overrideTable = messages; overrideLocale = uiLocale;
-          await chrome.storage.local.set({uiMessages: messages});
+          if (JSON.stringify(uiMessages) !== JSON.stringify(messages)) {
+            await chrome.storage.local.set({uiMessages: messages});
+          }
         }
       } else {
         const response = await chrome.runtime.sendMessage({type: 'i18nGet'});
@@ -49,17 +53,24 @@
           overrideTable = payload.messages; overrideLocale = payload.locale;
         } else { overrideTable = null; overrideLocale = ''; }
       }
-    } catch { /* Follow the browser language. */ }
+    } catch { /* Keep the cached table when the installed bundle is unreadable. */ }
   }
   let ready = refreshLocale();
+  function updateLocale() {
+    ready = refreshLocale().then(() => {
+      const doc = globalThis.document;
+      const EventType = doc?.defaultView?.Event;
+      if (EventType) doc.dispatchEvent(new EventType('pagepure-locale-changed'));
+    });
+  }
   try {
     if (trusted) {
       chrome.storage.onChanged.addListener((changes, area) => {
-        if (area === 'local' && (Object.hasOwn(changes, 'uiLocale') || Object.hasOwn(changes, 'uiMessages'))) ready = refreshLocale();
+        if (area === 'local' && (Object.hasOwn(changes, 'uiLocale') || Object.hasOwn(changes, 'uiMessages'))) updateLocale();
       });
     } else {
       chrome.runtime.onMessage.addListener(msg => {
-        if (msg?.type === 'localeChanged') ready = refreshLocale();
+        if (msg?.type === 'localeChanged') updateLocale();
       });
     }
   } catch { /* Events are unavailable in some test harnesses. */ }

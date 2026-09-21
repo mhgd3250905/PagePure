@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "網頁淨化"
+  },
   "extName": {
     "message": "網頁淨化助手 · PagePure"
   },
@@ -24,7 +27,7 @@
     "message": "撤銷上次儲存"
   },
   "popupManageRules": {
-    "message": "管理淨化規則"
+    "message": "設定"
   },
   "popupPageStatusLoading": {
     "message": "正在讀取頁面狀態…"
@@ -36,7 +39,7 @@
     "message": "此網站使用 AI 判斷"
   },
   "popupAiHint": {
-    "message": "需設定 Jev 金鑰，新網站預設關閉。"
+    "message": "需設定 Jev 金鑰，新網站預設關閉。規則執行後，AI 非同步判斷未涵蓋區域。"
   },
   "popupContextLabel": {
     "message": "此網站的自動淨化需求"
@@ -45,10 +48,10 @@
     "message": "此網站的自動淨化需求（{1}）"
   },
   "popupContextPlaceholder": {
-    "message": "例如：保留問題、回答和文章，隱藏推廣、創作入口、推薦關注及頁腳。"
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "未設定規則時使用，手動規則優先。"
+    "message": "請按「屏蔽：項目、項目」填寫。頁面先顯示，AI 隨後淨化；手動規則優先，明確保留的區域不受 AI 影響。"
   },
   "popupKeyStateOn": {
     "message": "已設定"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "目前區域未隱藏：仍有還原規則生效，請檢查此頁或其他範圍的規則。"
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "隱藏診斷記錄"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "還原這 {1} 處"
+  },
+  "popupContextFormat": {
+    "message": "請填寫淨化需求，例如：屏蔽：廣告、推廣。"
   }
 }

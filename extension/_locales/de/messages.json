@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "Web-Reiniger"
+  },
   "extName": {
     "message": "PagePure - Webseiten bereinigen"
   },
@@ -24,7 +27,7 @@
     "message": "Letztes Speichern zurücknehmen"
   },
   "popupManageRules": {
-    "message": "Regeln verwalten"
+    "message": "Einstellungen"
   },
   "popupPageStatusLoading": {
     "message": "Seitenstatus wird gelesen…"
@@ -36,7 +39,7 @@
     "message": "KI auf dieser Website verwenden"
   },
   "popupAiHint": {
-    "message": "Braucht einen Jev-API-Schlüssel. Auf neuen Seiten aus."
+    "message": "Ein Jev-Schlüssel ist erforderlich; auf neuen Websites standardmäßig aus. Nach den Regeln prüft die KI übrige Bereiche asynchron."
   },
   "popupContextLabel": {
     "message": "Bereinigungsregeln für diese Website"
@@ -45,10 +48,10 @@
     "message": "Bereinigungsregeln für {1}"
   },
   "popupContextPlaceholder": {
-    "message": "Z. B.: Fragen, Antworten und Artikel behalten; Werbung, Creator-Links, Empfehlungen und Fußzeilen ausblenden."
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "Gilt ohne Regeln; manuelle Regeln haben Vorrang."
+    "message": "Format: „屏蔽：Eintrag、Eintrag“. Die Seite erscheint zuerst, danach bereinigt die KI. Manuelle Regeln haben Vorrang; ausdrücklich beibehaltene Bereiche bleiben sichtbar."
   },
   "popupKeyStateOn": {
     "message": "Konfiguriert"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "Dieser Bereich ist nicht ausgeblendet: Eine Wiederherstellungsregel ist noch aktiv. Prüfe die Regeln dieser Seite oder anderer Geltungsbereiche."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "Ausblendungsdiagnose"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "Diese {1} Bereiche wiederherstellen"
+  },
+  "popupContextFormat": {
+    "message": "Gib deine Bereinigungswünsche ein, zum Beispiel: 屏蔽：Werbung, Promotionen."
   }
 }

@@ -1,4 +1,7 @@
 {
+  "brandName": {
+    "message": "Web pulito"
+  },
   "extName": {
     "message": "PagePure - Purificatore web"
   },
@@ -24,7 +27,7 @@
     "message": "Annulla ultimo salvataggio"
   },
   "popupManageRules": {
-    "message": "Gestisci regole"
+    "message": "Impostazioni"
   },
   "popupPageStatusLoading": {
     "message": "Lettura dello stato della pagina…"
@@ -36,7 +39,7 @@
     "message": "Usa l'IA su questo sito"
   },
   "popupAiHint": {
-    "message": "Richiede una chiave API Jev. Disattivato sui nuovi siti."
+    "message": "Richiede una chiave Jev; disattivata per i nuovi siti. Dopo le regole, l’IA analizza in modo asincrono le aree rimanenti."
   },
   "popupContextLabel": {
     "message": "Preferenze di purificazione per questo sito"
@@ -45,10 +48,10 @@
     "message": "Preferenze di purificazione per {1}"
   },
   "popupContextPlaceholder": {
-    "message": "Es.: mantieni domande, risposte e articoli; nascondi promo, accessi creator, consigliati e piè di pagina."
+    "message": "屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"
   },
   "popupContextHint": {
-    "message": "Usato in assenza di regole; quelle manuali hanno priorità."
+    "message": "Usa “屏蔽：elemento、elemento”. La pagina appare prima, poi l’IA la ripulisce. Le regole manuali hanno priorità; le aree mantenute esplicitamente restano visibili."
   },
   "popupKeyStateOn": {
     "message": "Configurata"
@@ -595,8 +598,7 @@
   },
   "areaHideConflict": {
     "message": "Questa area non è nascosta: è ancora attiva una regola di ripristino. Controlla le regole di questa pagina o di altri ambiti."
-  }
-,
+  },
   "diagnosticsTitle": {
     "message": "Diagnostica elementi nascosti"
   },
@@ -620,5 +622,8 @@
   },
   "groupKeepConfirm": {
     "message": "Ripristina queste {1} aree"
+  },
+  "popupContextFormat": {
+    "message": "Inserisci i criteri, ad esempio: 屏蔽：Pubblicità, promozioni."
   }
 }
