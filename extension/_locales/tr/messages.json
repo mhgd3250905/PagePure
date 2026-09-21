@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure - Web Temizleyici"
+  },
+  "extDescription": {
+    "message": "Sayfada bir bölge seçin, boyutunu ayarlayın, gizleyin veya geri getirin. Site ve sayfa kuralları her ziyarette uygulanır."
+  },
+  "appTagline": {
+    "message": "Daha saf okuma"
+  },
+  "popupPurify": {
+    "message": "Sayfaları temizle"
+  },
+  "popupPreviewButton": {
+    "message": "Gizlenecek öğeyi seçin"
+  },
+  "popupPreviewHint": {
+    "message": "Tıkla-gizle; istediğiniz an geri getirin."
+  },
+  "popupToggleVisibility": {
+    "message": "Orijinal / temiz"
+  },
+  "popupUndo": {
+    "message": "Son kaydı geri al"
+  },
+  "popupManageRules": {
+    "message": "Kuralları yönet"
+  },
+  "popupPageStatusLoading": {
+    "message": "Sayfa durumu okunuyor…"
+  },
+  "popupAdvanced": {
+    "message": "Otomatik tanıma ve ayarlar"
+  },
+  "popupAiToggle": {
+    "message": "Bu sitede yapay zekâ kullan"
+  },
+  "popupAiHint": {
+    "message": "Jev API anahtarı gerekir. Yeni sitelerde kapalıdır."
+  },
+  "popupContextLabel": {
+    "message": "Bu site için otomatik temizlik tercihleri"
+  },
+  "popupContextSiteHost": {
+    "message": "{1} için otomatik temizlik tercihleri"
+  },
+  "popupContextPlaceholder": {
+    "message": "Örn.: sorular, yanıtlar ve yazılar kalsın; reklamlar, tanıtımlar, öneriler ve alt bilgi gizlensin."
+  },
+  "popupContextHint": {
+    "message": "Kural yokken kullanılır; elle yapılan kurallar önceliklidir."
+  },
+  "popupKeyStateOn": {
+    "message": "Yapılandırıldı"
+  },
+  "popupKeyStateOff": {
+    "message": "Yapılandırılmadı"
+  },
+  "popupKeyPlaceholder": {
+    "message": "API anahtarınızı girin"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "Kaydedildi. Değiştirmek için yeni anahtar girin"
+  },
+  "popupKeyHint": {
+    "message": "Kayıtlı anahtarı korumak için boş bırakın"
+  },
+  "popupClearKey": {
+    "message": "Anahtarı sil"
+  },
+  "popupSave": {
+    "message": "Kaydet ve uygula"
+  },
+  "popupRetry": {
+    "message": "Yeniden değerlendir"
+  },
+  "popupClearPageRules": {
+    "message": "Bu sayfanın kurallarını sil"
+  },
+  "popupPrivacy": {
+    "message": "Veri ve gizlilik"
+  },
+  "popupPrivacyNote": {
+    "message": "YZ değerlendirmesi; öğe metnini, görsel açıklamalarını ve bağlantı yollarını TypeSafe Jev'e gönderir. Tüm DOM veya çerezler asla gönderilmez. Elle seçim için YZ gerekmez, kurallar bu cihazda saklanır."
+  },
+  "popupStatusLoading": {
+    "message": "Ayarlar yükleniyor…"
+  },
+  "popupReconnect": {
+    "message": "Yeniden bağlan"
+  },
+  "popupFocusReading": {
+    "message": "Okumaya odaklan"
+  },
+  "popupErrorTimeout": {
+    "message": "Bağlantı zaman aşımına uğradı. Yeniden bağlanın; sürerse uzantı yönetimi sayfasından PagePure'ı yeniden yükleyip sayfayı yenileyin"
+  },
+  "popupErrorRequest": {
+    "message": "İstek başarısız oldu. Lütfen yeniden deneyin"
+  },
+  "popupStatusNoPage": {
+    "message": "Durumu görmek için bir web sayfası açın"
+  },
+  "popupStatusFail": {
+    "message": "Değerlendirme başarısız: {1}"
+  },
+  "popupStatusHidden": {
+    "message": "{1} gizli · {2} bekliyor"
+  },
+  "popupEnabledOn": {
+    "message": "Açıldı. İçeriği seçmek için yukarıdaki düğmeyi kullanın"
+  },
+  "popupEnabledOff": {
+    "message": "Kapatıldı. Sayfa içeriği geri getirildi"
+  },
+  "popupErrorNeedGoal": {
+    "message": "Kalmmasını istediğinizi yazın"
+  },
+  "popupSavedOff": {
+    "message": "Kaydedildi. Sayfa temizleme kapalı"
+  },
+  "popupSavedManual": {
+    "message": "Kaydedildi. Elle seçim hemen çalışır; YZ için ayrıca API anahtarı gerekir"
+  },
+  "popupSavedOn": {
+    "message": "Kaydedildi. Bu sayfa otomatik güncellenecek"
+  },
+  "popupKeyCleared": {
+    "message": "Anahtar silindi"
+  },
+  "popupRetried": {
+    "message": "Bu sayfa için yeniden değerlendirme istendi"
+  },
+  "popupErrorEnableFirst": {
+    "message": "Seçimden önce sayfa temizlemeyi açıp kaydedin"
+  },
+  "popupEnteringSelection": {
+    "message": "Seçim modu açık. Gizlemek istediklerinize tıklayın"
+  },
+  "popupToggledVisibility": {
+    "message": "Görünüm değişti. Geri dönmek için yeniden tıklayın"
+  },
+  "popupUndone": {
+    "message": "Son kayıt geri alındı"
+  },
+  "popupClearedPageRules": {
+    "message": "Bu sayfanın temizleme kuralları silindi"
+  },
+  "statusPurifierOff": {
+    "message": "Sayfa temizleme kapalı"
+  },
+  "popupErrorLoadSettings": {
+    "message": "Ayarlar okunamadı: {1}"
+  },
+  "popupNotConnected": {
+    "message": "PagePure'a bağlı değil"
+  },
+  "consolePanelAria": {
+    "message": "PagePure kontrol paneli"
+  },
+  "consoleCollapse": {
+    "message": "Paneli daralt"
+  },
+  "consoleLauncherAria": {
+    "message": "PagePure panelini aç"
+  },
+  "consoleFrameTitle": {
+    "message": "PagePure ayarları"
+  },
+  "previewNoHelper": {
+    "message": "Yardımcıya ulaşılamıyor. Sayfayı yenileyin"
+  },
+  "toolbarStatusHidden": {
+    "message": "{1} gizli · kayıtta geçerli olur"
+  },
+  "toolbarStatusLegacy": {
+    "message": "Ayrıca {1} bölge kuralı var (koruma istisnaları dâhil)"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}: {3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "Yalnız bu sayfa "
+  },
+  "actionHide": {
+    "message": "Gizle"
+  },
+  "actionKeep": {
+    "message": "Geri getir"
+  },
+  "previewEmbedRegion": {
+    "message": "Gömülü içerik"
+  },
+  "previewImageRegion": {
+    "message": "Görsel veya içerik alanı"
+  },
+  "splitNeedsAi": {
+    "message": "Akıllı bölme için bu sitede YZ ve bir API anahtarı gerekir"
+  },
+  "splitExpandFirst": {
+    "message": "Bölmeye çalışmadan önce seçimi genişletin"
+  },
+  "splitInProgress": {
+    "message": "Bölünüyor…"
+  },
+  "splitLabel": {
+    "message": "Akıllı bölme"
+  },
+  "splitErrorChanged": {
+    "message": "Bölgenin içeriği değişti. Yeniden bölün"
+  },
+  "splitErrorTooFew": {
+    "message": "En az iki bağımsız blok bulunamadı; özgün bölge korunuyor"
+  },
+  "splitDone": {
+    "message": "{1} bölgeye ayrıldı. Bir tane seçin."
+  },
+  "quickSelectedRegion": {
+    "message": "Seçili bölge"
+  },
+  "selectionName": {
+    "message": "Seçili: {1}"
+  },
+  "splitUnstableSave": {
+    "message": "Bu bölme sınırları henüz güvenilir biçimde kaydedilemiyor. Seçimi düzeltip yeniden kaydedin; mevcut kurallar değişmedi."
+  },
+  "savePageChanged": {
+    "message": "Kurallar kaydedildi ama sayfa değişti. Seçim moduna yeniden girin."
+  },
+  "areaRuleFallback": {
+    "message": "Şu an kaydedilemiyor. Seçimi genişletip yeniden deneyin."
+  },
+  "previewPageOnlyHide": {
+    "message": "Yalnız bu sayfada gizli · kayıtta geçerli"
+  },
+  "previewPageOnlyKeep": {
+    "message": "Yalnız bu sayfada geri getirildi · kayıtta geçerli"
+  },
+  "candidateAria": {
+    "message": "{1}. bölgeyi seç"
+  },
+  "candidateTitle": {
+    "message": "Bu bölgeyi seçmek için tıklayın, sonra gizleme kapsamına karar verin"
+  },
+  "toolbarStamp": {
+    "message": "Temiz"
+  },
+  "maxRangeReached": {
+    "message": "Zaten seçilebilir en geniş bölgedesiniz"
+  },
+  "effectPreview": {
+    "message": "Ön izleme"
+  },
+  "effectBack": {
+    "message": "Seçime dön"
+  },
+  "unknownAction": {
+    "message": "Bilinmeyen işlem"
+  },
+  "toolbarAria": {
+    "message": "Bölge işlemleri"
+  },
+  "moreAria": {
+    "message": "Diğer işlemler"
+  },
+  "cancelAria": {
+    "message": "İptal et ve çık"
+  },
+  "scopeRangeLabel": {
+    "message": "Kapsam"
+  },
+  "rangeGroupAria": {
+    "message": "Kapsamı ayarla"
+  },
+  "largerBtn": {
+    "message": "Genişlet"
+  },
+  "largerTitle": {
+    "message": "Seçimi genişlet"
+  },
+  "smallerBtn": {
+    "message": "Daralt"
+  },
+  "smallerTitle": {
+    "message": "Seçimi daralt"
+  },
+  "splitTitle": {
+    "message": "Geniş bir bölgeyi tek tek seçilebilen küçük bölgelere ayırır"
+  },
+  "areaScopeLabel": {
+    "message": "Bölge"
+  },
+  "areaGroupAria": {
+    "message": "Bölge işlemleri"
+  },
+  "hideAreaBtn": {
+    "message": "Bölgeyi gizle"
+  },
+  "keepAreaBtn": {
+    "message": "Bölgeyi geri getir"
+  },
+  "pageScopeLabel": {
+    "message": "Bu sayfa"
+  },
+  "pageGroupAria": {
+    "message": "Yalnız bu sayfa işlemleri"
+  },
+  "pageHideAria": {
+    "message": "Yalnız bu sayfada gizle"
+  },
+  "pageKeepAria": {
+    "message": "Yalnız bu sayfada geri getir"
+  },
+  "saveBtn": {
+    "message": "Değişiklikleri kaydet"
+  },
+  "scopeSite": {
+    "message": "Tüm site"
+  },
+  "scopeType": {
+    "message": "Bu sayfa türü"
+  },
+  "scopeCurrentPage": {
+    "message": "Bu sayfa"
+  },
+  "bgDisallowed": {
+    "message": "İzin verilmeyen uzantı isteği"
+  },
+  "bgErrorSettings": {
+    "message": "Ayarlar geçersiz: okuma tercihleri en fazla 4000 karakter olabilir"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "Okuma tercihlerini kaydetmek için bir web sayfası açın"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "YZ'yi açmak için bir web sayfası açın"
+  },
+  "bgErrorInvalidKey": {
+    "message": "API anahtarı geçersiz"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "API anahtarının tamamını boşluk içermeden girin"
+  },
+  "bgErrorRuleScope": {
+    "message": "Kural kapsamı geçersiz"
+  },
+  "bgErrorRuleContent": {
+    "message": "Kural içeriği geçersiz"
+  },
+  "bgErrorPartition": {
+    "message": "Bölme sınırları geçersiz"
+  },
+  "bgErrorTooManyRules": {
+    "message": "Kural sayısı sınırı aşıyor"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "Bölme sınırı sayısı sınırı aşıyor"
+  },
+  "bgErrorStatus": {
+    "message": "Durum geçersiz"
+  },
+  "bgStatusNotWebpage": {
+    "message": "Normal bir web sayfasında kullanın"
+  },
+  "bgErrorPageAction": {
+    "message": "Geçersiz sayfa işlemi"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "Sayfa işlemi başarısız oldu"
+  },
+  "bgReasonAiOff": {
+    "message": "Bu sitede YZ kapalı. Ayarlardan açın ya da elle seçin"
+  },
+  "bgReasonNoKey": {
+    "message": "API anahtarı yok bile: bölgeleri elle seçebilirsiniz"
+  },
+  "bgErrorSplitCount": {
+    "message": "Bölme için 2 ile 20 arasında aday blok gerekir"
+  },
+  "bgErrorBlockId": {
+    "message": "Blok kimliği geçersiz veya yineleniyor"
+  },
+  "bgErrorBlockField": {
+    "message": "Bloğun {1} alanı geçersiz"
+  },
+  "bgErrorBatchCount": {
+    "message": "Her parti 1 ile 5 arasında blok içermeli"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "Bu sitede YZ kapalı. Ayarlardan açıp sonra bölün"
+  },
+  "bgErrorNeedKey": {
+    "message": "Önce uzantıya Jev API anahtarınızı kaydedin"
+  },
+  "bgErrorAiOff": {
+    "message": "Bu sitede YZ kapalı"
+  },
+  "clsInvalidFormat": {
+    "message": "Jev geçersiz karar biçimi döndürdü"
+  },
+  "clsCategoryFormat": {
+    "message": "Jev geçersiz kategori biçimi döndürdü"
+  },
+  "clsSplitFormat": {
+    "message": "Jev geçersiz bölme biçimi döndürdü"
+  },
+  "clsTimeout": {
+    "message": "Jev isteği zaman aşımına uğradı. Yeniden deneyin"
+  },
+  "clsConnect": {
+    "message": "Jev servisine ulaşılamıyor"
+  },
+  "clsKeyInvalid": {
+    "message": "Jev API anahtarı geçersiz"
+  },
+  "clsKeyForbidden": {
+    "message": "Bu Jev API anahtarının erişim izni yok"
+  },
+  "clsRateLimited": {
+    "message": "Jev istek sınırı uyguluyor. Birazdan yeniden deneyin"
+  },
+  "clsHttpError": {
+    "message": "Jev isteği başarısız (HTTP {1})"
+  },
+  "clsInvalidJson": {
+    "message": "Jev geçersiz JSON döndürdü"
+  },
+  "snapScopeInvalid": {
+    "message": "Anlık görüntü kapsamı geçersiz"
+  },
+  "snapContentInvalid": {
+    "message": "Anlık görüntü içeriği geçersiz"
+  },
+  "mgrScopeSite": {
+    "message": "Tüm site"
+  },
+  "mgrScopeType": {
+    "message": "Bu sayfa türü"
+  },
+  "mgrScopePage": {
+    "message": "Yalnız bu sayfa"
+  },
+  "mgrEntriesChanged": {
+    "message": "Seçili adresler değişti. Yenileyip yeniden seçin"
+  },
+  "mgrRevisionChanged": {
+    "message": "Kurallar değişti. Listeyi yenileyip yeniden onaylayın"
+  },
+  "contentNoHelper": {
+    "message": "Yardımcı bağlantısı başarısız. Sayfayı yenileyin"
+  },
+  "manualHttpOnly": {
+    "message": "Yalnızca HTTP/HTTPS sayfaları desteklenir"
+  },
+  "managerTitle": {
+    "message": "Temizleme kuralları · PagePure"
+  },
+  "managerHeading": {
+    "message": "Temizleme kuralları"
+  },
+  "managerNavAria": {
+    "message": "Yönetim gezinmesi"
+  },
+  "managerLocalNote": {
+    "message": "Kurallar bu tarayıcıda saklanır"
+  },
+  "managerEyebrow": {
+    "message": "Okuma alanınız"
+  },
+  "managerIntro": {
+    "message": "Kayıtlı kuralları düzenleyin, sayfaları istediğiniz hâline döndürün."
+  },
+  "managerWorkspaceAria": {
+    "message": "Kural listesi"
+  },
+  "managerSearchPlaceholder": {
+    "message": "Site veya sayfa adresi ara"
+  },
+  "managerRefresh": {
+    "message": "Yenile"
+  },
+  "managerSavedAddresses": {
+    "message": "Kayıtlı adresler"
+  },
+  "managerSelectAll": {
+    "message": "Tüm sonuçları seç"
+  },
+  "managerClearSelection": {
+    "message": "Seçimi temizle"
+  },
+  "managerFootnote": {
+    "message": "Silindikten sonra bu kurallar ilgili adreslerde artık uygulanmaz."
+  },
+  "managerConfirmTitle": {
+    "message": "Seçili kurallar silinsin mi?"
+  },
+  "managerCancel": {
+    "message": "İptal"
+  },
+  "managerConfirmDelete": {
+    "message": "Silmeyi onayla"
+  },
+  "managerUnknownAddress": {
+    "message": "Bilinmeyen adres"
+  },
+  "managerErrorDefault": {
+    "message": "İşlem tamamlanmadı. Yeniden deneyin."
+  },
+  "managerSelectedCount": {
+    "message": "{1} adres seçildi"
+  },
+  "managerNoneSelected": {
+    "message": "Seçim yok"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "Seçilenleri sil ({1})"
+  },
+  "managerDeleteSelected": {
+    "message": "Seçilenleri sil"
+  },
+  "managerEntryAria": {
+    "message": "{1}, {2}, {3} kural seç"
+  },
+  "managerRulesSuffix": {
+    "message": " kural"
+  },
+  "managerRuleTotal": {
+    "message": "Toplam kural: {1}"
+  },
+  "managerEmptyNoMatch": {
+    "message": "Eşleşen adres yok"
+  },
+  "managerEmptyNone": {
+    "message": "Henüz kayıtlı kural yok"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "Başka anahtar sözcükler deneyin veya tümünü görmek için aramayı temizleyin."
+  },
+  "managerEmptyNoneDesc": {
+    "message": "Bir web sayfasında temizleme ayarlarını kaydedin; hepsini buradan yönetin."
+  },
+  "managerLoading": {
+    "message": "Kurallar yükleniyor…"
+  },
+  "managerErrorLoad": {
+    "message": "Kurallar yüklenemedi. Yenileyip yeniden deneyin."
+  },
+  "managerErrorLoadFallback": {
+    "message": "Yükleme başarısız. Yenileyip yeniden deneyin."
+  },
+  "managerStaleDialog": {
+    "message": "Kurallar değişti. İptal edip seçimi yeniden onaylayın."
+  },
+  "managerConfirmSummary": {
+    "message": "{1} adresteki {2} kural silinecek; bu işlem geri alınamaz. Seçilmeyen adreslerle paylaşılan site kuralları geçerli olabilir."
+  },
+  "managerCountShort": {
+    "message": "{1}"
+  },
+  "managerDeleting": {
+    "message": "Siliniyor…"
+  },
+  "managerDeleted": {
+    "message": "{1} adresteki kurallar silindi."
+  },
+  "managerStaleRetry": {
+    "message": "Kurallar değişti, liste yenilendi. Adresleri gözden geçirip yeniden onaylayın."
+  },
+  "managerDeleteFailed": {
+    "message": "{1} Var olan seçili adresler korundu. Gözden geçirip yeniden deneyin."
+  },
+  "managerSettingsNav": {
+    "message": "Ayarlar"
+  },
+  "managerSettingsHeading": {
+    "message": "Ayarlar"
+  },
+  "managerLanguageLabel": {
+    "message": "Arayüz dili"
+  },
+  "managerLangDefault": {
+    "message": "Tarayıcıyı izle"
+  },
+  "managerLanguageHint": {
+    "message": "Seçilir seçilmez kaydedilir ve bu sayfa yenilenir; sayfa içi araç çubuğu bir sonraki seçim modu girişinde, açılır pencere yeniden açıldığında uygulanır."
+  },
+  "popupManualToolsAria": {
+    "message": "Görsel temizleme"
+  }
+}

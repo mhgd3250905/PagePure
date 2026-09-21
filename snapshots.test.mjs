@@ -1,4 +1,5 @@
 import test from 'node:test';
+import './i18n-support.mjs';
 import assert from 'node:assert/strict';
 import {snapshotRequest} from './extension/snapshots.mjs';
 test('snapshots persist by origin and rule revision, rejecting cross-origin writes',async()=>{

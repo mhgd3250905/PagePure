@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
+import {i18nSource, i18nChrome} from './i18n-support.mjs';
 
 const blocksSource = readFileSync(new URL('./extension/blocks.js', import.meta.url), 'utf8');
 const contentSource = readFileSync(new URL('./extension/content.js', import.meta.url), 'utf8');
@@ -19,9 +20,10 @@ async function environment() {
     setTimeout(callback) { timers.set(++timerId, callback); return timerId; },
     clearTimeout(id) { timers.delete(id); },
     MutationObserver: class { constructor(callback) { mutation = callback; } observe() {} },
-    chrome: {runtime: {
+    chrome: {...i18nChrome, runtime: {
       onMessage: {addListener(callback) { listener = callback; }},
       sendMessage(msg) {
+        if (msg.type === 'i18nGet') return Promise.resolve({ok: true, data: {}});
         if (msg.type === 'configGet') return Promise.resolve({ok: true, data: {...config}});
         if (msg.type === 'statusSet') { reports.push(msg.payload); return Promise.resolve({ok: true}); }
         if (msg.type === 'classify') return new Promise(resolve => calls.push({blocks: msg.payload.blocks, resolve}));
@@ -29,6 +31,7 @@ async function environment() {
       }
     }}
   };
+  runInNewContext(i18nSource, context);
   runInNewContext(blocksSource, context);
   runInNewContext(contentSource, context);
   await settle();

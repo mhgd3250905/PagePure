@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure - Web Purifier"
+  },
+  "extDescription": {
+    "message": "Select a page region, adjust its size, and hide or restore it. Site and page rules reapply on every visit."
+  },
+  "appTagline": {
+    "message": "Reading, purified."
+  },
+  "popupPurify": {
+    "message": "Purify pages"
+  },
+  "popupPreviewButton": {
+    "message": "Select what to hide"
+  },
+  "popupPreviewHint": {
+    "message": "Click to hide, restore anytime."
+  },
+  "popupToggleVisibility": {
+    "message": "Original / purified"
+  },
+  "popupUndo": {
+    "message": "Undo last save"
+  },
+  "popupManageRules": {
+    "message": "Manage rules"
+  },
+  "popupPageStatusLoading": {
+    "message": "Reading page status…"
+  },
+  "popupAdvanced": {
+    "message": "Auto decisions and settings"
+  },
+  "popupAiToggle": {
+    "message": "Use AI on this site"
+  },
+  "popupAiHint": {
+    "message": "Needs a Jev API key. Off for new sites."
+  },
+  "popupContextLabel": {
+    "message": "Auto-purify preferences for this site"
+  },
+  "popupContextSiteHost": {
+    "message": "Auto-purify preferences for {1}"
+  },
+  "popupContextPlaceholder": {
+    "message": "e.g. Keep questions, answers and articles; hide promotions, creator entries, follow recommendations and footers."
+  },
+  "popupContextHint": {
+    "message": "Used when no rules are set; manual rules win."
+  },
+  "popupKeyStateOn": {
+    "message": "Configured"
+  },
+  "popupKeyStateOff": {
+    "message": "Not configured"
+  },
+  "popupKeyPlaceholder": {
+    "message": "Enter your API key"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "Saved. Enter a new key to replace it"
+  },
+  "popupKeyHint": {
+    "message": "Leave blank to keep the saved key"
+  },
+  "popupClearKey": {
+    "message": "Clear key"
+  },
+  "popupSave": {
+    "message": "Save and apply"
+  },
+  "popupRetry": {
+    "message": "Re-check"
+  },
+  "popupClearPageRules": {
+    "message": "Clear rules for this page"
+  },
+  "popupPrivacy": {
+    "message": "Data and privacy"
+  },
+  "popupPrivacyNote": {
+    "message": "AI checks send module text, image descriptions and link paths to TypeSafe Jev; never the full DOM or cookies. Manual selection needs no AI, and rules stay on this device."
+  },
+  "popupStatusLoading": {
+    "message": "Loading settings…"
+  },
+  "popupReconnect": {
+    "message": "Reconnect"
+  },
+  "popupFocusReading": {
+    "message": "Focus on reading"
+  },
+  "popupErrorTimeout": {
+    "message": "Connection timed out. Reconnect; if it still fails, reload PagePure on the extensions page and refresh the web page"
+  },
+  "popupErrorRequest": {
+    "message": "Request failed. Please try again"
+  },
+  "popupStatusNoPage": {
+    "message": "Open a web page to see the status"
+  },
+  "popupStatusFail": {
+    "message": "Check failed: {1}"
+  },
+  "popupStatusHidden": {
+    "message": "{1} hidden · {2} pending"
+  },
+  "popupEnabledOn": {
+    "message": "Enabled. Click the button above to select content"
+  },
+  "popupEnabledOff": {
+    "message": "Off. Page content restored"
+  },
+  "popupErrorNeedGoal": {
+    "message": "Describe what you want to keep"
+  },
+  "popupSavedOff": {
+    "message": "Saved. Page purifier is off"
+  },
+  "popupSavedManual": {
+    "message": "Saved. Manual selection works right away; AI also needs an API key"
+  },
+  "popupSavedOn": {
+    "message": "Saved. This page will update automatically"
+  },
+  "popupKeyCleared": {
+    "message": "Key cleared"
+  },
+  "popupRetried": {
+    "message": "Requested a fresh check of this page"
+  },
+  "popupErrorEnableFirst": {
+    "message": "Turn on the purifier and save before selecting"
+  },
+  "popupEnteringSelection": {
+    "message": "Selection mode on. Click what you want to hide"
+  },
+  "popupToggledVisibility": {
+    "message": "Display toggled. Click again to switch back"
+  },
+  "popupUndone": {
+    "message": "Last save undone"
+  },
+  "popupClearedPageRules": {
+    "message": "Rules for this page were cleared"
+  },
+  "statusPurifierOff": {
+    "message": "Page purifier is off"
+  },
+  "popupErrorLoadSettings": {
+    "message": "Could not read settings: {1}"
+  },
+  "popupNotConnected": {
+    "message": "Not connected to PagePure"
+  },
+  "consolePanelAria": {
+    "message": "PagePure control panel"
+  },
+  "consoleCollapse": {
+    "message": "Collapse panel"
+  },
+  "consoleLauncherAria": {
+    "message": "Open the PagePure panel"
+  },
+  "consoleFrameTitle": {
+    "message": "PagePure settings"
+  },
+  "previewNoHelper": {
+    "message": "Cannot reach the helper. Refresh the page"
+  },
+  "toolbarStatusHidden": {
+    "message": "{1} hidden · applies on save"
+  },
+  "toolbarStatusLegacy": {
+    "message": "{1} more region rules (incl. keep exceptions)"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}: {3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "This page only "
+  },
+  "actionHide": {
+    "message": "Hide"
+  },
+  "actionKeep": {
+    "message": "Restore"
+  },
+  "previewEmbedRegion": {
+    "message": "Embedded content"
+  },
+  "previewImageRegion": {
+    "message": "Image or content area"
+  },
+  "splitNeedsAi": {
+    "message": "Smart splitting needs AI enabled for this site and an API key"
+  },
+  "splitExpandFirst": {
+    "message": "Expand the selection before splitting"
+  },
+  "splitInProgress": {
+    "message": "Splitting…"
+  },
+  "splitLabel": {
+    "message": "Smart split"
+  },
+  "splitErrorChanged": {
+    "message": "The region changed. Split it again"
+  },
+  "splitErrorTooFew": {
+    "message": "Fewer than two separate blocks found; keeping the original region"
+  },
+  "splitDone": {
+    "message": "Split into {1} regions. Pick one."
+  },
+  "quickSelectedRegion": {
+    "message": "Selected region"
+  },
+  "selectionName": {
+    "message": "Selected: {1}"
+  },
+  "splitUnstableSave": {
+    "message": "These split boundaries cannot be saved reliably yet. Adjust the range and save again; existing rules are unchanged."
+  },
+  "savePageChanged": {
+    "message": "Rules were saved, but the page changed. Re-enter selection mode."
+  },
+  "areaRuleFallback": {
+    "message": "Cannot save this yet. Expand the range and retry."
+  },
+  "previewPageOnlyHide": {
+    "message": "Hidden on this page only · applies on save"
+  },
+  "previewPageOnlyKeep": {
+    "message": "Restored on this page only · applies on save"
+  },
+  "candidateAria": {
+    "message": "Select region {1}"
+  },
+  "candidateTitle": {
+    "message": "Click to select this region, then decide what to hide"
+  },
+  "toolbarStamp": {
+    "message": "Clean"
+  },
+  "maxRangeReached": {
+    "message": "Already at the largest selectable range"
+  },
+  "effectPreview": {
+    "message": "Preview"
+  },
+  "effectBack": {
+    "message": "Back to selecting"
+  },
+  "unknownAction": {
+    "message": "Unknown action"
+  },
+  "toolbarAria": {
+    "message": "Region actions"
+  },
+  "moreAria": {
+    "message": "More actions"
+  },
+  "cancelAria": {
+    "message": "Cancel and exit"
+  },
+  "scopeRangeLabel": {
+    "message": "Range"
+  },
+  "rangeGroupAria": {
+    "message": "Adjust range"
+  },
+  "largerBtn": {
+    "message": "Expand"
+  },
+  "largerTitle": {
+    "message": "Expand the selection"
+  },
+  "smallerBtn": {
+    "message": "Shrink"
+  },
+  "smallerTitle": {
+    "message": "Shrink the selection"
+  },
+  "splitTitle": {
+    "message": "Split a large region into smaller selectable ones"
+  },
+  "areaScopeLabel": {
+    "message": "Region"
+  },
+  "areaGroupAria": {
+    "message": "Region actions"
+  },
+  "hideAreaBtn": {
+    "message": "Hide region"
+  },
+  "keepAreaBtn": {
+    "message": "Restore region"
+  },
+  "pageScopeLabel": {
+    "message": "This page"
+  },
+  "pageGroupAria": {
+    "message": "This-page actions"
+  },
+  "pageHideAria": {
+    "message": "Hide on this page"
+  },
+  "pageKeepAria": {
+    "message": "Restore on this page"
+  },
+  "saveBtn": {
+    "message": "Save changes"
+  },
+  "scopeSite": {
+    "message": "Entire site"
+  },
+  "scopeType": {
+    "message": "This page type"
+  },
+  "scopeCurrentPage": {
+    "message": "This page"
+  },
+  "bgDisallowed": {
+    "message": "Extension request not allowed"
+  },
+  "bgErrorSettings": {
+    "message": "Invalid settings. Reading preferences are limited to 4000 characters"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "Open a web page to save reading preferences"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "Open a web page to toggle AI"
+  },
+  "bgErrorInvalidKey": {
+    "message": "Invalid API key"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "Enter the full API key without whitespace"
+  },
+  "bgErrorRuleScope": {
+    "message": "Invalid rule scope"
+  },
+  "bgErrorRuleContent": {
+    "message": "Invalid rule content"
+  },
+  "bgErrorPartition": {
+    "message": "Invalid split boundaries"
+  },
+  "bgErrorTooManyRules": {
+    "message": "Too many rules"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "Too many split boundaries"
+  },
+  "bgErrorStatus": {
+    "message": "Invalid status"
+  },
+  "bgStatusNotWebpage": {
+    "message": "Open a regular web page"
+  },
+  "bgErrorPageAction": {
+    "message": "Invalid page action"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "Page action failed"
+  },
+  "bgReasonAiOff": {
+    "message": "AI is off for this site. Enable it in settings or select manually"
+  },
+  "bgReasonNoKey": {
+    "message": "No API key yet. You can still select regions manually"
+  },
+  "bgErrorSplitCount": {
+    "message": "Splitting needs 2 to 20 candidate blocks"
+  },
+  "bgErrorBlockId": {
+    "message": "Block id invalid or duplicated"
+  },
+  "bgErrorBlockField": {
+    "message": "Invalid block field {1}"
+  },
+  "bgErrorBatchCount": {
+    "message": "Each batch needs 1 to 5 blocks"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "AI is off for this site. Enable it in settings to split"
+  },
+  "bgErrorNeedKey": {
+    "message": "Save your Jev API key in the extension first"
+  },
+  "bgErrorAiOff": {
+    "message": "AI is off for this site"
+  },
+  "clsInvalidFormat": {
+    "message": "Invalid decision format from Jev"
+  },
+  "clsCategoryFormat": {
+    "message": "Invalid category format from Jev"
+  },
+  "clsSplitFormat": {
+    "message": "Invalid split format from Jev"
+  },
+  "clsTimeout": {
+    "message": "The Jev request timed out. Try again"
+  },
+  "clsConnect": {
+    "message": "Cannot reach the Jev service"
+  },
+  "clsKeyInvalid": {
+    "message": "Invalid Jev API key"
+  },
+  "clsKeyForbidden": {
+    "message": "This Jev API key has no access"
+  },
+  "clsRateLimited": {
+    "message": "Jev is rate limiting requests. Try again later"
+  },
+  "clsHttpError": {
+    "message": "Jev request failed (HTTP {1})"
+  },
+  "clsInvalidJson": {
+    "message": "Jev returned invalid JSON"
+  },
+  "snapScopeInvalid": {
+    "message": "Invalid snapshot scope"
+  },
+  "snapContentInvalid": {
+    "message": "Invalid snapshot content"
+  },
+  "mgrScopeSite": {
+    "message": "Entire site"
+  },
+  "mgrScopeType": {
+    "message": "This page type"
+  },
+  "mgrScopePage": {
+    "message": "This page only"
+  },
+  "mgrEntriesChanged": {
+    "message": "The selected addresses changed. Refresh and choose again"
+  },
+  "mgrRevisionChanged": {
+    "message": "Rules changed. Refresh the list and confirm again"
+  },
+  "contentNoHelper": {
+    "message": "Helper connection failed. Refresh the page"
+  },
+  "manualHttpOnly": {
+    "message": "Only HTTP/HTTPS pages are supported"
+  },
+  "managerTitle": {
+    "message": "Purification rules · PagePure"
+  },
+  "managerHeading": {
+    "message": "Purification rules"
+  },
+  "managerNavAria": {
+    "message": "Management navigation"
+  },
+  "managerLocalNote": {
+    "message": "Rules are stored in this browser"
+  },
+  "managerEyebrow": {
+    "message": "Your reading space"
+  },
+  "managerIntro": {
+    "message": "Organize your saved rules and bring pages back to how you want them."
+  },
+  "managerWorkspaceAria": {
+    "message": "Rule list"
+  },
+  "managerSearchPlaceholder": {
+    "message": "Search site or page addresses"
+  },
+  "managerRefresh": {
+    "message": "Refresh"
+  },
+  "managerSavedAddresses": {
+    "message": "Saved addresses"
+  },
+  "managerSelectAll": {
+    "message": "Select all results"
+  },
+  "managerClearSelection": {
+    "message": "Clear selection"
+  },
+  "managerFootnote": {
+    "message": "After deletion, these saved rules will no longer apply to the matching addresses."
+  },
+  "managerConfirmTitle": {
+    "message": "Delete the selected rules?"
+  },
+  "managerCancel": {
+    "message": "Cancel"
+  },
+  "managerConfirmDelete": {
+    "message": "Delete"
+  },
+  "managerUnknownAddress": {
+    "message": "Unknown address"
+  },
+  "managerErrorDefault": {
+    "message": "The action did not complete. Try again."
+  },
+  "managerSelectedCount": {
+    "message": "{1} addresses selected"
+  },
+  "managerNoneSelected": {
+    "message": "None selected"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "Delete selected ({1})"
+  },
+  "managerDeleteSelected": {
+    "message": "Delete selected"
+  },
+  "managerEntryAria": {
+    "message": "Select {1}, {2}, {3} rules"
+  },
+  "managerRuleTotal": {
+    "message": "{1} rules in total"
+  },
+  "managerEmptyNoMatch": {
+    "message": "No matching addresses"
+  },
+  "managerEmptyNone": {
+    "message": "No saved rules yet"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "Try other keywords, or clear the search to see all addresses."
+  },
+  "managerEmptyNoneDesc": {
+    "message": "Save purification settings on a web page and manage them all here."
+  },
+  "managerLoading": {
+    "message": "Loading rules…"
+  },
+  "managerErrorLoad": {
+    "message": "Failed to load rules. Refresh and retry."
+  },
+  "managerErrorLoadFallback": {
+    "message": "Load failed. Refresh and retry."
+  },
+  "managerStaleDialog": {
+    "message": "Rules have changed. Cancel and reconfirm the selection."
+  },
+  "managerConfirmSummary": {
+    "message": "This will delete {2} rules across {1} addresses and cannot be undone. Site rules shared with unselected addresses may still apply."
+  },
+  "managerCountShort": {
+    "message": "{1}"
+  },
+  "managerDeleting": {
+    "message": "Deleting…"
+  },
+  "managerDeleted": {
+    "message": "Rules deleted for {1} addresses."
+  },
+  "managerStaleRetry": {
+    "message": "Rules changed and the list refreshed. Recheck the addresses and confirm again."
+  },
+  "managerDeleteFailed": {
+    "message": "{1} Existing selected addresses were kept. Recheck and retry."
+  },
+  "popupManualToolsAria": {
+    "message": "Visual purification"
+  },
+  "managerRulesSuffix": {
+    "message": " rules"
+  },
+  "managerSettingsNav": {
+    "message": "Settings"
+  },
+  "managerSettingsHeading": {
+    "message": "Settings"
+  },
+  "managerLanguageLabel": {
+    "message": "Interface language"
+  },
+  "managerLangDefault": {
+    "message": "Follow browser language"
+  },
+  "managerLanguageHint": {
+    "message": "Saved right away and this page reloads; the in-page toolbar applies the next time you enter selection mode, the popup when reopened."
+  }
+}

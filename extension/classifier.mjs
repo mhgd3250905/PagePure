@@ -1,3 +1,5 @@
+import './i18n.js';
+const {t} = globalThis.PagePureI18n;
 export const questions = {
   visibility: {
     type: 'choice',
@@ -14,7 +16,7 @@ export function parseAnswer(id, payload) {
   if (answer?.type !== 'choice' || !['keep', 'hide'].includes(answer.choice) || !probability(answer.confidence) ||
       !probability(answer.probabilities?.keep) || !probability(answer.probabilities?.hide) ||
       Math.abs(answer.probabilities.keep + answer.probabilities.hide - 1) >= 0.02) {
-    throw new Error('Jev 返回的判断格式无效');
+    throw new Error(t('clsInvalidFormat'));
   }
   return {id, hide: answer.choice === 'hide', confidence: answer.confidence};
 }
@@ -71,7 +73,7 @@ export function parseCategoryAnswer(id, payload) {
       !answer.probabilities || Object.keys(answer.probabilities).some(key => !categories.includes(key)) ||
       !categories.every(key => probability(answer.probabilities[key])) ||
       Math.abs(Object.values(answer.probabilities).reduce((sum, value) => sum + value, 0) - 1) >= 0.02) {
-    throw new Error('Jev 返回的类别格式无效');
+    throw new Error(t('clsCategoryFormat'));
   }
   return {id, category: answer.confidence >= 0.7 ? answer.choice : 'other', confidence: answer.confidence};
 }
@@ -83,13 +85,13 @@ async function request(state, requestedQuestions, key, fetchImpl) {
       body: JSON.stringify({model: 'jev-latest', state, questions: requestedQuestions}),
       signal: AbortSignal.timeout(45000),
     });
-  } catch (error) { throw new Error(error.name === 'TimeoutError' ? 'Jev 请求超时，请重试' : '无法连接 Jev 服务'); }
+  } catch (error) { throw new Error(error.name === 'TimeoutError' ? t('clsTimeout') : t('clsConnect')); }
   if (!response.ok) {
-    const messages = {401: 'Jev API Key 无效', 403: 'Jev API Key 没有访问权限', 429: 'Jev 请求限流，请稍后重试'};
-    throw new Error(messages[response.status] ?? `Jev 请求失败（HTTP ${response.status}）`);
+    const messages = {401: t('clsKeyInvalid'), 403: t('clsKeyForbidden'), 429: t('clsRateLimited')};
+    throw new Error(messages[response.status] ?? t('clsHttpError', response.status));
   }
   let payload;
-  try { payload = await response.json(); } catch { throw new Error('Jev 返回了无效 JSON'); }
+  try { payload = await response.json(); } catch { throw new Error(t('clsInvalidJson')); }
   return payload;
 }
 export async function classifyBlock(block, context, key, fetchImpl = fetch) {
@@ -109,7 +111,7 @@ export async function splitBlock(parent, blocks, key, fetchImpl = fetch, previou
   }]));
   const payload = await request({parent, candidates: blocks, previous_examples:previousExamples}, questions, key, fetchImpl);
   const answers = payload?.answers;
-  if (!answers || Object.keys(answers).length !== entries.length || Object.keys(answers).some(name => !Object.hasOwn(questions, name))) throw new Error('Jev 返回的拆分格式无效');
+  if (!answers || Object.keys(answers).length !== entries.length || Object.keys(answers).some(name => !Object.hasOwn(questions, name))) throw new Error(t('clsSplitFormat'));
   const probability = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
   const ids = [];
   for (const [name, id] of entries) {
@@ -117,7 +119,7 @@ export async function splitBlock(parent, blocks, key, fetchImpl = fetch, previou
     if (answer?.type !== 'choice' || !['module', 'fragment'].includes(answer.choice) || !probability(answer.confidence) ||
       !answer.probabilities || Object.keys(answer.probabilities).length !== 2 ||
       !probability(answer.probabilities.module) || !probability(answer.probabilities.fragment) ||
-      Math.abs(answer.probabilities.module + answer.probabilities.fragment - 1) >= 0.02) throw new Error('Jev 返回的拆分格式无效');
+      Math.abs(answer.probabilities.module + answer.probabilities.fragment - 1) >= 0.02) throw new Error(t('clsSplitFormat'));
     if (answer.choice === 'module' && answer.confidence >= 0.7) ids.push(id);
   }
   return {ids};

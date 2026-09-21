@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure — Очистка страниц"
+  },
+  "extDescription": {
+    "message": "Выберите область страницы, измените её размер, скройте или верните. Правила для сайта и страницы применяются автоматически."
+  },
+  "appTagline": {
+    "message": "Чтение без лишнего"
+  },
+  "popupPurify": {
+    "message": "Очистка страниц"
+  },
+  "popupPreviewButton": {
+    "message": "Выбрать, что скрыть"
+  },
+  "popupPreviewHint": {
+    "message": "Клик скрывает; вернуть можно в любой момент."
+  },
+  "popupToggleVisibility": {
+    "message": "Оригинал / чистая версия"
+  },
+  "popupUndo": {
+    "message": "Отменить последнее сохранение"
+  },
+  "popupManageRules": {
+    "message": "Управление правилами"
+  },
+  "popupPageStatusLoading": {
+    "message": "Читаем состояние страницы…"
+  },
+  "popupAdvanced": {
+    "message": "Автораспознавание и настройки"
+  },
+  "popupAiToggle": {
+    "message": "Использовать ИИ на этом сайте"
+  },
+  "popupAiHint": {
+    "message": "Нужен API-ключ Jev. На новых сайтах выключено."
+  },
+  "popupContextLabel": {
+    "message": "Правила автоочистки для этого сайта"
+  },
+  "popupContextSiteHost": {
+    "message": "Правила автоочистки для {1}"
+  },
+  "popupContextPlaceholder": {
+    "message": "Например: оставить вопросы, ответы и статьи; скрыть рекламу, блоки продвижения, рекомендации и подвал."
+  },
+  "popupContextHint": {
+    "message": "Используется, когда правил нет; ручные правила важнее."
+  },
+  "popupKeyStateOn": {
+    "message": "Настроен"
+  },
+  "popupKeyStateOff": {
+    "message": "Не настроен"
+  },
+  "popupKeyPlaceholder": {
+    "message": "Введите API-ключ"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "Сохранён. Введите новый, чтобы заменить"
+  },
+  "popupKeyHint": {
+    "message": "Оставьте пустым, чтобы сохранить текущий ключ"
+  },
+  "popupClearKey": {
+    "message": "Удалить ключ"
+  },
+  "popupSave": {
+    "message": "Сохранить и применить"
+  },
+  "popupRetry": {
+    "message": "Проверить снова"
+  },
+  "popupClearPageRules": {
+    "message": "Удалить правила этой страницы"
+  },
+  "popupPrivacy": {
+    "message": "Данные и приватность"
+  },
+  "popupPrivacyNote": {
+    "message": "При проверке ИИ в TypeSafe Jev отправляются текст модулей, описания картинок и пути ссылок; полный DOM и cookie не отправляются. Ручной выбор работает без ИИ, правила хранятся на этом устройстве."
+  },
+  "popupStatusLoading": {
+    "message": "Загружаем настройки…"
+  },
+  "popupReconnect": {
+    "message": "Переподключиться"
+  },
+  "popupFocusReading": {
+    "message": "Чистое чтение"
+  },
+  "popupErrorTimeout": {
+    "message": "Истекло время ожидания. Переподключитесь; если не помогло, перезагрузите PagePure на странице расширений и обновите сайт"
+  },
+  "popupErrorRequest": {
+    "message": "Запрос не удался. Попробуйте ещё раз"
+  },
+  "popupStatusNoPage": {
+    "message": "Откройте веб-страницу, чтобы увидеть состояние"
+  },
+  "popupStatusFail": {
+    "message": "Ошибка проверки: {1}"
+  },
+  "popupStatusHidden": {
+    "message": "Скрыто: {1} · ожидает: {2}"
+  },
+  "popupEnabledOn": {
+    "message": "Включено. Выберите содержимое кнопкой выше"
+  },
+  "popupEnabledOff": {
+    "message": "Выключено. Содержимое страницы возвращено"
+  },
+  "popupErrorNeedGoal": {
+    "message": "Опишите, что вы хотите оставить"
+  },
+  "popupSavedOff": {
+    "message": "Сохранено. Очистка страниц выключена"
+  },
+  "popupSavedManual": {
+    "message": "Сохранено. Ручной выбор уже работает; для ИИ нужен API-ключ"
+  },
+  "popupSavedOn": {
+    "message": "Сохранено. Эта страница будет обновляться автоматически"
+  },
+  "popupKeyCleared": {
+    "message": "Ключ удалён"
+  },
+  "popupRetried": {
+    "message": "Запрошена повторная проверка страницы"
+  },
+  "popupErrorEnableFirst": {
+    "message": "Сначала включите очистку и сохраните, потом выбирайте содержимое"
+  },
+  "popupEnteringSelection": {
+    "message": "Режим выбора включён. Кликайте по тому, что скрыть"
+  },
+  "popupToggledVisibility": {
+    "message": "Вид переключён. Ещё один клик вернёт обратно"
+  },
+  "popupUndone": {
+    "message": "Последнее сохранение отменено"
+  },
+  "popupClearedPageRules": {
+    "message": "Правила этой страницы удалены"
+  },
+  "statusPurifierOff": {
+    "message": "Очистка страниц выключена"
+  },
+  "popupErrorLoadSettings": {
+    "message": "Не удалось прочитать настройки: {1}"
+  },
+  "popupNotConnected": {
+    "message": "Нет соединения с PagePure"
+  },
+  "consolePanelAria": {
+    "message": "Панель управления PagePure"
+  },
+  "consoleCollapse": {
+    "message": "Свернуть панель"
+  },
+  "consoleLauncherAria": {
+    "message": "Открыть панель PagePure"
+  },
+  "consoleFrameTitle": {
+    "message": "Настройки PagePure"
+  },
+  "previewNoHelper": {
+    "message": "Нет связи с помощником. Обновите страницу"
+  },
+  "toolbarStatusHidden": {
+    "message": "Скрыто: {1} · вступит при сохранении"
+  },
+  "toolbarStatusLegacy": {
+    "message": "Ещё {1} правил областей (включая исключения возврата)"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}: {3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "Только эта страница "
+  },
+  "actionHide": {
+    "message": "Скрыть"
+  },
+  "actionKeep": {
+    "message": "Вернуть"
+  },
+  "previewEmbedRegion": {
+    "message": "Встроенный контент"
+  },
+  "previewImageRegion": {
+    "message": "Картинка или область контента"
+  },
+  "splitNeedsAi": {
+    "message": "Для умного разделения нужны ИИ на этом сайте и API-ключ"
+  },
+  "splitExpandFirst": {
+    "message": "Сначала расширьте область, потом разделяйте"
+  },
+  "splitInProgress": {
+    "message": "Разделяем…"
+  },
+  "splitLabel": {
+    "message": "Умное разделение"
+  },
+  "splitErrorChanged": {
+    "message": "Область изменилась. Разделите заново"
+  },
+  "splitErrorTooFew": {
+    "message": "Найдено меньше двух самостоятельных блоков; оставляем исходную область"
+  },
+  "splitDone": {
+    "message": "Разделено на {1} областей. Выберите одну."
+  },
+  "quickSelectedRegion": {
+    "message": "Выбранная область"
+  },
+  "selectionName": {
+    "message": "Выбрано: {1}"
+  },
+  "splitUnstableSave": {
+    "message": "Границы этого разделения пока нельзя сохранить надёжно. Скорректируйте область и сохраните снова; прежние правила не изменились."
+  },
+  "savePageChanged": {
+    "message": "Правила сохранены, но страница изменилась. Заново войдите в режим выбора."
+  },
+  "areaRuleFallback": {
+    "message": "Пока не удаётся сохранить. Расширьте область и повторите."
+  },
+  "previewPageOnlyHide": {
+    "message": "Скрыто только на этой странице · вступит при сохранении"
+  },
+  "previewPageOnlyKeep": {
+    "message": "Возвращено только на этой странице · вступит при сохранении"
+  },
+  "candidateAria": {
+    "message": "Выбрать область {1}"
+  },
+  "candidateTitle": {
+    "message": "Кликните, чтобы выбрать область, и решите, что скрыть"
+  },
+  "toolbarStamp": {
+    "message": "Чисто"
+  },
+  "maxRangeReached": {
+    "message": "Это самая большая доступная область"
+  },
+  "effectPreview": {
+    "message": "Предпросмотр"
+  },
+  "effectBack": {
+    "message": "Вернуться к выбору"
+  },
+  "unknownAction": {
+    "message": "Неизвестное действие"
+  },
+  "toolbarAria": {
+    "message": "Действия с областью"
+  },
+  "moreAria": {
+    "message": "Ещё действия"
+  },
+  "cancelAria": {
+    "message": "Отмена и выход"
+  },
+  "scopeRangeLabel": {
+    "message": "Охват"
+  },
+  "rangeGroupAria": {
+    "message": "Изменить охват"
+  },
+  "largerBtn": {
+    "message": "Больше"
+  },
+  "largerTitle": {
+    "message": "Расширить выделение"
+  },
+  "smallerBtn": {
+    "message": "Меньше"
+  },
+  "smallerTitle": {
+    "message": "Сузить выделение"
+  },
+  "splitTitle": {
+    "message": "Разделить большую область на мелкие, выбираемые по отдельности"
+  },
+  "areaScopeLabel": {
+    "message": "Область"
+  },
+  "areaGroupAria": {
+    "message": "Действия с областью"
+  },
+  "hideAreaBtn": {
+    "message": "Скрыть область"
+  },
+  "keepAreaBtn": {
+    "message": "Вернуть область"
+  },
+  "pageScopeLabel": {
+    "message": "Эта страница"
+  },
+  "pageGroupAria": {
+    "message": "Действия только для этой страницы"
+  },
+  "pageHideAria": {
+    "message": "Скрыть только на этой странице"
+  },
+  "pageKeepAria": {
+    "message": "Вернуть только на этой странице"
+  },
+  "saveBtn": {
+    "message": "Сохранить изменения"
+  },
+  "scopeSite": {
+    "message": "Весь сайт"
+  },
+  "scopeType": {
+    "message": "Этот тип страниц"
+  },
+  "scopeCurrentPage": {
+    "message": "Эта страница"
+  },
+  "bgDisallowed": {
+    "message": "Недопустимый запрос расширения"
+  },
+  "bgErrorSettings": {
+    "message": "Неверные настройки: до 4000 символов"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "Откройте веб-страницу, чтобы сохранить предпочтения чтения"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "Откройте веб-страницу, чтобы включить ИИ"
+  },
+  "bgErrorInvalidKey": {
+    "message": "Неверный API-ключ"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "Введите ключ целиком, без пробелов"
+  },
+  "bgErrorRuleScope": {
+    "message": "Неверная область правил"
+  },
+  "bgErrorRuleContent": {
+    "message": "Неверное содержимое правил"
+  },
+  "bgErrorPartition": {
+    "message": "Неверные границы разделения"
+  },
+  "bgErrorTooManyRules": {
+    "message": "Слишком много правил"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "Слишком много границ разделения"
+  },
+  "bgErrorStatus": {
+    "message": "Неверное состояние"
+  },
+  "bgStatusNotWebpage": {
+    "message": "Откройте обычную веб-страницу"
+  },
+  "bgErrorPageAction": {
+    "message": "Недопустимое действие со страницей"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "Действие со страницей не удалось"
+  },
+  "bgReasonAiOff": {
+    "message": "На этом сайте ИИ выключен. Включите в настройках или выбирайте вручную"
+  },
+  "bgReasonNoKey": {
+    "message": "Ключа ещё нет: области можно выбирать и вручную"
+  },
+  "bgErrorSplitCount": {
+    "message": "Для разделения нужно от 2 до 20 блоков-кандидатов"
+  },
+  "bgErrorBlockId": {
+    "message": "Идентификатор блока неверен или дублируется"
+  },
+  "bgErrorBlockField": {
+    "message": "Неверное поле блока: {1}"
+  },
+  "bgErrorBatchCount": {
+    "message": "В одной партии — от 1 до 5 блоков"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "На этом сайте ИИ выключен. Включите его в настройках и разделяйте"
+  },
+  "bgErrorNeedKey": {
+    "message": "Сначала сохраните API-ключ Jev в расширении"
+  },
+  "bgErrorAiOff": {
+    "message": "На этом сайте ИИ выключен"
+  },
+  "clsInvalidFormat": {
+    "message": "Jev вернул ответ в неверном формате"
+  },
+  "clsCategoryFormat": {
+    "message": "Jev вернул неверный формат категории"
+  },
+  "clsSplitFormat": {
+    "message": "Jev вернул неверный формат разделения"
+  },
+  "clsTimeout": {
+    "message": "Запрос к Jev превысил время ожидания. Повторите"
+  },
+  "clsConnect": {
+    "message": "Не удаётся связаться со службой Jev"
+  },
+  "clsKeyInvalid": {
+    "message": "Неверный API-ключ Jev"
+  },
+  "clsKeyForbidden": {
+    "message": "У этого API-ключа Jev нет доступа"
+  },
+  "clsRateLimited": {
+    "message": "Jev ограничивает запросы. Повторите позже"
+  },
+  "clsHttpError": {
+    "message": "Ошибка запроса к Jev (HTTP {1})"
+  },
+  "clsInvalidJson": {
+    "message": "Jev вернул некорректный JSON"
+  },
+  "snapScopeInvalid": {
+    "message": "Неверная область снимка"
+  },
+  "snapContentInvalid": {
+    "message": "Неверное содержимое снимка"
+  },
+  "mgrScopeSite": {
+    "message": "Весь сайт"
+  },
+  "mgrScopeType": {
+    "message": "Этот тип страниц"
+  },
+  "mgrScopePage": {
+    "message": "Только эта страница"
+  },
+  "mgrEntriesChanged": {
+    "message": "Выбранные адреса изменились. Обновите и выберите заново"
+  },
+  "mgrRevisionChanged": {
+    "message": "Правила изменились. Обновите список и подтвердите снова"
+  },
+  "contentNoHelper": {
+    "message": "Не удалось связаться с помощником. Обновите страницу"
+  },
+  "manualHttpOnly": {
+    "message": "Поддерживаются только страницы HTTP/HTTPS"
+  },
+  "managerTitle": {
+    "message": "Правила очистки · PagePure"
+  },
+  "managerHeading": {
+    "message": "Правила очистки"
+  },
+  "managerNavAria": {
+    "message": "Навигация управления"
+  },
+  "managerLocalNote": {
+    "message": "Правила хранятся в этом браузере"
+  },
+  "managerEyebrow": {
+    "message": "Ваше пространство чтения"
+  },
+  "managerIntro": {
+    "message": "Наведите порядок в правилах — и страницы станут такими, как вы хотите."
+  },
+  "managerWorkspaceAria": {
+    "message": "Список правил"
+  },
+  "managerSearchPlaceholder": {
+    "message": "Поиск по адресам сайтов и страниц"
+  },
+  "managerRefresh": {
+    "message": "Обновить"
+  },
+  "managerSavedAddresses": {
+    "message": "Сохранённые адреса"
+  },
+  "managerSelectAll": {
+    "message": "Выбрать все найденные"
+  },
+  "managerClearSelection": {
+    "message": "Снять выбор"
+  },
+  "managerFootnote": {
+    "message": "После удаления эти правила больше не будут применяться к соответствующим адресам."
+  },
+  "managerConfirmTitle": {
+    "message": "Удалить выбранные правила?"
+  },
+  "managerCancel": {
+    "message": "Отмена"
+  },
+  "managerConfirmDelete": {
+    "message": "Удалить"
+  },
+  "managerUnknownAddress": {
+    "message": "Неизвестный адрес"
+  },
+  "managerErrorDefault": {
+    "message": "Действие не выполнено. Попробуйте снова."
+  },
+  "managerSelectedCount": {
+    "message": "Выбрано адресов: {1}"
+  },
+  "managerNoneSelected": {
+    "message": "Ничего не выбрано"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "Удалить выбранные ({1})"
+  },
+  "managerDeleteSelected": {
+    "message": "Удалить выбранные"
+  },
+  "managerEntryAria": {
+    "message": "Выбрать {1} — {2}, правил: {3}"
+  },
+  "managerRulesSuffix": {
+    "message": " шт."
+  },
+  "managerRuleTotal": {
+    "message": "Всего правил: {1}"
+  },
+  "managerEmptyNoMatch": {
+    "message": "Совпадающих адресов нет"
+  },
+  "managerEmptyNone": {
+    "message": "Сохранённых правил пока нет"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "Попробуйте другие слова или очистите поиск, чтобы увидеть всё."
+  },
+  "managerEmptyNoneDesc": {
+    "message": "Сохраните настройки очистки на любой странице — и управляйте ими отсюда."
+  },
+  "managerLoading": {
+    "message": "Загружаем правила…"
+  },
+  "managerErrorLoad": {
+    "message": "Не удалось загрузить правила. Обновите и повторите."
+  },
+  "managerErrorLoadFallback": {
+    "message": "Не удалось загрузить. Обновите и повторите."
+  },
+  "managerStaleDialog": {
+    "message": "Правила изменились. Отмените и заново подтвердите выбор."
+  },
+  "managerConfirmSummary": {
+    "message": "Будет удалено правил: {2} на адресах: {1}. Действие необратимо. Общие правила сайтов, не попавших в выбор, могут продолжать действовать."
+  },
+  "managerCountShort": {
+    "message": "{1}"
+  },
+  "managerDeleting": {
+    "message": "Удаляем…"
+  },
+  "managerDeleted": {
+    "message": "Правила удалены на адресах: {1}."
+  },
+  "managerStaleRetry": {
+    "message": "Правила изменились, список обновлён. Проверьте адреса и подтвердите снова."
+  },
+  "managerDeleteFailed": {
+    "message": "{1} Существующие выбранные адреса сохранены. Проверьте и повторите."
+  },
+  "managerSettingsNav": {
+    "message": "Настройки"
+  },
+  "managerSettingsHeading": {
+    "message": "Настройки"
+  },
+  "managerLanguageLabel": {
+    "message": "Язык интерфейса"
+  },
+  "managerLangDefault": {
+    "message": "Как в браузере"
+  },
+  "managerLanguageHint": {
+    "message": "Сохраняется сразу, страница перезагружается; панель на странице применится при следующем входе в режим выбора, всплывающее окно — при повторном открытии."
+  },
+  "popupManualToolsAria": {
+    "message": "Визуальная очистка"
+  }
+}

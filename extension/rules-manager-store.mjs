@@ -1,12 +1,14 @@
 // The manager exposes addresses and counts only, never selectors or credentials.
+import './i18n.js';
+const {t} = globalThis.PagePureI18n;
 function scopeInfo(key) {
   if(typeof key!=='string')return null;
   const at=key.indexOf('|');if(at<0)return null;
   const origin=key.slice(0,at),scope=key.slice(at+1);
   try {const u=new URL(origin);if(!['http:','https:'].includes(u.protocol)||u.origin!==origin)return null;}catch{return null;}
-  if(scope==='site')return {origin,address:origin,scope:'site',label:'整个网站'};
+  if(scope==='site')return {origin,address:origin,scope:'site',label:t('mgrScopeSite')};
   const match=/^(page|type):(\/.*)$/.exec(scope);if(!match)return null;
-  return {origin,address:origin+match[2],scope:match[1],label:match[1]==='page'?'仅此页面':'此类页面'};
+  return {origin,address:origin+match[2],scope:match[1],label:match[1]==='page'?t('mgrScopePage'):t('mgrScopeType')};
 }
 function effectiveKey(key,rule) {
   const base=scopeInfo(key),page=scopeInfo(rule?.page);
@@ -27,8 +29,8 @@ async function inventory(values) {
 export async function managerRequest(api,type,payload) {
   const storage=api.storage.local,values=await storage.get(null),current=await inventory(values);
   if(type==='rulesManagerList')return current;
-  if(!Array.isArray(payload?.ids)||!payload.ids.length||new Set(payload.ids).size!==payload.ids.length||payload.ids.some(id=>typeof id!=='string'||!current.entries.some(e=>e.id===id)))throw new Error('所选地址已变化，请刷新后重新选择');
-  if(payload.revision!==current.revision)throw new Error('规则已变化，请刷新列表后重新确认');
+  if(!Array.isArray(payload?.ids)||!payload.ids.length||new Set(payload.ids).size!==payload.ids.length||payload.ids.some(id=>typeof id!=='string'||!current.entries.some(e=>e.id===id)))throw Object.assign(new Error(t('mgrEntriesChanged')),{code:'revision'});
+  if(payload.revision!==current.revision)throw Object.assign(new Error(t('mgrRevisionChanged')),{code:'revision'});
   const ids=new Set(payload.ids),origins=new Set(current.entries.filter(e=>ids.has(e.id)).map(e=>e.origin)),update={},remove=new Set();
   for(const [storageKey,rules] of Object.entries(values)) {
     if(!storageKey.startsWith('rules:')||!Array.isArray(rules)||!scopeInfo(storageKey.slice(6)))continue;

@@ -1,4 +1,5 @@
 (() => {
+  const {t} = globalThis.PagePureI18n;
   const {scope, matches} = globalThis.JevManual;
   let active = false, host, ui, layer, layerRoot, resizing, toolbarResizing, timer;
   let candidates = [], selected = new Set(), hidden = new Set();
@@ -9,7 +10,7 @@
   const keys = () => ['site','type','page'].map(mode => scope(page(),mode));
   async function request(type,payload) {
     const response = await chrome.runtime.sendMessage({type,payload});
-    if (!response?.ok) throw new Error(response?.error || '无法连接助手，请刷新页面');
+    if (!response?.ok) throw new Error(response?.error || t('previewNoHelper'));
     return response.data;
   }
   const canSplit = () => config.enabled && config.aiEnabled && config.configured;
@@ -84,15 +85,15 @@
   }
   function renderStatus() {
     if(!ui)return;
-    ui.querySelector('#status').textContent=selected.size ? `已隐藏 ${selected.size} 处 · 保存后生效` : '';
-    ui.querySelector('#legacy').textContent=localRules.length?`另有 ${localRules.length} 条区域规则（含保留例外）`:'';
+    ui.querySelector('#status').textContent=selected.size ? t('toolbarStatusHidden', selected.size) : '';
+    ui.querySelector('#legacy').textContent=localRules.length?t('toolbarStatusLegacy', localRules.length):'';
     const rulesList=ui.querySelector('#rule-list');rulesList.replaceChildren();
-    localRules.forEach((rule,index)=>{if(rule.page&&rule.page!==scope(page(),'page'))return;const b=document.createElement('button');b.type='button';b.textContent=`${rule.page?'仅当前页面':''}${rule.action==='keep'?'恢复':'隐藏'}：${rule.label} ×`;b.addEventListener('click',()=>{localRules.splice(index,1);selectKnown();position();renderStatus();});rulesList.append(b);});
+    localRules.forEach((rule,index)=>{if(rule.page&&rule.page!==scope(page(),'page'))return;const b=document.createElement('button');b.type='button';b.textContent=t('ruleEntry', rule.page?t('rulePagePrefix'):'', rule.action==='keep'?t('actionKeep'):t('actionHide'), rule.label);b.addEventListener('click',()=>{localRules.splice(index,1);selectKnown();position();renderStatus();});rulesList.append(b);});
   }
   function moduleName(node) {
     const copy=node.cloneNode(true);copy.querySelectorAll('script,style,noscript,template,input,textarea,select,[contenteditable]').forEach(n=>n.remove());
     const data=globalThis.JevZhihu.describe(copy);
-    return (data.text || data.images?.find(img=>img.alt)?.alt || (node.querySelector('iframe')?'嵌入内容区域':'图片或内容区域')).slice(0,60);
+    return (data.text || data.images?.find(img=>img.alt)?.alt || (node.querySelector('iframe')?t('previewEmbedRegion'):t('previewImageRegion'))).slice(0,60);
   }
   let quickAnchor=null, splitting=false, learnedSplit=false;
   const partitions=new Map();
@@ -122,7 +123,7 @@
       if(!parent.isConnected)continue;
       const rules=[parent,...parts].map(n=>globalThis.JevManual.describeRule(n));
       if(rules.some(r=>!r||r.selector.length>1500) || /^html(?: |>)/.test(rules[0].selector))
-        throw new Error('这次拆分的边界还无法稳定保存，请调整范围后再保存；原有规则未更改。');
+        throw new Error(t('splitUnstableSave'));
       const pageType=key.endsWith('|site')?scope(page(),'type'):undefined;
       specs.set((pageType||'')+'|'+rules[0].selector,{parent:rules[0].selector,parts:rules.slice(1).map(r=>r.selector),...(pageType?{pageType}:{})});
     }
@@ -139,22 +140,22 @@
   }
   async function splitFocus(){
     if(splitting||!focusNode?.isConnected)return;
-    if(!canSplit()){ui.querySelector('#status').textContent='智能拆分需要开启此网站的 Jev 判断并配置密钥';return;}
+    if(!canSplit()){ui.querySelector('#status').textContent=t('splitNeedsAi');return;}
     const parent=focusNode,expectedUrl=page(),expectedHost=host;
     const parts=splitCandidates(parent);
-    if(parts.length<2||parts.length>20){ui.querySelector('#status').textContent='请先扩大范围，再尝试拆分';return;}
+    if(parts.length<2||parts.length>20){ui.querySelector('#status').textContent=t('splitExpandFirst');return;}
     const fingerprints=parts.map(signature);
-    splitting=true;ui.querySelector('#q-split').disabled=true;ui.querySelector('#q-split').textContent='拆分中…';
+    splitting=true;ui.querySelector('#q-split').disabled=true;ui.querySelector('#q-split').textContent=t('splitInProgress');
     try{
       const result=await request('splitBlock',{resetLearning:!learnedSplit,parent:{...globalThis.JevZhihu.describe(parent),id:'parent'},blocks:parts.map((n,i)=>({...globalThis.JevZhihu.describe(n),id:'part-'+i}))});
       if(!active||host!==expectedHost||page()!==expectedUrl||!parent.isConnected)return;
-      if(parts.some((n,i)=>!n.isConnected||signature(n)!==fingerprints[i]))throw new Error('区域内容已变化，请重新拆分');
+      if(parts.some((n,i)=>!n.isConnected||signature(n)!==fingerprints[i]))throw new Error(t('splitErrorChanged'));
       const accepted=parts.filter((n,i)=>result.ids?.includes('part-'+i));
-      if(accepted.length<2)throw new Error('未找到至少两个独立模块，保留原区域');
+      if(accepted.length<2)throw new Error(t('splitErrorTooFew'));
       partitions.set(parent,parts);learnedSplit=true;syncCandidates();focus(accepted[0]);
-      ui.querySelector('#status').textContent=`已拆分为 ${parts.length} 个区域，请点选。`;
+      ui.querySelector('#status').textContent=t('splitDone', parts.length);
     }catch(error){if(ui)ui.querySelector('#status').textContent=error.message;}
-    finally{splitting=false;if(ui){ui.querySelector('#q-split').disabled=false;ui.querySelector('#q-split').textContent='智能拆分';}}
+    finally{splitting=false;if(ui){ui.querySelector('#q-split').disabled=false;ui.querySelector('#q-split').textContent=t('splitLabel');}}
   }
   function positionQuick() {
     const quick=ui?.querySelector('#quick');if(!quick)return;
@@ -166,7 +167,7 @@
     quick.style.width=w+'px';
     const height=quick.getBoundingClientRect().height || 60;
     quick.style.top=Math.max(8,Math.min(y+12,innerHeight-height-8))+'px';
-    ui.querySelector('#quick-name').textContent='已选区域';
+    ui.querySelector('#quick-name').textContent=t('quickSelectedRegion');
     ui.querySelector('#quick-name').title=moduleName(focusNode);
     ui.querySelector('#q-smaller').disabled=!focusTrail.length;
     ui.querySelector('#q-save').disabled=ui.querySelector('#save').disabled;
@@ -177,14 +178,14 @@
     if(reset)focusTrail=[];
     node.setAttribute('data-jev-focus','');
     ui.querySelector('#selection').hidden=false;
-    ui.querySelector('#selection-name').textContent=`已选：${moduleName(node)}`;
+    ui.querySelector('#selection-name').textContent=t('selectionName', moduleName(node));
     ui.querySelector('#smaller').disabled=!focusTrail.length;positionQuick();
   }
   function toggle(node,event) {quickAnchor=event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)?{x:event.clientX,y:event.clientY}:null;focus(node);}
   function areaRule(action,pageOnly=false) {
     const rule=globalThis.JevManual.describeRule(focusNode);
     if(!rule || rule.selector.length>1500 || /:nth-|^html(?: |>)/.test(rule.selector)) {
-      const message='暂时无法保存，请扩大范围后重试。';
+      const message=t('areaRuleFallback');
       ui.querySelector('#status').textContent=message;ui.querySelector('#quick-name').textContent=message;
       return;
     }
@@ -192,7 +193,7 @@
     localRules=localRules.filter(r=>r.selector!==rule.selector||(pageOnly?r.page!==current:!!r.page&&r.page!==current));
     localRules.push({...rule,label:moduleName(focusNode),action,...(pageOnly?{page:current}:{})});
     selectKnown();position();renderStatus();
-    if(pageOnly)ui.querySelector('#status').textContent=`仅本页${action==='keep'?'恢复':'隐藏'} · 保存后生效`;
+    if(pageOnly)ui.querySelector('#status').textContent=t(action==='keep'?'previewPageOnlyKeep':'previewPageOnlyHide');
   }
   function coverageRect(node) {
     const base=node.getBoundingClientRect();
@@ -216,8 +217,8 @@
       const node=candidates[index],r=coverageRect(node);
       button.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;display:${previewing||r.width<1||r.height<1?'none':'block'};border:2px ${selected.has(node)?'solid #64748b':'dashed #3886f5'};background:${selected.has(node)?'transparent':'transparent'};padding:0;margin:0;pointer-events:auto;cursor:crosshair;box-sizing:border-box;`;
       button.setAttribute('aria-pressed',String(selected.has(node)));
-      button.setAttribute('aria-label',`选择区域 ${index+1}`);
-      button.title='点击选择这个区域，再决定隐藏范围';
+      button.setAttribute('aria-label',t('candidateAria', index+1));
+      button.title=t('candidateTitle');
     });
     layerRoot.querySelectorAll('[data-mask]').forEach(n=>n.remove());
     const targets=new Set([...selected,...previewTargets]);
@@ -233,7 +234,7 @@
       stamp.style.cssText=`position:absolute;left:${visibleLeft-r.left+visibleWidth/2}px;top:${visibleTop-r.top+visibleHeight/2}px;display:flex;align-items:center;justify-content:center;flex-direction:column;width:${compact?72:94}px;height:${compact?32:94}px;flex-shrink:0;box-sizing:border-box;border:1px solid rgba(30,88,83,.48);border-radius:${compact?'9px':'50%'};color:#235d57;transform:translate(-50%,-50%) rotate(-8deg);background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(232,243,238,.55));box-shadow:0 6px 22px rgba(30,65,60,.12),inset 0 0 0 4px rgba(255,255,255,.5);`;
       const ring=document.createElement('i');ring.style.cssText=`position:absolute;inset:5px;border:1px dashed rgba(35,93,87,.4);border-radius:${compact?'5px':'50%'};`;stamp.append(ring);
       if(!compact){const mark=document.createElement('i');mark.style.cssText='width:14px;height:7px;border-left:2px solid #38766a;border-bottom:2px solid #38766a;transform:rotate(-45deg);margin:0 0 12px;';stamp.append(mark);}
-      const word=document.createElement('span');word.textContent='净化';word.style.cssText=`font:600 ${compact?16:23}px "Microsoft YaHei",system-ui;letter-spacing:${compact?4:6}px;padding-left:${compact?4:6}px;line-height:1.2;`;stamp.append(word);
+      const word=document.createElement('span');const stampWord=t('toolbarStamp');const wide=[...stampWord].length>2;word.textContent=stampWord;word.style.cssText=`font:600 ${compact?(wide?12:16):(wide?16:23)}px "Microsoft YaHei",system-ui;letter-spacing:${compact?(wide?1:4):(wide?2:6)}px;padding-left:${compact?(wide?1:4):(wide?2:6)}px;line-height:1.2;`;stamp.append(word);
       if(!compact){const line=document.createElement('i');line.style.cssText='width:22px;height:1px;background:rgba(35,93,87,.45);margin-top:10px;';stamp.append(line);}
       mask.append(stamp);layerRoot.append(mask);
     }
@@ -267,6 +268,7 @@
   function keydown(event){if(event.key==='Escape'){event.preventDefault();leave();}}
   async function start() {
     if(active||!document.body)return;
+    await globalThis.PagePureI18n.ready;
     await refresh();active=true;showOriginal=false;globalThis.JevPage?.suspend();restore();
     loadRules();
     host=document.createElement('div');host.setAttribute('data-jev-ui','preview');host.style.cssText='position:fixed!important;top:16px!important;right:16px!important;z-index:2147483647!important;';
@@ -290,21 +292,21 @@
       #status{margin:6px 6px 0;font-size:12px;line-height:1.5;color:#64748b;overflow-wrap:anywhere}#status:empty{display:none}
       @media(max-width:300px){.action-row{grid-template-columns:48px 1fr 1fr;padding:6px;gap:4px}.range button{padding:0 4px}button{padding:0 4px}}
     </style>
-    <div id="quick" role="toolbar" aria-label="区域快捷操作" hidden>
+    <div id="quick" role="toolbar" aria-label="${t('toolbarAria')}" hidden>
       <div class="main-actions">
         <span id="quick-name"></span>
-        <details id="more"><summary id="more-toggle" aria-label="更多操作" title="更多操作">···</summary></details>
-        <button id="cancel" aria-label="取消并退出" title="取消并退出">×</button>
+        <details id="more"><summary id="more-toggle" aria-label="${t('moreAria')}" title="${t('moreAria')}">···</summary></details>
+        <button id="cancel" aria-label="${t('cancelAria')}" title="${t('cancelAria')}">×</button>
       </div>
-      <div class="action-row range-row"><span class="scope-label">选区</span><div class="range" role="group" aria-label="调整范围"><button id="q-larger" title="扩大选中范围">扩大</button><button id="q-smaller" title="缩小选中范围">缩小</button></div><button id="q-split" title="将大区域拆成可单独选择的小区域">智能拆分</button></div>
-      <div class="action-row" role="group" aria-label="区域操作"><span class="scope-label">此区域</span><button id="q-hide">隐藏区域</button><button id="q-keep">恢复区域</button></div>
+      <div class="action-row range-row"><span class="scope-label">${t('scopeRangeLabel')}</span><div class="range" role="group" aria-label="${t('rangeGroupAria')}"><button id="q-larger" title="${t('largerTitle')}">${t('largerBtn')}</button><button id="q-smaller" title="${t('smallerTitle')}">${t('smallerBtn')}</button></div><button id="q-split" title="${t('splitTitle')}">${t('splitLabel')}</button></div>
+      <div class="action-row" role="group" aria-label="${t('areaGroupAria')}"><span class="scope-label">${t('areaScopeLabel')}</span><button id="q-hide">${t('hideAreaBtn')}</button><button id="q-keep">${t('keepAreaBtn')}</button></div>
       <div id="more-actions" hidden>
-        <div class="action-row" role="group" aria-label="仅本页操作"><span class="scope-label">仅本页</span><button id="q-page-hide" aria-label="仅本页隐藏">隐藏区域</button><button id="q-page-keep" aria-label="仅本页恢复">恢复区域</button></div>
+        <div class="action-row" role="group" aria-label="${t('pageGroupAria')}"><span class="scope-label">${t('pageScopeLabel')}</span><button id="q-page-hide" aria-label="${t('pageHideAria')}">${t('hideAreaBtn')}</button><button id="q-page-keep" aria-label="${t('pageKeepAria')}">${t('keepAreaBtn')}</button></div>
       </div>
-      <div class="footer-actions"><button id="effect">预览效果</button><button id="q-save">保存更改</button></div>
+      <div class="footer-actions"><button id="effect">${t('effectPreview')}</button><button id="q-save">${t('saveBtn')}</button></div>
       <p id="status" role="status" aria-live="polite"></p>
     </div>
-    <div hidden aria-hidden="true"><div id="selection" hidden><p id="selection-name"></p></div><button id="hide-area"></button><button id="keep-area"></button><button id="page-hide"></button><button id="page-keep"></button><button id="larger"></button><button id="smaller"></button><button id="save"></button><button id="retry"></button><select id="scope"><option value="site">整个网站</option><option value="type">此类页面</option><option value="page">当前页面</option></select><p id="legacy"></p><div id="rule-list"></div></div>`;
+    <div hidden aria-hidden="true"><div id="selection" hidden><p id="selection-name"></p></div><button id="hide-area"></button><button id="keep-area"></button><button id="page-hide"></button><button id="page-keep"></button><button id="larger"></button><button id="smaller"></button><button id="save"></button><button id="retry"></button><select id="scope"><option value="site">${t('scopeSite')}</option><option value="type">${t('scopeType')}</option><option value="page">${t('scopeCurrentPage')}</option></select><p id="legacy"></p><div id="rule-list"></div></div>`;
     ui.querySelector('#more').addEventListener('toggle',()=>{
       ui.querySelector('#more-actions').hidden=!ui.querySelector('#more').open;
       positionQuick();
@@ -324,12 +326,12 @@
     ui.querySelector('#page-keep').addEventListener('click',()=>areaRule('keep',true));
     ui.querySelector('#larger').addEventListener('click',()=>{
       const parent=focusNode?.parentElement;
-      if(!parent||parent.matches('body,html')||parent.querySelector('[data-jev-ui]')){ui.querySelector('#status').textContent='已到达可选择的最大范围';return;}
+      if(!parent||parent.matches('body,html')||parent.querySelector('[data-jev-ui]')){ui.querySelector('#status').textContent=t('maxRangeReached');return;}
       focusTrail.push(focusNode);focus(parent,false);
     });
     ui.querySelector('#smaller').addEventListener('click',()=>{const child=focusTrail.pop();if(child)focus(child,false);});
-    ui.querySelector('#scope').addEventListener('change',()=>{clearMarks();focusNode?.removeAttribute('data-jev-focus');focusNode=null;ui.querySelector('#selection').hidden=true;loadRules();previewing=false;ui.querySelector('#effect').textContent='预览效果';syncCandidates();});
-    ui.querySelector('#effect').addEventListener('click',()=>{previewing=!previewing;selectKnown();ui.querySelector('#effect').textContent=previewing?'返回选择':'预览效果';if(!previewing)syncCandidates();position();});
+    ui.querySelector('#scope').addEventListener('change',()=>{clearMarks();focusNode?.removeAttribute('data-jev-focus');focusNode=null;ui.querySelector('#selection').hidden=true;loadRules();previewing=false;ui.querySelector('#effect').textContent=t('effectPreview');syncCandidates();});
+    ui.querySelector('#effect').addEventListener('click',()=>{previewing=!previewing;selectKnown();ui.querySelector('#effect').textContent=previewing?t('effectBack'):t('effectPreview');if(!previewing)syncCandidates();position();});
     ui.querySelector('#retry').addEventListener('click',async()=>{await refresh();syncCandidates();});
     ui.querySelector('#save').addEventListener('click',async()=>{
       const button=ui.querySelector('#save');button.disabled=true;positionQuick();
@@ -339,7 +341,7 @@
         const boundaries=serializePartitions(key);
         await request('rulesSet',{key,rules,partitions:boundaries,learnSplit:learnedSplit,...(key.endsWith('|site')?{baseRules:rulesForScope()}:{})});
         groups=groups.filter(g=>g.key!==key);groups.push({key,rules,partitions:boundaries});
-        if(!await refresh()||page()!==savingUrl)throw new Error('规则已保存，但页面状态已变化，请重新进入选择模式。');
+        if(!await refresh()||page()!==savingUrl)throw new Error(t('savePageChanged'));
         partitions.clear();leave();
       }catch(error){if(ui){ui.querySelector('#status').textContent=error.message;button.disabled=false;positionQuick();}}
     });
@@ -361,7 +363,7 @@
   chrome.runtime.onMessage.addListener((msg,_sender,respond)=>{
     if(msg.type==='rulesChanged'||msg.type==='configChanged'){if(msg.source==='manager'&&active)leave();void refresh();}
     if(msg.type==='pageAction') {
-      const work=msg.action==='toggleVisibility'?(async()=>{if(active)leave();showOriginal=!showOriginal;if(showOriginal)globalThis.JevPage?.suspend();else void globalThis.JevPage?.resume();apply();})():msg.action==='undoSave'?(async()=>{if(active)leave();await request('rulesUndo',{keys:keys()});await refresh();})():msg.action==='preview'?start():msg.action==='clearRules'?(async()=>{if(active)leave();await request('rulesDelete',{keys:keys()});await refresh();void globalThis.JevPage?.resume();})():Promise.reject(new Error('未知操作'));
+      const work=msg.action==='toggleVisibility'?(async()=>{if(active)leave();showOriginal=!showOriginal;if(showOriginal)globalThis.JevPage?.suspend();else void globalThis.JevPage?.resume();apply();})():msg.action==='undoSave'?(async()=>{if(active)leave();await request('rulesUndo',{keys:keys()});await refresh();})():msg.action==='preview'?start():msg.action==='clearRules'?(async()=>{if(active)leave();await request('rulesDelete',{keys:keys()});await refresh();void globalThis.JevPage?.resume();})():Promise.reject(new Error(t('unknownAction')));
       work.then(()=>respond({ok:true})).catch(error=>respond({ok:false,error:error.message}));return true;
     }
   });

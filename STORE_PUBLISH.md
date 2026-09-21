@@ -2,18 +2,20 @@
 
 ## GitHub 下载（当前公开分发）
 
-仓库：<https://github.com/mhgd3250905/PagePure>。2026-09-21 已推送源码，并发布 [0.6.32 安装包](https://github.com/mhgd3250905/PagePure/releases/tag/v0.6.32)。README 提供无需开发工具的安装步骤。GitHub 分发与下方商店审核相互独立；本轮没有提交或更新 Edge 商店。
+仓库：<https://github.com/mhgd3250905/PagePure>。2026-09-21 已推送源码，并发布 [0.6.32 安装包](https://github.com/mhgd3250905/PagePure/releases/tag/v0.6.32)。README 提供无需开发工具的安装步骤。GitHub 分发与下方商店审核相互独立。
 
 ## 发布状态台账
 
 | 市场 | 状态 | 日期 | 说明 |
 | --- | --- | --- | --- |
-| Edge Add-ons | ✅ 已提交审核（In review） | 2026-09-20 | v0.6.24；微软口径 7 个工作日内反馈；结果邮件发 sk18101652104@outlook.com |
+| Edge Add-ons | ✅ 已提交审核（In review） | 2026-09-21 | **v0.6.32**；v0.6.24 的首次提交于同日主动取消（商店从未发布过任何版本，取消无损失），由 v0.6.32 取代送审；微软口径 7 个工作日内反馈，结果邮件发 sk18101652104@outlook.com |
 | Chrome Web Store | ⏳ 未计划 | — | 全站 host_permissions + 广告屏蔽类功能在 Chrome 审核更严，暂不提交 |
+
+**Edge 更新流程经验（2026-09-21 实测）**：扩展处于“正在审阅”时无法发布更新（会提示“你的扩展正在审核中”）。若旧提交尚未发布过，可走「扩展概述 → 取消提交」（取消需 5–10 分钟生效），随后草稿上会出现「发布」按钮，补填认证说明后即可送审。
 
 **发布账号（Edge）**：复用 Jev 邮件助手已注册的 Microsoft 个人账户 `sk18101652104@outlook.com`；开发者发布者名 `Bboyugk`（中国区 / Individual）。Partner Center：https://partner.microsoft.com/dashboard/microsoftedge/overview 。同一账号可发布多个扩展，无需重新注册。
 
-**已提交信息快照（Edge v0.6.24，2026-09-20）**：
+**首次提审信息快照（Edge v0.6.24，2026-09-20，已于 09-21 取消送审；账号/ID 类信息仍有效）**：
 - 类别：高效工作（Productivity）；可见性：公用（Public）；语言：English (United States)
 - 商店名称（锁定自 manifest）：网页净化助手 · PagePure；商店描述：英文版（功能/隐私/安装三节，存于 Partner Center 提交记录与本文档第二节）
 - 商店 logo：`extension/icons/pagepure-256.png`（256×256）
@@ -26,21 +28,26 @@
 
 **发布经验来源**：`E:\AII-Jev\0919\STORE_PUBLISH.md`（Jev 邮件助手已于 2026-09-20 用同一账号成功提审）。
 
-## 0.6.32 本地更新
+## 0.7.1 本地更新（未提交商店）
 
-按用户要求移除类别净化系列，仅保留区域规则操作及显式智能拆分；旧类别规则停用。交付 `PagePure-0.6.32.zip`，2026-09-21用户确认实测通过；尚未提交商店。下方0.6.24文案为历史提审材料，不代表当前功能。
+修复 0.7.0 中选择新语言后网页内工具条仍为中文的问题：工具条改为向扩展后台请求语言表（内容脚本无法读取因存放密钥而锁定的扩展存储），后台实时广播语言变更。交付 `PagePure-0.7.1.zip`，详见 MILESTONE.md。
 
-### 0.6.32 后续更新文案（草稿，未提交）
+## 0.7.0 本地更新（已并入 0.7.1）
 
-简短描述：
+国际化：12 种界面语言（zh_CN 默认、zh_TW、en、ja、ko、es、pt_BR、ru、de、fr、it、tr），跟随浏览器语言，规则管理页设置视图可手动覆盖；中文文案逐字不变；详见 MILESTONE.md。交付物已并入 `PagePure-0.7.1.zip`。Edge 商店当前 0.6.32 审核中；0.7.1 待过审后按“后续版本更新”流程提交，届时商店描述可补充 "Follows your browser language."，并可为各语言添加商店一览。
 
-> Select a page region, adjust its size, and hide or restore it. Save site or page rules; optional AI splitting uses your own key.
+## 0.6.32 商店提交（2026-09-21）
 
-版本说明：
+按用户要求移除类别净化系列，仅保留区域规则操作及显式智能拆分；旧类别规则停用。交付 `PagePure-0.6.32.zip`（2026-09-21 用户确认实测通过），同日直接以该包（25 个文件、根目录即 manifest、无冗余大文件）提交 Edge 商店审核，提交包名 `PagePure-0.6.32.zip`。提交内容：
 
-> Removed category-wide hiding and category correction. Region selection, expand/shrink, hide/restore, page exceptions, preview, undo, and explicit smart splitting remain available. Existing region rules are preserved; legacy category rules are inactive. Improved compatibility with Twinkstar Browser.
+- 程序包：`PagePure-0.6.32.zip`（版本 0.6.32，权限与 0.6.24 相同：storage + http/https host permissions）
+- 商店描述：全新英文文案，移除“27 categories”“similar-block classification”等类别宣传，改为区域选择/扩大缩小/隐藏恢复/页面例外/规则管理页/撤销/BYOK 智能拆分口径；隐私一节说明启用 AI 时仅向 TypeSafe 官方 API 发送模块文本、图片 alt、结构提示与去参链接路径（存于 Partner Center 提交记录）
+- 截图：`assets/store/screenshot-select.png`、`screenshot-clean.png` 已用 0.6.32 界面重新生成（1280×800，取自更新后的 demo.html“区域净化”演示页：选区高亮+净化盖章+快捷工具条 / 保存后广告消失）
+- 商店 logo、隐私政策 URL、支持邮箱、类别（高效工作）、市场（241）、可用性（公用）沿用原提交
+- 认证说明（每次提交必填）：Manual region selection and all rule features work fully offline, with no account and no API key required. The optional AI splitting is BYOK (bring your own key): a reviewer can test it by entering their own TypeSafe API key (https://console.typesafe.ai/), enabling AI for the site in the popup settings, and choosing the split action on a selected region. Without a key the extension simply skips AI splitting. All rules, snapshots and settings are stored locally in the browser's extension storage on this device only.
+- 审核通过后待办：把商店链接回填本文档台账和 README.md
 
-后续更新须同步商店截图和功能说明，移除“27 categories”“similar-block classification”和类别快照快速恢复宣传。普通AI自动判断与显式智能拆分仍为可选功能，因此不能沿用旧权限文案中“never uploads page content to any server”的绝对表述；应说明用户启用AI时会向TypeSafe发送处理所需的模块信息。这里仅记录文档对齐，不修改已提交材料或外部隐私政策。
+### 0.6.24 历史提审快照（已被 0.6.32 取代）
 
 ## 0.6.31 本地更新
 

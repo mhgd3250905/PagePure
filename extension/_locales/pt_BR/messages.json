@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure - Purificador de páginas"
+  },
+  "extDescription": {
+    "message": "Selecione uma região da página, ajuste o tamanho e oculte ou restaure. Regras por site e página são reaplicadas a cada visita."
+  },
+  "appTagline": {
+    "message": "Leitura mais pura"
+  },
+  "popupPurify": {
+    "message": "Depurar páginas"
+  },
+  "popupPreviewButton": {
+    "message": "Selecione o que ocultar"
+  },
+  "popupPreviewHint": {
+    "message": "Clique para ocultar; restaure quando quiser."
+  },
+  "popupToggleVisibility": {
+    "message": "Original / depurado"
+  },
+  "popupUndo": {
+    "message": "Desfazer último salvamento"
+  },
+  "popupManageRules": {
+    "message": "Gerenciar regras"
+  },
+  "popupPageStatusLoading": {
+    "message": "Lendo o estado da página…"
+  },
+  "popupAdvanced": {
+    "message": "Decisão automática e ajustes"
+  },
+  "popupAiToggle": {
+    "message": "Usar IA neste site"
+  },
+  "popupAiHint": {
+    "message": "Precisa de uma chave de API do Jev. Desligado em sites novos."
+  },
+  "popupContextLabel": {
+    "message": "Preferências de depuração deste site"
+  },
+  "popupContextSiteHost": {
+    "message": "Preferências de depuração de {1}"
+  },
+  "popupContextPlaceholder": {
+    "message": "Ex.: manter perguntas, respostas e artigos; ocultar promoções, atalhos de criadores, recomendações e rodapés."
+  },
+  "popupContextHint": {
+    "message": "Usado quando não há regras; as manuais têm prioridade."
+  },
+  "popupKeyStateOn": {
+    "message": "Configurada"
+  },
+  "popupKeyStateOff": {
+    "message": "Não configurada"
+  },
+  "popupKeyPlaceholder": {
+    "message": "Digite sua chave de API"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "Salva. Digite uma nova para substituir"
+  },
+  "popupKeyHint": {
+    "message": "Deixe vazio para manter a chave salva"
+  },
+  "popupClearKey": {
+    "message": "Apagar chave"
+  },
+  "popupSave": {
+    "message": "Salvar e aplicar"
+  },
+  "popupRetry": {
+    "message": "Reavaliar"
+  },
+  "popupClearPageRules": {
+    "message": "Apagar regras desta página"
+  },
+  "popupPrivacy": {
+    "message": "Dados e privacidade"
+  },
+  "popupPrivacyNote": {
+    "message": "A IA envia ao TypeSafe Jev o texto dos módulos, descrições de imagens e caminhos de links; nunca o DOM completo nem cookies. A seleção manual dispensa IA e as regras ficam neste aparelho."
+  },
+  "popupStatusLoading": {
+    "message": "Carregando ajustes…"
+  },
+  "popupReconnect": {
+    "message": "Reconectar"
+  },
+  "popupFocusReading": {
+    "message": "Foco na leitura"
+  },
+  "popupErrorTimeout": {
+    "message": "Tempo de conexão esgotado. Reconecte; se persistir, recarregue o PagePure na página de extensões e atualize o site"
+  },
+  "popupErrorRequest": {
+    "message": "Falha na solicitação. Tente novamente"
+  },
+  "popupStatusNoPage": {
+    "message": "Abra uma página da web para ver o estado"
+  },
+  "popupStatusFail": {
+    "message": "Falha na avaliação: {1}"
+  },
+  "popupStatusHidden": {
+    "message": "{1} ocultos · {2} pendentes"
+  },
+  "popupEnabledOn": {
+    "message": "Ativado. Use o botão acima para selecionar conteúdo"
+  },
+  "popupEnabledOff": {
+    "message": "Desativado. Conteúdo da página restaurado"
+  },
+  "popupErrorNeedGoal": {
+    "message": "Descreva o que você quer manter"
+  },
+  "popupSavedOff": {
+    "message": "Salvo. A depuração de páginas está desligada"
+  },
+  "popupSavedManual": {
+    "message": "Salvo. A seleção manual já funciona; a IA também precisa de chave de API"
+  },
+  "popupSavedOn": {
+    "message": "Salvo. Esta página será atualizada automaticamente"
+  },
+  "popupKeyCleared": {
+    "message": "Chave apagada"
+  },
+  "popupRetried": {
+    "message": "Reavaliação solicitada para esta página"
+  },
+  "popupErrorEnableFirst": {
+    "message": "Ligue a depuração e salve antes de selecionar"
+  },
+  "popupEnteringSelection": {
+    "message": "Modo de seleção ativo. Clique no que quiser ocultar"
+  },
+  "popupToggledVisibility": {
+    "message": "Exibição alternada. Clique de novo para voltar"
+  },
+  "popupUndone": {
+    "message": "Último salvamento desfeito"
+  },
+  "popupClearedPageRules": {
+    "message": "Regras desta página apagadas"
+  },
+  "statusPurifierOff": {
+    "message": "A depuração de páginas está desligada"
+  },
+  "popupErrorLoadSettings": {
+    "message": "Não foi possível ler os ajustes: {1}"
+  },
+  "popupNotConnected": {
+    "message": "Sem conexão com o PagePure"
+  },
+  "consolePanelAria": {
+    "message": "Painel de controle do PagePure"
+  },
+  "consoleCollapse": {
+    "message": "Recolher painel"
+  },
+  "consoleLauncherAria": {
+    "message": "Abrir o painel do PagePure"
+  },
+  "consoleFrameTitle": {
+    "message": "Ajustes do PagePure"
+  },
+  "previewNoHelper": {
+    "message": "Não foi possível contatar o auxiliar. Atualize a página"
+  },
+  "toolbarStatusHidden": {
+    "message": "{1} ocultos · valem ao salvar"
+  },
+  "toolbarStatusLegacy": {
+    "message": "Mais {1} regras de região (inclui exceções de manutenção)"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}: {3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "Só nesta página "
+  },
+  "actionHide": {
+    "message": "Ocultar"
+  },
+  "actionKeep": {
+    "message": "Restaurar"
+  },
+  "previewEmbedRegion": {
+    "message": "Conteiro incorporado"
+  },
+  "previewImageRegion": {
+    "message": "Imagem ou área de conteúdo"
+  },
+  "splitNeedsAi": {
+    "message": "A divisão inteligente precisa de IA ativada neste site e de uma chave de API"
+  },
+  "splitExpandFirst": {
+    "message": "Amplie a seleção antes de dividir"
+  },
+  "splitInProgress": {
+    "message": "Dividindo…"
+  },
+  "splitLabel": {
+    "message": "Divisão inteligente"
+  },
+  "splitErrorChanged": {
+    "message": "A região mudou. Divida novamente"
+  },
+  "splitErrorTooFew": {
+    "message": "Menos de dois blocos independentes; a região original foi mantida"
+  },
+  "splitDone": {
+    "message": "Dividido em {1} regiões. Escolha uma."
+  },
+  "quickSelectedRegion": {
+    "message": "Região selecionada"
+  },
+  "selectionName": {
+    "message": "Selecionado: {1}"
+  },
+  "splitUnstableSave": {
+    "message": "Estes limites de divisão ainda não podem ser salvos de forma estável. Ajuste o intervalo e salve de novo; as regras existentes não mudaram."
+  },
+  "savePageChanged": {
+    "message": "Regras salvas, mas a página mudou. Entre no modo de seleção novamente."
+  },
+  "areaRuleFallback": {
+    "message": "Ainda não é possível salvar. Amplie o intervalo e tente de novo."
+  },
+  "previewPageOnlyHide": {
+    "message": "Oculto só nesta página · vale ao salvar"
+  },
+  "previewPageOnlyKeep": {
+    "message": "Restaurado só nesta página · vale ao salvar"
+  },
+  "candidateAria": {
+    "message": "Selecionar região {1}"
+  },
+  "candidateTitle": {
+    "message": "Clique para escolher esta região e decidir o que ocultar"
+  },
+  "toolbarStamp": {
+    "message": "Limpo"
+  },
+  "maxRangeReached": {
+    "message": "Você já está na maior região selecionável"
+  },
+  "effectPreview": {
+    "message": "Pré-visualizar"
+  },
+  "effectBack": {
+    "message": "Voltar à seleção"
+  },
+  "unknownAction": {
+    "message": "Ação desconhecida"
+  },
+  "toolbarAria": {
+    "message": "Ações de região"
+  },
+  "moreAria": {
+    "message": "Mais ações"
+  },
+  "cancelAria": {
+    "message": "Cancelar e sair"
+  },
+  "scopeRangeLabel": {
+    "message": "Intervalo"
+  },
+  "rangeGroupAria": {
+    "message": "Ajustar intervalo"
+  },
+  "largerBtn": {
+    "message": "Ampliar"
+  },
+  "largerTitle": {
+    "message": "Ampliar a seleção"
+  },
+  "smallerBtn": {
+    "message": "Reduzir"
+  },
+  "smallerTitle": {
+    "message": "Reduzir a seleção"
+  },
+  "splitTitle": {
+    "message": "Divide uma região grande em menores, selecionáveis uma a uma"
+  },
+  "areaScopeLabel": {
+    "message": "Região"
+  },
+  "areaGroupAria": {
+    "message": "Ações de região"
+  },
+  "hideAreaBtn": {
+    "message": "Ocultar região"
+  },
+  "keepAreaBtn": {
+    "message": "Restaurar região"
+  },
+  "pageScopeLabel": {
+    "message": "Esta página"
+  },
+  "pageGroupAria": {
+    "message": "Ações só nesta página"
+  },
+  "pageHideAria": {
+    "message": "Ocultar só nesta página"
+  },
+  "pageKeepAria": {
+    "message": "Restaurar só nesta página"
+  },
+  "saveBtn": {
+    "message": "Salvar alterações"
+  },
+  "scopeSite": {
+    "message": "Site inteiro"
+  },
+  "scopeType": {
+    "message": "Este tipo de página"
+  },
+  "scopeCurrentPage": {
+    "message": "Esta página"
+  },
+  "bgDisallowed": {
+    "message": "Solicitação da extensão não permitida"
+  },
+  "bgErrorSettings": {
+    "message": "Ajustes inválidos. As preferências de leitura aceitam até 4000 caracteres"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "Abra uma página da web para salvar as preferências de leitura"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "Abra uma página da web para ligar a IA"
+  },
+  "bgErrorInvalidKey": {
+    "message": "Chave de API inválida"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "Digite a chave completa, sem espaços"
+  },
+  "bgErrorRuleScope": {
+    "message": "Escopo de regra inválido"
+  },
+  "bgErrorRuleContent": {
+    "message": "Conteúdo de regra inválido"
+  },
+  "bgErrorPartition": {
+    "message": "Limites de divisão inválidos"
+  },
+  "bgErrorTooManyRules": {
+    "message": "Regras demais"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "Limites de divisão demais"
+  },
+  "bgErrorStatus": {
+    "message": "Estado inválido"
+  },
+  "bgStatusNotWebpage": {
+    "message": "Abra em uma página da web comum"
+  },
+  "bgErrorPageAction": {
+    "message": "Ação de página inválida"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "Falha na ação de página"
+  },
+  "bgReasonAiOff": {
+    "message": "A IA está desligada neste site. Ative nos ajustes ou selecione manualmente"
+  },
+  "bgReasonNoKey": {
+    "message": "Sem chave de API ainda: você já pode selecionar regiões manualmente"
+  },
+  "bgErrorSplitCount": {
+    "message": "A divisão precisa de 2 a 20 blocos candidatos"
+  },
+  "bgErrorBlockId": {
+    "message": "Id de bloco inválido ou duplicado"
+  },
+  "bgErrorBlockField": {
+    "message": "Campo {1} do bloco inválido"
+  },
+  "bgErrorBatchCount": {
+    "message": "Cada lote precisa de 1 a 5 blocos"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "A IA está desligada neste site. Ative nos ajustes para dividir"
+  },
+  "bgErrorNeedKey": {
+    "message": "Salve antes sua chave de API do Jev na extensão"
+  },
+  "bgErrorAiOff": {
+    "message": "A IA está desligada neste site"
+  },
+  "clsInvalidFormat": {
+    "message": "Formato de decisão inválido do Jev"
+  },
+  "clsCategoryFormat": {
+    "message": "Formato de categoria inválido do Jev"
+  },
+  "clsSplitFormat": {
+    "message": "Formato de divisão inválido do Jev"
+  },
+  "clsTimeout": {
+    "message": "A solicitação ao Jev esgotou o tempo. Tente de novo"
+  },
+  "clsConnect": {
+    "message": "Não foi possível contatar o serviço Jev"
+  },
+  "clsKeyInvalid": {
+    "message": "Chave de API do Jev inválida"
+  },
+  "clsKeyForbidden": {
+    "message": "Esta chave de API do Jev não tem acesso"
+  },
+  "clsRateLimited": {
+    "message": "O Jev está limitando solicitações. Tente mais tarde"
+  },
+  "clsHttpError": {
+    "message": "Falha na solicitação ao Jev (HTTP {1})"
+  },
+  "clsInvalidJson": {
+    "message": "O Jev retornou um JSON inválido"
+  },
+  "snapScopeInvalid": {
+    "message": "Escopo de instantâneo inválido"
+  },
+  "snapContentInvalid": {
+    "message": "Conteúdo de instantâneo inválido"
+  },
+  "mgrScopeSite": {
+    "message": "Site inteiro"
+  },
+  "mgrScopeType": {
+    "message": "Este tipo de página"
+  },
+  "mgrScopePage": {
+    "message": "Só esta página"
+  },
+  "mgrEntriesChanged": {
+    "message": "Os endereços selecionados mudaram. Atualize e escolha de novo"
+  },
+  "mgrRevisionChanged": {
+    "message": "As regras mudaram. Atualize a lista e confirme novamente"
+  },
+  "contentNoHelper": {
+    "message": "Falha na conexão com o auxiliar. Atualize a página"
+  },
+  "manualHttpOnly": {
+    "message": "Somente páginas HTTP/HTTPS são compatíveis"
+  },
+  "managerTitle": {
+    "message": "Regras de depuração · PagePure"
+  },
+  "managerHeading": {
+    "message": "Regras de depuração"
+  },
+  "managerNavAria": {
+    "message": "Navegação de gerenciamento"
+  },
+  "managerLocalNote": {
+    "message": "As regras ficam guardadas neste navegador"
+  },
+  "managerEyebrow": {
+    "message": "Seu espaço de leitura"
+  },
+  "managerIntro": {
+    "message": "Organize as regras salvas e devolva às páginas o formato que você quer."
+  },
+  "managerWorkspaceAria": {
+    "message": "Lista de regras"
+  },
+  "managerSearchPlaceholder": {
+    "message": "Pesquisar endereços de site ou página"
+  },
+  "managerRefresh": {
+    "message": "Atualizar"
+  },
+  "managerSavedAddresses": {
+    "message": "Endereços salvos"
+  },
+  "managerSelectAll": {
+    "message": "Selecionar todos os resultados"
+  },
+  "managerClearSelection": {
+    "message": "Limpar seleção"
+  },
+  "managerFootnote": {
+    "message": "Depois de apagar, estas regras deixam de valer para os endereços correspondentes."
+  },
+  "managerConfirmTitle": {
+    "message": "Apagar as regras selecionadas?"
+  },
+  "managerCancel": {
+    "message": "Cancelar"
+  },
+  "managerConfirmDelete": {
+    "message": "Confirmar exclusão"
+  },
+  "managerUnknownAddress": {
+    "message": "Endereço desconhecido"
+  },
+  "managerErrorDefault": {
+    "message": "A ação não foi concluída. Tente novamente."
+  },
+  "managerSelectedCount": {
+    "message": "{1} endereços selecionados"
+  },
+  "managerNoneSelected": {
+    "message": "Nenhum selecionado"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "Apagar selecionados ({1})"
+  },
+  "managerDeleteSelected": {
+    "message": "Apagar selecionados"
+  },
+  "managerEntryAria": {
+    "message": "Selecionar {1}, {2}, {3} regras"
+  },
+  "managerRulesSuffix": {
+    "message": " regras"
+  },
+  "managerRuleTotal": {
+    "message": "Total de regras: {1}"
+  },
+  "managerEmptyNoMatch": {
+    "message": "Nenhum endereço corresponde"
+  },
+  "managerEmptyNone": {
+    "message": "Ainda não há regras salvas"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "Tente outras palavras-chave ou limpe a busca para ver tudo."
+  },
+  "managerEmptyNoneDesc": {
+    "message": "Salve ajustes de depuração numa página e gerencie tudo por aqui."
+  },
+  "managerLoading": {
+    "message": "Carregando regras…"
+  },
+  "managerErrorLoad": {
+    "message": "Não foi possível carregar as regras. Atualize e tente de novo."
+  },
+  "managerErrorLoadFallback": {
+    "message": "Falha ao carregar. Atualize e tente de novo."
+  },
+  "managerStaleDialog": {
+    "message": "As regras mudaram. Cancele e confirme novamente a seleção."
+  },
+  "managerConfirmSummary": {
+    "message": "{2} regras de {1} endereços serão apagadas e não dá para desfazer. Regras de site compartilhadas com endereços fora da seleção podem continuar valendo."
+  },
+  "managerCountShort": {
+    "message": "{1}"
+  },
+  "managerDeleting": {
+    "message": "Apagando…"
+  },
+  "managerDeleted": {
+    "message": "Regras apagadas em {1} endereços."
+  },
+  "managerStaleRetry": {
+    "message": "As regras mudaram e a lista foi atualizada. Revise os endereços e confirme de novo."
+  },
+  "managerDeleteFailed": {
+    "message": "{1} Os endereços selecionados que existem foram mantidos. Revise e tente de novo."
+  },
+  "managerSettingsNav": {
+    "message": "Ajustes"
+  },
+  "managerSettingsHeading": {
+    "message": "Ajustes"
+  },
+  "managerLanguageLabel": {
+    "message": "Idioma da interface"
+  },
+  "managerLangDefault": {
+    "message": "Seguir o navegador"
+  },
+  "managerLanguageHint": {
+    "message": "Salva na hora e esta página é recarregada; a barra na página vale na próxima entrada no modo de seleção, e o pop-up ao ser reaberto."
+  },
+  "popupManualToolsAria": {
+    "message": "Depuração visual"
+  }
+}

@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "网页净化助手 · PagePure",
-  "version": "0.6.32",
-  "description": "点选网页区域，调整范围后隐藏或恢复，按网站和页面保存净化规则。",
+  "default_locale": "zh_CN",
+  "name": "__MSG_extName__",
+  "version": "0.7.1",
+  "description": "__MSG_extDescription__",
   "permissions": [
     "storage"
   ],
@@ -15,7 +16,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "网页净化助手 · PagePure",
+    "default_title": "__MSG_extName__",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/pagepure-16.png",
@@ -31,11 +32,11 @@
         "https://*/*"
       ],
       "js": [
+        "i18n.js",
         "startup.js",
         "blocks.js",
         "manual.js",
         "content.js",
-
         "preview.js",
         "console.js"
       ],

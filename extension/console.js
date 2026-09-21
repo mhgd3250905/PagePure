@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const {t} = globalThis.PagePureI18n;
   function mount() {
     if (!document.body || document.querySelector('[data-jev-ui="console"]')) return;
     const host = document.createElement('div');
@@ -22,7 +23,7 @@
       .close { display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:9px;background:transparent;color:#7b8597;font-size:21px;line-height:1; }
       .close:hover {background:#edf1f7;color:#182235;}
       iframe { display:block; border:0; width:100%; height:calc(100% - 62px); background:#fbfcfe; }
-    </style><section class="panel" id="jev-console-panel" aria-label="网页净化助手操作台" hidden><div class="bar"><strong class="brand"><img src="${chrome.runtime.getURL('icons/pagepure-48.png')}" alt="" width="28" height="28">PagePure</strong><button class="close" type="button" aria-label="收起操作台">×</button></div></section><button class="launcher" type="button" aria-label="打开 PagePure 净化操作台" aria-controls="jev-console-panel" aria-expanded="false"><img src="${chrome.runtime.getURL('icons/pagepure-48.png')}" alt="" width="23" height="23">PagePure</button>`;
+    </style><section class="panel" id="jev-console-panel" aria-label="${t('consolePanelAria')}" hidden><div class="bar"><strong class="brand"><img src="${chrome.runtime.getURL('icons/pagepure-48.png')}" alt="" width="28" height="28">PagePure</strong><button class="close" type="button" aria-label="${t('consoleCollapse')}">×</button></div></section><button class="launcher" type="button" aria-label="${t('consoleLauncherAria')}" aria-controls="jev-console-panel" aria-expanded="false"><img src="${chrome.runtime.getURL('icons/pagepure-48.png')}" alt="" width="23" height="23">PagePure</button>`;
     const panel = root.querySelector('.panel');
     const launcher = root.querySelector('.launcher');
     let frame;
@@ -37,7 +38,7 @@
     launcher.addEventListener('click', () => {
       if (!panel.hidden) { close(); return; }
       frame = document.createElement('iframe');
-      frame.title = 'PagePure 网页净化助手设置';
+      frame.title = t('consoleFrameTitle');
       frame.src = chrome.runtime.getURL('popup.html?embedded=1');
       panel.append(frame);
       panel.hidden = false;

@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure - ウェブ浄化"
+  },
+  "extDescription": {
+    "message": "ページの範囲を選んでサイズを調整し、非表示・復元。サイトやページごとのルールを保存し、次回から自動適用します。"
+  },
+  "appTagline": {
+    "message": "読書を、より純粋に。"
+  },
+  "popupPurify": {
+    "message": "ページ浄化"
+  },
+  "popupPreviewButton": {
+    "message": "非表示にする要素を選択"
+  },
+  "popupPreviewHint": {
+    "message": "クリックで非表示、いつでも復元。"
+  },
+  "popupToggleVisibility": {
+    "message": "元のページ / 浄化後"
+  },
+  "popupUndo": {
+    "message": "直前の保存を取り消す"
+  },
+  "popupManageRules": {
+    "message": "ルールを管理"
+  },
+  "popupPageStatusLoading": {
+    "message": "ページの状態を取得中…"
+  },
+  "popupAdvanced": {
+    "message": "自動判定と設定"
+  },
+  "popupAiToggle": {
+    "message": "このサイトで AI 判定を使う"
+  },
+  "popupAiHint": {
+    "message": "Jev API キーが必要です。新しいサイトではオフ。"
+  },
+  "popupContextLabel": {
+    "message": "このサイトの自動浄化設定"
+  },
+  "popupContextSiteHost": {
+    "message": "{1} の自動浄化設定"
+  },
+  "popupContextPlaceholder": {
+    "message": "例：質問・回答・記事は残し、広告・投稿導線・フォロー推荐・フッターは隠す。"
+  },
+  "popupContextHint": {
+    "message": "ルール未設定時に使用。手動ルールが優先。"
+  },
+  "popupKeyStateOn": {
+    "message": "設定済み"
+  },
+  "popupKeyStateOff": {
+    "message": "未設定"
+  },
+  "popupKeyPlaceholder": {
+    "message": "API キーを入力"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "保存済み。新しいキーで変更できます"
+  },
+  "popupKeyHint": {
+    "message": "空欄のままなら保存済みのキーを使用"
+  },
+  "popupClearKey": {
+    "message": "キーを削除"
+  },
+  "popupSave": {
+    "message": "保存して適用"
+  },
+  "popupRetry": {
+    "message": "再判定"
+  },
+  "popupClearPageRules": {
+    "message": "このページのルールを削除"
+  },
+  "popupPrivacy": {
+    "message": "データとプライバシー"
+  },
+  "popupPrivacyNote": {
+    "message": "AI 判定では、要素のテキスト・画像の説明・リンクのパスを TypeSafe Jev に送信します。DOM 全体や Cookie は送信しません。手動選択に AI は不要で、ルールはこの端末に保存されます。"
+  },
+  "popupStatusLoading": {
+    "message": "設定を読み込み中…"
+  },
+  "popupReconnect": {
+    "message": "再接続"
+  },
+  "popupFocusReading": {
+    "message": "読書に集中"
+  },
+  "popupErrorTimeout": {
+    "message": "接続がタイムアウトしました。再接続してください。改善しない場合は拡張機能管理ページで PagePure を再読み込みし、ページを更新してください"
+  },
+  "popupErrorRequest": {
+    "message": "リクエストに失敗しました。もう一度お試しください"
+  },
+  "popupStatusNoPage": {
+    "message": "ウェブページを開くと状態を表示します"
+  },
+  "popupStatusFail": {
+    "message": "判定に失敗：{1}"
+  },
+  "popupStatusHidden": {
+    "message": "非表示 {1} 件 · 判定待ち {2} 件"
+  },
+  "popupEnabledOn": {
+    "message": "オンにしました。上のボタンで要素を選択してください"
+  },
+  "popupEnabledOff": {
+    "message": "オフにしました。ページの内容を元に戻しました"
+  },
+  "popupErrorNeedGoal": {
+    "message": "残したい内容を入力してください"
+  },
+  "popupSavedOff": {
+    "message": "保存しました。ページ浄化はオフです"
+  },
+  "popupSavedManual": {
+    "message": "保存しました。手動選択はそのまま使え、AI 判定には API キーが必要です"
+  },
+  "popupSavedOn": {
+    "message": "保存しました。このページは自動で更新されます"
+  },
+  "popupKeyCleared": {
+    "message": "キーを削除しました"
+  },
+  "popupRetried": {
+    "message": "このページの再判定をリクエストしました"
+  },
+  "popupErrorEnableFirst": {
+    "message": "先にページ浄化をオンにして保存し、要素を選択してください"
+  },
+  "popupEnteringSelection": {
+    "message": "選択モード中。非表示にしたい要素をクリックしてください"
+  },
+  "popupToggledVisibility": {
+    "message": "表示を切り替えました。もう一度クリックで戻ります"
+  },
+  "popupUndone": {
+    "message": "直前の保存を取り消しました"
+  },
+  "popupClearedPageRules": {
+    "message": "このページの浄化ルールを削除しました"
+  },
+  "statusPurifierOff": {
+    "message": "ページ浄化はオフです"
+  },
+  "popupErrorLoadSettings": {
+    "message": "設定を読み込めません：{1}"
+  },
+  "popupNotConnected": {
+    "message": "PagePure に未接続です"
+  },
+  "consolePanelAria": {
+    "message": "PagePure コントロールパネル"
+  },
+  "consoleCollapse": {
+    "message": "パネルを閉じる"
+  },
+  "consoleLauncherAria": {
+    "message": "PagePure パネルを開く"
+  },
+  "consoleFrameTitle": {
+    "message": "PagePure 設定"
+  },
+  "previewNoHelper": {
+    "message": "ヘルパーに接続できません。ページを更新してください"
+  },
+  "toolbarStatusHidden": {
+    "message": "非表示 {1} 件 · 保存で有効"
+  },
+  "toolbarStatusLegacy": {
+    "message": "他に {1} 件の領域ルール（復元例外を含む）"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}：{3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "このページのみ"
+  },
+  "actionHide": {
+    "message": "隠す"
+  },
+  "actionKeep": {
+    "message": "復元"
+  },
+  "previewEmbedRegion": {
+    "message": "埋め込みコンテンツ"
+  },
+  "previewImageRegion": {
+    "message": "画像またはコンテンツ領域"
+  },
+  "splitNeedsAi": {
+    "message": "スマート分割にはこのサイトの AI 判定と API キーが必要です"
+  },
+  "splitExpandFirst": {
+    "message": "先に範囲を広げてから分割してください"
+  },
+  "splitInProgress": {
+    "message": "分割中…"
+  },
+  "splitLabel": {
+    "message": "スマート分割"
+  },
+  "splitErrorChanged": {
+    "message": "領域の内容が変わりました。再度分割してください"
+  },
+  "splitErrorTooFew": {
+    "message": "独立した要素が2つ見つからず、元の領域を維持しました"
+  },
+  "splitDone": {
+    "message": "{1} 個の領域に分割しました。選択してください。"
+  },
+  "quickSelectedRegion": {
+    "message": "選択中の領域"
+  },
+  "selectionName": {
+    "message": "選択：{1}"
+  },
+  "splitUnstableSave": {
+    "message": "この分割の境界はまだ安定して保存できません。範囲を調整してから保存してください。既存のルールは変更されていません。"
+  },
+  "savePageChanged": {
+    "message": "ルールは保存されましたが、ページの状態が変わりました。選択モードに入り直してください。"
+  },
+  "areaRuleFallback": {
+    "message": "今は保存できません。範囲を広げて再試行してください。"
+  },
+  "previewPageOnlyHide": {
+    "message": "このページのみ非表示 · 保存で有効"
+  },
+  "previewPageOnlyKeep": {
+    "message": "このページのみ復元 · 保存で有効"
+  },
+  "candidateAria": {
+    "message": "領域 {1} を選択"
+  },
+  "candidateTitle": {
+    "message": "クリックして領域を選択し、非表示範囲を決めます"
+  },
+  "toolbarStamp": {
+    "message": "浄化"
+  },
+  "maxRangeReached": {
+    "message": "これ以上広げられる範囲はありません"
+  },
+  "effectPreview": {
+    "message": "効果をプレビュー"
+  },
+  "effectBack": {
+    "message": "選択に戻る"
+  },
+  "unknownAction": {
+    "message": "不明な操作"
+  },
+  "toolbarAria": {
+    "message": "領域操作"
+  },
+  "moreAria": {
+    "message": "その他の操作"
+  },
+  "cancelAria": {
+    "message": "キャンセルして終了"
+  },
+  "scopeRangeLabel": {
+    "message": "範囲"
+  },
+  "rangeGroupAria": {
+    "message": "範囲を調整"
+  },
+  "largerBtn": {
+    "message": "広げる"
+  },
+  "largerTitle": {
+    "message": "選択範囲を広げる"
+  },
+  "smallerBtn": {
+    "message": "狭める"
+  },
+  "smallerTitle": {
+    "message": "選択範囲を狭める"
+  },
+  "splitTitle": {
+    "message": "大きな領域を個別に選択できる小さな領域に分割します"
+  },
+  "areaScopeLabel": {
+    "message": "この領域"
+  },
+  "areaGroupAria": {
+    "message": "領域操作"
+  },
+  "hideAreaBtn": {
+    "message": "領域を非表示"
+  },
+  "keepAreaBtn": {
+    "message": "領域を復元"
+  },
+  "pageScopeLabel": {
+    "message": "このページ"
+  },
+  "pageGroupAria": {
+    "message": "このページのみの操作"
+  },
+  "pageHideAria": {
+    "message": "このページのみ非表示"
+  },
+  "pageKeepAria": {
+    "message": "このページのみ復元"
+  },
+  "saveBtn": {
+    "message": "変更を保存"
+  },
+  "scopeSite": {
+    "message": "サイト全体"
+  },
+  "scopeType": {
+    "message": "この種類のページ"
+  },
+  "scopeCurrentPage": {
+    "message": "このページ"
+  },
+  "bgDisallowed": {
+    "message": "許可されていない拡張機能リクエスト"
+  },
+  "bgErrorSettings": {
+    "message": "設定が無効です。閲読設定は最大 4000 文字です"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "ウェブページ上で閲読設定を保存してください"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "ウェブページ上で AI を切り替えてください"
+  },
+  "bgErrorInvalidKey": {
+    "message": "API キーが無効です"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "API キー全体を空白なしで入力してください"
+  },
+  "bgErrorRuleScope": {
+    "message": "ルールのスコープが無効です"
+  },
+  "bgErrorRuleContent": {
+    "message": "ルールの内容が無効です"
+  },
+  "bgErrorPartition": {
+    "message": "分割の境界が無効です"
+  },
+  "bgErrorTooManyRules": {
+    "message": "ルール数が上限を超えました"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "分割境界の数が上限を超えました"
+  },
+  "bgErrorStatus": {
+    "message": "状態が無効です"
+  },
+  "bgStatusNotWebpage": {
+    "message": "通常のウェブページで使用してください"
+  },
+  "bgErrorPageAction": {
+    "message": "無効なページ操作です"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "ページ操作に失敗しました"
+  },
+  "bgReasonAiOff": {
+    "message": "このサイトでは AI がオフです。設定でオンにするか手動で選択できます"
+  },
+  "bgReasonNoKey": {
+    "message": "API キー未設定でも手動で領域を選択できます"
+  },
+  "bgErrorSplitCount": {
+    "message": "分割には 2〜20 個の候補要素が必要です"
+  },
+  "bgErrorBlockId": {
+    "message": "要素 id が無効または重複しています"
+  },
+  "bgErrorBlockField": {
+    "message": "要素の {1} が無効です"
+  },
+  "bgErrorBatchCount": {
+    "message": "1 バッチは 1〜5 個の要素で指定してください"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "このサイトでは AI がオフです。設定でオンにしてから分割してください"
+  },
+  "bgErrorNeedKey": {
+    "message": "拡張機能で Jev API キーを保存してください"
+  },
+  "bgErrorAiOff": {
+    "message": "このサイトでは AI がオフです"
+  },
+  "clsInvalidFormat": {
+    "message": "Jev の判定結果の形式が無効です"
+  },
+  "clsCategoryFormat": {
+    "message": "Jev のカテゴリ結果の形式が無効です"
+  },
+  "clsSplitFormat": {
+    "message": "Jev の分割結果の形式が無効です"
+  },
+  "clsTimeout": {
+    "message": "Jev リクエストがタイムアウトしました。もう一度お試しください"
+  },
+  "clsConnect": {
+    "message": "Jev サービスに接続できません"
+  },
+  "clsKeyInvalid": {
+    "message": "Jev API キーが無効です"
+  },
+  "clsKeyForbidden": {
+    "message": "この Jev API キーにはアクセス権がありません"
+  },
+  "clsRateLimited": {
+    "message": "Jev がレート制限中です。しばらくしてから再試行してください"
+  },
+  "clsHttpError": {
+    "message": "Jev リクエストに失敗しました（HTTP {1}）"
+  },
+  "clsInvalidJson": {
+    "message": "Jev が無効な JSON を返しました"
+  },
+  "snapScopeInvalid": {
+    "message": "スナップショットのスコープが無効です"
+  },
+  "snapContentInvalid": {
+    "message": "スナップショットの内容が無効です"
+  },
+  "mgrScopeSite": {
+    "message": "サイト全体"
+  },
+  "mgrScopeType": {
+    "message": "この種類のページ"
+  },
+  "mgrScopePage": {
+    "message": "このページのみ"
+  },
+  "mgrEntriesChanged": {
+    "message": "選択したアドレスが変わりました。更新して選び直してください"
+  },
+  "mgrRevisionChanged": {
+    "message": "ルールが変わりました。一覧を更新して再度確認してください"
+  },
+  "contentNoHelper": {
+    "message": "ヘルパーとの接続に失敗しました。ページを更新してください"
+  },
+  "manualHttpOnly": {
+    "message": "HTTP/HTTPS ページのみ対応しています"
+  },
+  "managerTitle": {
+    "message": "浄化ルール · PagePure"
+  },
+  "managerHeading": {
+    "message": "浄化ルール"
+  },
+  "managerNavAria": {
+    "message": "管理ナビゲーション"
+  },
+  "managerLocalNote": {
+    "message": "ルールはこのブラウザーに保存されます"
+  },
+  "managerEyebrow": {
+    "message": "あなたの閲読スペース"
+  },
+  "managerIntro": {
+    "message": "保存したルールを整理して、ページを望む形に戻しましょう。"
+  },
+  "managerWorkspaceAria": {
+    "message": "ルール一覧"
+  },
+  "managerSearchPlaceholder": {
+    "message": "サイトまたはページのアドレスを検索"
+  },
+  "managerRefresh": {
+    "message": "更新"
+  },
+  "managerSavedAddresses": {
+    "message": "保存済みアドレス"
+  },
+  "managerSelectAll": {
+    "message": "表示中をすべて選択"
+  },
+  "managerClearSelection": {
+    "message": "選択を解除"
+  },
+  "managerFootnote": {
+    "message": "削除すると、該当アドレスにはこれらの保存済みルールが適用されなくなります。"
+  },
+  "managerConfirmTitle": {
+    "message": "選択したルールを削除しますか？"
+  },
+  "managerCancel": {
+    "message": "キャンセル"
+  },
+  "managerConfirmDelete": {
+    "message": "削除する"
+  },
+  "managerUnknownAddress": {
+    "message": "不明なアドレス"
+  },
+  "managerErrorDefault": {
+    "message": "操作が完了しませんでした。もう一度お試しください。"
+  },
+  "managerSelectedCount": {
+    "message": "{1} 件のアドレスを選択中"
+  },
+  "managerNoneSelected": {
+    "message": "未選択"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "選択を削除（{1}）"
+  },
+  "managerDeleteSelected": {
+    "message": "選択を削除"
+  },
+  "managerEntryAria": {
+    "message": "{1}（{2}、{3} 件のルール）を選択"
+  },
+  "managerRulesSuffix": {
+    "message": "件のルール"
+  },
+  "managerRuleTotal": {
+    "message": "合計 {1} 件のルール"
+  },
+  "managerEmptyNoMatch": {
+    "message": "一致するアドレスがありません"
+  },
+  "managerEmptyNone": {
+    "message": "保存されたルールはまだありません"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "別のキーワードを試すか、検索をクリアしてすべて表示してください。"
+  },
+  "managerEmptyNoneDesc": {
+    "message": "ウェブページで浄化設定を保存すると、ここでまとめて管理できます。"
+  },
+  "managerLoading": {
+    "message": "ルールを読み込み中…"
+  },
+  "managerErrorLoad": {
+    "message": "ルールの読み込みに失敗しました。更新して再試行してください。"
+  },
+  "managerErrorLoadFallback": {
+    "message": "読み込みに失敗しました。更新して再試行してください。"
+  },
+  "managerStaleDialog": {
+    "message": "ルールが変わりました。キャンセルして選択範囲を確認し直してください。"
+  },
+  "managerConfirmSummary": {
+    "message": "{1} 件のアドレスから {2} 件のルールを削除します。元に戻せません。選択外と共有のサイト ルールは適用される場合があります。"
+  },
+  "managerCountShort": {
+    "message": "{1} 件"
+  },
+  "managerDeleting": {
+    "message": "削除中…"
+  },
+  "managerDeleted": {
+    "message": "{1} 件のアドレスのルールを削除しました。"
+  },
+  "managerStaleRetry": {
+    "message": "ルールが変わったため一覧を更新しました。アドレスを確認して再度確定してください。"
+  },
+  "managerDeleteFailed": {
+    "message": "{1} 存在する選択アドレスは保持しました。確認して再試行してください。"
+  },
+  "managerSettingsNav": {
+    "message": "設定"
+  },
+  "managerSettingsHeading": {
+    "message": "設定"
+  },
+  "managerLanguageLabel": {
+    "message": "表示言語"
+  },
+  "managerLangDefault": {
+    "message": "ブラウザーに合わせる"
+  },
+  "managerLanguageHint": {
+    "message": "選択するとすぐ保存してこのページを再読み込みします。ページ内ツールバーは次に選択モードに入ったとき、ポップアップは次回開いたときに適用されます。"
+  },
+  "popupManualToolsAria": {
+    "message": "視覚的な浄化"
+  }
+}

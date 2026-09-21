@@ -15,6 +15,7 @@ body{margin:0;background:#f3f6fb;color:#1b2c43;font:16px system-ui}.demo-tools{p
 <script>
 const listeners=[];
 window.chrome={runtime:{onMessage:{addListener(fn){listeners.push(fn)}},async sendMessage({type,payload}){
+  if(type==='i18nGet')return demoReady.then(()=>({ok:true,data:{locale:demoLang,messages:demoMessages}}));
   let data={};const saved=JSON.parse(localStorage.getItem('jev-demo-rules')||'{}');
   if(type==='splitBlock')data={ids:payload.blocks.map(b=>b.id)};
   if(type==='configGet')data={enabled:true,aiEnabled:true,configured:true};
@@ -25,7 +26,16 @@ window.chrome={runtime:{onMessage:{addListener(fn){listeners.push(fn)}},async se
   return {ok:true,data};
 }}};
 window.JevPage={suspend(){},resume(){}};
-</script><script src="extension/blocks.js"></script><script src="extension/manual.js"></script><script src="extension/preview.js"></script><script>
+const demoLangs=['zh_CN','zh_TW','en','ja','ko','es','pt_BR','ru','de','fr','it','tr'];const requested=new URLSearchParams(location.search).get('lang');const demoLang=demoLangs.includes(requested)?requested:'zh_CN';
+let demoMessages={};
+window.chrome.i18n={getMessage(key){const entry=demoMessages[key];return entry?entry.message:'';},getUILanguage(){return demoLang.replace('_','-');}};
+const demoReady=fetch('extension/_locales/'+demoLang+'/messages.json').then(r=>{if(!r.ok)throw 0;return r.json();}).then(data=>{demoMessages=data;}).catch(()=>{});
+window.addEventListener('DOMContentLoaded',()=>{
+  const start=document.querySelector('#start');if(!start)return;
+  start.disabled=true;
+  demoReady.then(()=>{start.disabled=false;start.textContent=window.chrome.i18n.getMessage('popupPreviewButton');}).catch(()=>{start.textContent='语言资源加载失败，请通过本地 HTTP 服务器打开演示页。';});
+});
+</script><script src="extension/i18n.js"></script><script src="extension/blocks.js"></script><script src="extension/manual.js"></script><script src="extension/preview.js"></script><script>
 document.querySelector('#start').onclick=()=>JevPreview.start();
 document.querySelector('#reset').onclick=()=>{localStorage.removeItem('jev-demo-rules');location.reload()};
 for(const [id,action] of [['original','toggleVisibility'],['undo','undoSave']])document.getElementById(id).onclick=()=>listeners.forEach(fn=>fn({type:'pageAction',action},{},()=>{}));

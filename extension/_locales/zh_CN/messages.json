@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "网页净化助手 · PagePure"
+  },
+  "extDescription": {
+    "message": "点选网页区域，调整范围后隐藏或恢复，按网站和页面保存净化规则。"
+  },
+  "appTagline": {
+    "message": "让阅读更纯粹"
+  },
+  "popupPurify": {
+    "message": "网页净化"
+  },
+  "popupPreviewButton": {
+    "message": "选择要隐藏的内容"
+  },
+  "popupPreviewHint": {
+    "message": "点选隐藏，随时恢复。"
+  },
+  "popupToggleVisibility": {
+    "message": "原网页 / 净化"
+  },
+  "popupUndo": {
+    "message": "撤销上次保存"
+  },
+  "popupManageRules": {
+    "message": "管理净化规则"
+  },
+  "popupPageStatusLoading": {
+    "message": "正在读取页面状态…"
+  },
+  "popupAdvanced": {
+    "message": "自动判断与设置"
+  },
+  "popupAiToggle": {
+    "message": "此网站使用 AI 判断"
+  },
+  "popupAiHint": {
+    "message": "需配置 Jev 密钥，新网站默认关闭。"
+  },
+  "popupContextLabel": {
+    "message": "此网站的自动净化需求"
+  },
+  "popupContextSiteHost": {
+    "message": "此网站的自动净化需求（{1}）"
+  },
+  "popupContextPlaceholder": {
+    "message": "例如：保留问题、回答和文章，隐藏推广、创作入口、推荐关注及页脚。"
+  },
+  "popupContextHint": {
+    "message": "未设置规则时使用，手动规则优先。"
+  },
+  "popupKeyStateOn": {
+    "message": "已配置"
+  },
+  "popupKeyStateOff": {
+    "message": "未配置"
+  },
+  "popupKeyPlaceholder": {
+    "message": "填写你的 API Key"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "已保存；填写新密钥可替换"
+  },
+  "popupKeyHint": {
+    "message": "留空保留已保存的密钥"
+  },
+  "popupClearKey": {
+    "message": "清除密钥"
+  },
+  "popupSave": {
+    "message": "保存并应用"
+  },
+  "popupRetry": {
+    "message": "重新判断"
+  },
+  "popupClearPageRules": {
+    "message": "清除本页规则"
+  },
+  "popupPrivacy": {
+    "message": "数据与隐私"
+  },
+  "popupPrivacyNote": {
+    "message": "AI 判断会将模块文字、图片描述和链接路径发送给 TypeSafe Jev；不发送完整 DOM 或 Cookie。手动选择无需 AI，规则保存在本机。"
+  },
+  "popupStatusLoading": {
+    "message": "正在读取设置…"
+  },
+  "popupReconnect": {
+    "message": "重新连接"
+  },
+  "popupFocusReading": {
+    "message": "专注阅读"
+  },
+  "popupErrorTimeout": {
+    "message": "连接超时，请重新连接；若仍失败，请在扩展管理页重新加载 PagePure 后刷新网页"
+  },
+  "popupErrorRequest": {
+    "message": "请求失败，请重试"
+  },
+  "popupStatusNoPage": {
+    "message": "打开网页查看净化状态"
+  },
+  "popupStatusFail": {
+    "message": "判断失败：{1}"
+  },
+  "popupStatusHidden": {
+    "message": "已隐藏 {1} 块 · 待判断 {2} 块"
+  },
+  "popupEnabledOn": {
+    "message": "已开启，点击上方按钮选择内容"
+  },
+  "popupEnabledOff": {
+    "message": "已关闭，网页内容已恢复"
+  },
+  "popupErrorNeedGoal": {
+    "message": "请填写你希望保留的内容"
+  },
+  "popupSavedOff": {
+    "message": "已保存，网页净化已关闭"
+  },
+  "popupSavedManual": {
+    "message": "已保存；手动选择可直接使用，AI 判断还需配置密钥"
+  },
+  "popupSavedOn": {
+    "message": "已保存，当前网页将自动更新"
+  },
+  "popupKeyCleared": {
+    "message": "密钥已清除"
+  },
+  "popupRetried": {
+    "message": "已请求重新判断当前页面"
+  },
+  "popupErrorEnableFirst": {
+    "message": "请开启网页净化并保存，再选择内容"
+  },
+  "popupEnteringSelection": {
+    "message": "已进入选择模式，点选不想看的内容"
+  },
+  "popupToggledVisibility": {
+    "message": "已切换显示效果，再次点击可切换回来"
+  },
+  "popupUndone": {
+    "message": "已撤销上次保存"
+  },
+  "popupClearedPageRules": {
+    "message": "已清除适用于本页的净化规则"
+  },
+  "statusPurifierOff": {
+    "message": "网页净化已关闭"
+  },
+  "popupErrorLoadSettings": {
+    "message": "无法读取设置：{1}"
+  },
+  "popupNotConnected": {
+    "message": "尚未连接到 PagePure"
+  },
+  "consolePanelAria": {
+    "message": "网页净化助手操作台"
+  },
+  "consoleCollapse": {
+    "message": "收起操作台"
+  },
+  "consoleLauncherAria": {
+    "message": "打开 PagePure 净化操作台"
+  },
+  "consoleFrameTitle": {
+    "message": "PagePure 网页净化助手设置"
+  },
+  "previewNoHelper": {
+    "message": "无法连接助手，请刷新页面"
+  },
+  "toolbarStatusHidden": {
+    "message": "已隐藏 {1} 处 · 保存后生效"
+  },
+  "toolbarStatusLegacy": {
+    "message": "另有 {1} 条区域规则（含保留例外）"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}：{3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "仅当前页面"
+  },
+  "actionHide": {
+    "message": "隐藏"
+  },
+  "actionKeep": {
+    "message": "恢复"
+  },
+  "previewEmbedRegion": {
+    "message": "嵌入内容区域"
+  },
+  "previewImageRegion": {
+    "message": "图片或内容区域"
+  },
+  "splitNeedsAi": {
+    "message": "智能拆分需要开启此网站的 Jev 判断并配置密钥"
+  },
+  "splitExpandFirst": {
+    "message": "请先扩大范围，再尝试拆分"
+  },
+  "splitInProgress": {
+    "message": "拆分中…"
+  },
+  "splitLabel": {
+    "message": "智能拆分"
+  },
+  "splitErrorChanged": {
+    "message": "区域内容已变化，请重新拆分"
+  },
+  "splitErrorTooFew": {
+    "message": "未找到至少两个独立模块，保留原区域"
+  },
+  "splitDone": {
+    "message": "已拆分为 {1} 个区域，请点选。"
+  },
+  "quickSelectedRegion": {
+    "message": "已选区域"
+  },
+  "selectionName": {
+    "message": "已选：{1}"
+  },
+  "splitUnstableSave": {
+    "message": "这次拆分的边界还无法稳定保存，请调整范围后再保存；原有规则未更改。"
+  },
+  "savePageChanged": {
+    "message": "规则已保存，但页面状态已变化，请重新进入选择模式。"
+  },
+  "areaRuleFallback": {
+    "message": "暂时无法保存，请扩大范围后重试。"
+  },
+  "previewPageOnlyHide": {
+    "message": "仅本页隐藏 · 保存后生效"
+  },
+  "previewPageOnlyKeep": {
+    "message": "仅本页恢复 · 保存后生效"
+  },
+  "candidateAria": {
+    "message": "选择区域 {1}"
+  },
+  "candidateTitle": {
+    "message": "点击选择这个区域，再决定隐藏范围"
+  },
+  "toolbarStamp": {
+    "message": "净化"
+  },
+  "maxRangeReached": {
+    "message": "已到达可选择的最大范围"
+  },
+  "effectPreview": {
+    "message": "预览效果"
+  },
+  "effectBack": {
+    "message": "返回选择"
+  },
+  "unknownAction": {
+    "message": "未知操作"
+  },
+  "toolbarAria": {
+    "message": "区域快捷操作"
+  },
+  "moreAria": {
+    "message": "更多操作"
+  },
+  "cancelAria": {
+    "message": "取消并退出"
+  },
+  "scopeRangeLabel": {
+    "message": "选区"
+  },
+  "rangeGroupAria": {
+    "message": "调整范围"
+  },
+  "largerBtn": {
+    "message": "扩大"
+  },
+  "largerTitle": {
+    "message": "扩大选中范围"
+  },
+  "smallerBtn": {
+    "message": "缩小"
+  },
+  "smallerTitle": {
+    "message": "缩小选中范围"
+  },
+  "splitTitle": {
+    "message": "将大区域拆成可单独选择的小区域"
+  },
+  "areaScopeLabel": {
+    "message": "此区域"
+  },
+  "areaGroupAria": {
+    "message": "区域操作"
+  },
+  "hideAreaBtn": {
+    "message": "隐藏区域"
+  },
+  "keepAreaBtn": {
+    "message": "恢复区域"
+  },
+  "pageScopeLabel": {
+    "message": "仅本页"
+  },
+  "pageGroupAria": {
+    "message": "仅本页操作"
+  },
+  "pageHideAria": {
+    "message": "仅本页隐藏"
+  },
+  "pageKeepAria": {
+    "message": "仅本页恢复"
+  },
+  "saveBtn": {
+    "message": "保存更改"
+  },
+  "scopeSite": {
+    "message": "整个网站"
+  },
+  "scopeType": {
+    "message": "此类页面"
+  },
+  "scopeCurrentPage": {
+    "message": "当前页面"
+  },
+  "bgDisallowed": {
+    "message": "不允许的插件请求"
+  },
+  "bgErrorSettings": {
+    "message": "设置无效，阅读需求最多 4000 字符"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "请在目标网页中保存阅读需求"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "请在网页中设置 AI 净化"
+  },
+  "bgErrorInvalidKey": {
+    "message": "API Key 无效"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "请输入完整的 API Key，不能包含空白字符"
+  },
+  "bgErrorRuleScope": {
+    "message": "规则范围无效"
+  },
+  "bgErrorRuleContent": {
+    "message": "规则内容无效"
+  },
+  "bgErrorPartition": {
+    "message": "拆分边界无效"
+  },
+  "bgErrorTooManyRules": {
+    "message": "规则数量超过上限"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "拆分边界数量超过上限"
+  },
+  "bgErrorStatus": {
+    "message": "状态无效"
+  },
+  "bgStatusNotWebpage": {
+    "message": "请在普通网页使用"
+  },
+  "bgErrorPageAction": {
+    "message": "页面操作无效"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "页面操作失败"
+  },
+  "bgReasonAiOff": {
+    "message": "此网站尚未开启智能识别，可在设置中开启或手动选择"
+  },
+  "bgReasonNoKey": {
+    "message": "尚未配置密钥，可直接手动选择区域"
+  },
+  "bgErrorSplitCount": {
+    "message": "拆分需提供 2 至 20 个候选模块"
+  },
+  "bgErrorBlockId": {
+    "message": "模块 id 无效或重复"
+  },
+  "bgErrorBlockField": {
+    "message": "模块 {1} 无效"
+  },
+  "bgErrorBatchCount": {
+    "message": "每批需提供 1 至 5 个模块"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "此网站尚未开启 AI 净化，请在设置中开启后拆分"
+  },
+  "bgErrorNeedKey": {
+    "message": "请先在插件中保存 Jev API Key"
+  },
+  "bgErrorAiOff": {
+    "message": "此网站尚未开启 AI 净化"
+  },
+  "clsInvalidFormat": {
+    "message": "Jev 返回的判断格式无效"
+  },
+  "clsCategoryFormat": {
+    "message": "Jev 返回的类别格式无效"
+  },
+  "clsSplitFormat": {
+    "message": "Jev 返回的拆分格式无效"
+  },
+  "clsTimeout": {
+    "message": "Jev 请求超时，请重试"
+  },
+  "clsConnect": {
+    "message": "无法连接 Jev 服务"
+  },
+  "clsKeyInvalid": {
+    "message": "Jev API Key 无效"
+  },
+  "clsKeyForbidden": {
+    "message": "Jev API Key 没有访问权限"
+  },
+  "clsRateLimited": {
+    "message": "Jev 请求限流，请稍后重试"
+  },
+  "clsHttpError": {
+    "message": "Jev 请求失败（HTTP {1}）"
+  },
+  "clsInvalidJson": {
+    "message": "Jev 返回了无效 JSON"
+  },
+  "snapScopeInvalid": {
+    "message": "快照范围无效"
+  },
+  "snapContentInvalid": {
+    "message": "快照内容无效"
+  },
+  "mgrScopeSite": {
+    "message": "整个网站"
+  },
+  "mgrScopeType": {
+    "message": "此类页面"
+  },
+  "mgrScopePage": {
+    "message": "仅此页面"
+  },
+  "mgrEntriesChanged": {
+    "message": "所选地址已变化，请刷新后重新选择"
+  },
+  "mgrRevisionChanged": {
+    "message": "规则已变化，请刷新列表后重新确认"
+  },
+  "contentNoHelper": {
+    "message": "助手连接失败，请刷新页面"
+  },
+  "manualHttpOnly": {
+    "message": "仅支持 HTTP/HTTPS 网页"
+  },
+  "managerTitle": {
+    "message": "净化规则 · PagePure"
+  },
+  "managerHeading": {
+    "message": "净化规则"
+  },
+  "managerNavAria": {
+    "message": "管理导航"
+  },
+  "managerLocalNote": {
+    "message": "规则保存在此浏览器中"
+  },
+  "managerEyebrow": {
+    "message": "你的阅读空间"
+  },
+  "managerIntro": {
+    "message": "整理已保存的规则，让网页回到你想要的样子。"
+  },
+  "managerWorkspaceAria": {
+    "message": "规则列表"
+  },
+  "managerSearchPlaceholder": {
+    "message": "搜索网站或页面地址"
+  },
+  "managerRefresh": {
+    "message": "刷新"
+  },
+  "managerSavedAddresses": {
+    "message": "已保存的地址"
+  },
+  "managerSelectAll": {
+    "message": "全选当前结果"
+  },
+  "managerClearSelection": {
+    "message": "取消选择"
+  },
+  "managerFootnote": {
+    "message": "清理后，对应地址将不再应用这些已保存的规则。"
+  },
+  "managerConfirmTitle": {
+    "message": "清理所选规则？"
+  },
+  "managerCancel": {
+    "message": "取消"
+  },
+  "managerConfirmDelete": {
+    "message": "确认清理"
+  },
+  "managerUnknownAddress": {
+    "message": "未知地址"
+  },
+  "managerErrorDefault": {
+    "message": "操作未完成，请重试。"
+  },
+  "managerSelectedCount": {
+    "message": "已选 {1} 个地址"
+  },
+  "managerNoneSelected": {
+    "message": "未选择"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "清理所选（{1}）"
+  },
+  "managerDeleteSelected": {
+    "message": "清理所选"
+  },
+  "managerEntryAria": {
+    "message": "选择 {1}，{2}，{3} 条规则"
+  },
+  "managerRuleTotal": {
+    "message": "共 {1} 条规则"
+  },
+  "managerEmptyNoMatch": {
+    "message": "没有找到匹配的地址"
+  },
+  "managerEmptyNone": {
+    "message": "还没有保存的规则"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "试试其他关键词，或清空搜索查看全部地址。"
+  },
+  "managerEmptyNoneDesc": {
+    "message": "在网页中保存净化设置后，可以在这里统一管理。"
+  },
+  "managerLoading": {
+    "message": "正在读取规则…"
+  },
+  "managerErrorLoad": {
+    "message": "规则读取失败，请刷新重试。"
+  },
+  "managerErrorLoadFallback": {
+    "message": "读取失败，请刷新重试。"
+  },
+  "managerStaleDialog": {
+    "message": "规则已发生变化。请取消后重新确认清理范围。"
+  },
+  "managerConfirmSummary": {
+    "message": "将清理 {1} 个地址的 {2} 条规则，无法撤销。未选中的网站共享规则仍可能生效。"
+  },
+  "managerCountShort": {
+    "message": "{1} 条"
+  },
+  "managerDeleting": {
+    "message": "正在清理…"
+  },
+  "managerDeleted": {
+    "message": "已清理 {1} 个地址的规则。"
+  },
+  "managerStaleRetry": {
+    "message": "规则已发生变化，已更新列表。请核对所选地址后重新确认。"
+  },
+  "managerDeleteFailed": {
+    "message": "{1} 已保留仍存在的所选地址，请核对后重试。"
+  },
+  "popupManualToolsAria": {
+    "message": "可视化净化"
+  },
+  "managerRulesSuffix": {
+    "message": "条规则"
+  },
+  "managerSettingsNav": {
+    "message": "设置"
+  },
+  "managerSettingsHeading": {
+    "message": "设置"
+  },
+  "managerLanguageLabel": {
+    "message": "界面语言"
+  },
+  "managerLangDefault": {
+    "message": "跟随浏览器"
+  },
+  "managerLanguageHint": {
+    "message": "选择后立即保存并刷新本页；网页内工具条在下次进入选择模式时生效，弹窗重新打开时生效。"
+  }
+}

@@ -36,7 +36,7 @@
 ## 项目记录
 
 - [版本历史](docs/VERSION_HISTORY.md)（历史记录）
-- [版本台账](MILESTONE.md)（当前验收与维护事实源；0.6.32 已通过用户实测）
+- [版本台账](MILESTONE.md)（当前验收与维护事实源；最新版已通过用户实测）
 - [商店发布记录](STORE_PUBLISH.md)（GitHub 下载与商店审核状态分开记录）
 
 开发者验证：`npm ci` 后运行 `npm test`。浏览器可直接加载仓库中的 `extension` 文件夹。

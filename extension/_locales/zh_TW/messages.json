@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "網頁淨化助手 · PagePure"
+  },
+  "extDescription": {
+    "message": "點選網頁區域，調整範圍後隱藏或恢復，依網站與頁面儲存淨化規則。"
+  },
+  "appTagline": {
+    "message": "讓閱讀更純粹"
+  },
+  "popupPurify": {
+    "message": "網頁淨化"
+  },
+  "popupPreviewButton": {
+    "message": "選擇要隱藏的內容"
+  },
+  "popupPreviewHint": {
+    "message": "點選隱藏，隨時恢復。"
+  },
+  "popupToggleVisibility": {
+    "message": "原網頁 / 淨化"
+  },
+  "popupUndo": {
+    "message": "撤銷上次儲存"
+  },
+  "popupManageRules": {
+    "message": "管理淨化規則"
+  },
+  "popupPageStatusLoading": {
+    "message": "正在讀取頁面狀態…"
+  },
+  "popupAdvanced": {
+    "message": "自動判斷與設定"
+  },
+  "popupAiToggle": {
+    "message": "此網站使用 AI 判斷"
+  },
+  "popupAiHint": {
+    "message": "需設定 Jev 金鑰，新網站預設關閉。"
+  },
+  "popupContextLabel": {
+    "message": "此網站的自動淨化需求"
+  },
+  "popupContextSiteHost": {
+    "message": "此網站的自動淨化需求（{1}）"
+  },
+  "popupContextPlaceholder": {
+    "message": "例如：保留問題、回答和文章，隱藏推廣、創作入口、推薦關注及頁腳。"
+  },
+  "popupContextHint": {
+    "message": "未設定規則時使用，手動規則優先。"
+  },
+  "popupKeyStateOn": {
+    "message": "已設定"
+  },
+  "popupKeyStateOff": {
+    "message": "未設定"
+  },
+  "popupKeyPlaceholder": {
+    "message": "填寫你的 API Key"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "已儲存；填寫新金鑰可取代"
+  },
+  "popupKeyHint": {
+    "message": "留空保留已儲存的金鑰"
+  },
+  "popupClearKey": {
+    "message": "清除金鑰"
+  },
+  "popupSave": {
+    "message": "儲存並套用"
+  },
+  "popupRetry": {
+    "message": "重新判斷"
+  },
+  "popupClearPageRules": {
+    "message": "清除本頁規則"
+  },
+  "popupPrivacy": {
+    "message": "資料與隱私"
+  },
+  "popupPrivacyNote": {
+    "message": "AI 判斷會將模組文字、圖片描述和連結路徑傳送給 TypeSafe Jev；不會傳送完整 DOM 或 Cookie。手動選擇無需 AI，規則儲存在本機。"
+  },
+  "popupStatusLoading": {
+    "message": "正在讀取設定…"
+  },
+  "popupReconnect": {
+    "message": "重新連線"
+  },
+  "popupFocusReading": {
+    "message": "專注閱讀"
+  },
+  "popupErrorTimeout": {
+    "message": "連線逾時，請重新連線；若仍失敗，請在擴充功能管理頁重新載入 PagePure 後重新整理網頁"
+  },
+  "popupErrorRequest": {
+    "message": "請求失敗，請重試"
+  },
+  "popupStatusNoPage": {
+    "message": "開啟網頁查看淨化狀態"
+  },
+  "popupStatusFail": {
+    "message": "判斷失敗：{1}"
+  },
+  "popupStatusHidden": {
+    "message": "已隱藏 {1} 個 · 待判斷 {2} 個"
+  },
+  "popupEnabledOn": {
+    "message": "已開啟，點上方按鈕選擇內容"
+  },
+  "popupEnabledOff": {
+    "message": "已關閉，網頁內容已恢復"
+  },
+  "popupErrorNeedGoal": {
+    "message": "請填寫你希望保留的內容"
+  },
+  "popupSavedOff": {
+    "message": "已儲存，網頁淨化已關閉"
+  },
+  "popupSavedManual": {
+    "message": "已儲存；手動選擇可直接使用，AI 判斷還需設定金鑰"
+  },
+  "popupSavedOn": {
+    "message": "已儲存，目前網頁將自動更新"
+  },
+  "popupKeyCleared": {
+    "message": "金鑰已清除"
+  },
+  "popupRetried": {
+    "message": "已要求重新判斷目前頁面"
+  },
+  "popupErrorEnableFirst": {
+    "message": "請先開啟網頁淨化並儲存，再選擇內容"
+  },
+  "popupEnteringSelection": {
+    "message": "已進入選取模式，點選不想看的內容"
+  },
+  "popupToggledVisibility": {
+    "message": "已切換顯示效果，再次點擊可切換回來"
+  },
+  "popupUndone": {
+    "message": "已撤銷上次儲存"
+  },
+  "popupClearedPageRules": {
+    "message": "已清除適用於本頁的淨化規則"
+  },
+  "statusPurifierOff": {
+    "message": "網頁淨化已關閉"
+  },
+  "popupErrorLoadSettings": {
+    "message": "無法讀取設定：{1}"
+  },
+  "popupNotConnected": {
+    "message": "尚未連線到 PagePure"
+  },
+  "consolePanelAria": {
+    "message": "網頁淨化助手操作台"
+  },
+  "consoleCollapse": {
+    "message": "收起操作台"
+  },
+  "consoleLauncherAria": {
+    "message": "開啟 PagePure 淨化操作台"
+  },
+  "consoleFrameTitle": {
+    "message": "PagePure 網頁淨化助手設定"
+  },
+  "previewNoHelper": {
+    "message": "無法連線助手，請重新整理頁面"
+  },
+  "toolbarStatusHidden": {
+    "message": "已隱藏 {1} 處 · 儲存後生效"
+  },
+  "toolbarStatusLegacy": {
+    "message": "另有 {1} 條區域規則（含保留例外）"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}：{3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "僅目前頁面"
+  },
+  "actionHide": {
+    "message": "隱藏"
+  },
+  "actionKeep": {
+    "message": "恢復"
+  },
+  "previewEmbedRegion": {
+    "message": "嵌入內容區域"
+  },
+  "previewImageRegion": {
+    "message": "圖片或內容區域"
+  },
+  "splitNeedsAi": {
+    "message": "智慧拆分需要開啟此網站的 Jev 判斷並設定金鑰"
+  },
+  "splitExpandFirst": {
+    "message": "請先擴大範圍，再嘗試拆分"
+  },
+  "splitInProgress": {
+    "message": "拆分中…"
+  },
+  "splitLabel": {
+    "message": "智慧拆分"
+  },
+  "splitErrorChanged": {
+    "message": "區域內容已變化，請重新拆分"
+  },
+  "splitErrorTooFew": {
+    "message": "未找到至少兩個獨立模組，保留原區域"
+  },
+  "splitDone": {
+    "message": "已拆分為 {1} 個區域，請點選。"
+  },
+  "quickSelectedRegion": {
+    "message": "已選區域"
+  },
+  "selectionName": {
+    "message": "已選：{1}"
+  },
+  "splitUnstableSave": {
+    "message": "這次拆分的邊界還無法穩定儲存，請調整範圍後再儲存；原有規則未變更。"
+  },
+  "savePageChanged": {
+    "message": "規則已儲存，但頁面狀態已變化，請重新進入選取模式。"
+  },
+  "areaRuleFallback": {
+    "message": "暫時無法儲存，請擴大範圍後重試。"
+  },
+  "previewPageOnlyHide": {
+    "message": "僅本頁隱藏 · 儲存後生效"
+  },
+  "previewPageOnlyKeep": {
+    "message": "僅本頁恢復 · 儲存後生效"
+  },
+  "candidateAria": {
+    "message": "選取區域 {1}"
+  },
+  "candidateTitle": {
+    "message": "點擊選取這個區域，再決定隱藏範圍"
+  },
+  "toolbarStamp": {
+    "message": "淨化"
+  },
+  "maxRangeReached": {
+    "message": "已到達可選取的最大範圍"
+  },
+  "effectPreview": {
+    "message": "預覽效果"
+  },
+  "effectBack": {
+    "message": "返回選擇"
+  },
+  "unknownAction": {
+    "message": "未知操作"
+  },
+  "toolbarAria": {
+    "message": "區域快捷操作"
+  },
+  "moreAria": {
+    "message": "更多操作"
+  },
+  "cancelAria": {
+    "message": "取消並離開"
+  },
+  "scopeRangeLabel": {
+    "message": "選區"
+  },
+  "rangeGroupAria": {
+    "message": "調整範圍"
+  },
+  "largerBtn": {
+    "message": "擴大"
+  },
+  "largerTitle": {
+    "message": "擴大選取範圍"
+  },
+  "smallerBtn": {
+    "message": "縮小"
+  },
+  "smallerTitle": {
+    "message": "縮小選取範圍"
+  },
+  "splitTitle": {
+    "message": "將大區域拆成可單獨選取的小區域"
+  },
+  "areaScopeLabel": {
+    "message": "此區域"
+  },
+  "areaGroupAria": {
+    "message": "區域操作"
+  },
+  "hideAreaBtn": {
+    "message": "隱藏區域"
+  },
+  "keepAreaBtn": {
+    "message": "恢復區域"
+  },
+  "pageScopeLabel": {
+    "message": "僅本頁"
+  },
+  "pageGroupAria": {
+    "message": "僅本頁操作"
+  },
+  "pageHideAria": {
+    "message": "僅本頁隱藏"
+  },
+  "pageKeepAria": {
+    "message": "僅本頁恢復"
+  },
+  "saveBtn": {
+    "message": "儲存變更"
+  },
+  "scopeSite": {
+    "message": "整個網站"
+  },
+  "scopeType": {
+    "message": "此類頁面"
+  },
+  "scopeCurrentPage": {
+    "message": "目前頁面"
+  },
+  "bgDisallowed": {
+    "message": "不允許的擴充功能請求"
+  },
+  "bgErrorSettings": {
+    "message": "設定無效，閱讀需求最多 4000 字元"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "請在目標網頁中儲存閱讀需求"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "請在網頁中設定 AI 淨化"
+  },
+  "bgErrorInvalidKey": {
+    "message": "API Key 無效"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "請輸入完整的 API Key，不能包含空白字元"
+  },
+  "bgErrorRuleScope": {
+    "message": "規則範圍無效"
+  },
+  "bgErrorRuleContent": {
+    "message": "規則內容無效"
+  },
+  "bgErrorPartition": {
+    "message": "拆分邊界無效"
+  },
+  "bgErrorTooManyRules": {
+    "message": "規則數量超過上限"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "拆分邊界數量超過上限"
+  },
+  "bgErrorStatus": {
+    "message": "狀態無效"
+  },
+  "bgStatusNotWebpage": {
+    "message": "請在一般網頁使用"
+  },
+  "bgErrorPageAction": {
+    "message": "頁面操作無效"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "頁面操作失敗"
+  },
+  "bgReasonAiOff": {
+    "message": "此網站尚未開啟智慧識別，可在設定中開啟或手動選擇"
+  },
+  "bgReasonNoKey": {
+    "message": "尚未設定金鑰，可直接手動選取區域"
+  },
+  "bgErrorSplitCount": {
+    "message": "拆分需提供 2 至 20 個候選模組"
+  },
+  "bgErrorBlockId": {
+    "message": "模組 id 無效或重複"
+  },
+  "bgErrorBlockField": {
+    "message": "模組 {1} 無效"
+  },
+  "bgErrorBatchCount": {
+    "message": "每批需提供 1 至 5 個模組"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "此網站尚未開啟 AI 淨化，請在設定中開啟後拆分"
+  },
+  "bgErrorNeedKey": {
+    "message": "請先在擴充功能中儲存 Jev API Key"
+  },
+  "bgErrorAiOff": {
+    "message": "此網站尚未開啟 AI 淨化"
+  },
+  "clsInvalidFormat": {
+    "message": "Jev 傳回的判斷格式無效"
+  },
+  "clsCategoryFormat": {
+    "message": "Jev 傳回的類別格式無效"
+  },
+  "clsSplitFormat": {
+    "message": "Jev 傳回的拆分格式無效"
+  },
+  "clsTimeout": {
+    "message": "Jev 請求逾時，請重試"
+  },
+  "clsConnect": {
+    "message": "無法連線 Jev 服務"
+  },
+  "clsKeyInvalid": {
+    "message": "Jev API Key 無效"
+  },
+  "clsKeyForbidden": {
+    "message": "Jev API Key 沒有存取權限"
+  },
+  "clsRateLimited": {
+    "message": "Jev 請求限流，請稍後重試"
+  },
+  "clsHttpError": {
+    "message": "Jev 請求失敗（HTTP {1}）"
+  },
+  "clsInvalidJson": {
+    "message": "Jev 傳回了無效 JSON"
+  },
+  "snapScopeInvalid": {
+    "message": "快照範圍無效"
+  },
+  "snapContentInvalid": {
+    "message": "快照內容無效"
+  },
+  "mgrScopeSite": {
+    "message": "整個網站"
+  },
+  "mgrScopeType": {
+    "message": "此類頁面"
+  },
+  "mgrScopePage": {
+    "message": "僅此頁面"
+  },
+  "mgrEntriesChanged": {
+    "message": "所選地址已變化，請重新整理後重新選擇"
+  },
+  "mgrRevisionChanged": {
+    "message": "規則已變化，請重新整理清單後重新確認"
+  },
+  "contentNoHelper": {
+    "message": "助手連線失敗，請重新整理頁面"
+  },
+  "manualHttpOnly": {
+    "message": "僅支援 HTTP/HTTPS 網頁"
+  },
+  "managerTitle": {
+    "message": "淨化規則 · PagePure"
+  },
+  "managerHeading": {
+    "message": "淨化規則"
+  },
+  "managerNavAria": {
+    "message": "管理導覽"
+  },
+  "managerLocalNote": {
+    "message": "規則儲存在此瀏覽器中"
+  },
+  "managerEyebrow": {
+    "message": "你的閱讀空間"
+  },
+  "managerIntro": {
+    "message": "整理已儲存的規則，讓網頁回到你想要的樣子。"
+  },
+  "managerWorkspaceAria": {
+    "message": "規則清單"
+  },
+  "managerSearchPlaceholder": {
+    "message": "搜尋網站或頁面地址"
+  },
+  "managerRefresh": {
+    "message": "重新整理"
+  },
+  "managerSavedAddresses": {
+    "message": "已儲存的地址"
+  },
+  "managerSelectAll": {
+    "message": "全選目前結果"
+  },
+  "managerClearSelection": {
+    "message": "取消選取"
+  },
+  "managerFootnote": {
+    "message": "清理後，對應地址將不再套用這些已儲存的規則。"
+  },
+  "managerConfirmTitle": {
+    "message": "清理所選規則？"
+  },
+  "managerCancel": {
+    "message": "取消"
+  },
+  "managerConfirmDelete": {
+    "message": "確認清理"
+  },
+  "managerUnknownAddress": {
+    "message": "未知地址"
+  },
+  "managerErrorDefault": {
+    "message": "操作未完成，請重試。"
+  },
+  "managerSelectedCount": {
+    "message": "已選 {1} 個地址"
+  },
+  "managerNoneSelected": {
+    "message": "未選擇"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "清理所選（{1}）"
+  },
+  "managerDeleteSelected": {
+    "message": "清理所選"
+  },
+  "managerEntryAria": {
+    "message": "選取 {1}，{2}，{3} 條規則"
+  },
+  "managerRulesSuffix": {
+    "message": "條規則"
+  },
+  "managerRuleTotal": {
+    "message": "共 {1} 條規則"
+  },
+  "managerEmptyNoMatch": {
+    "message": "沒有找到符合的地址"
+  },
+  "managerEmptyNone": {
+    "message": "還沒有儲存的規則"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "試試其他關鍵字，或清空搜尋查看全部地址。"
+  },
+  "managerEmptyNoneDesc": {
+    "message": "在網頁中儲存淨化設定後，可以在這裡統一管理。"
+  },
+  "managerLoading": {
+    "message": "正在讀取規則…"
+  },
+  "managerErrorLoad": {
+    "message": "規則讀取失敗，請重新整理重試。"
+  },
+  "managerErrorLoadFallback": {
+    "message": "讀取失敗，請重新整理重試。"
+  },
+  "managerStaleDialog": {
+    "message": "規則已發生變化。請取消後重新確認清理範圍。"
+  },
+  "managerConfirmSummary": {
+    "message": "將清理 {1} 個地址的 {2} 條規則，無法復原。未選中的網站共用規則仍可能生效。"
+  },
+  "managerCountShort": {
+    "message": "{1} 條"
+  },
+  "managerDeleting": {
+    "message": "正在清理…"
+  },
+  "managerDeleted": {
+    "message": "已清理 {1} 個地址的規則。"
+  },
+  "managerStaleRetry": {
+    "message": "規則已發生變化，已更新清單。請核對所選地址後重新確認。"
+  },
+  "managerDeleteFailed": {
+    "message": "{1} 已保留仍存在的所選地址，請核對後重試。"
+  },
+  "managerSettingsNav": {
+    "message": "設定"
+  },
+  "managerSettingsHeading": {
+    "message": "設定"
+  },
+  "managerLanguageLabel": {
+    "message": "介面語言"
+  },
+  "managerLangDefault": {
+    "message": "跟隨瀏覽器"
+  },
+  "managerLanguageHint": {
+    "message": "選擇後立即儲存並重新整理本頁；網頁內工具列在下次進入選取模式時生效，彈出視窗重新開啟時生效。"
+  },
+  "popupManualToolsAria": {
+    "message": "可視化淨化"
+  }
+}

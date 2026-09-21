@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure - Webseiten bereinigen"
+  },
+  "extDescription": {
+    "message": "Bereich auf der Seite auswählen, Größe anpassen, aus- oder einblenden. Regeln pro Website und Seite gelten bei jedem Besuch."
+  },
+  "appTagline": {
+    "message": "Lesen, rein."
+  },
+  "popupPurify": {
+    "message": "Seiten bereinigen"
+  },
+  "popupPreviewButton": {
+    "message": "Auswählen, was ausgeblendet wird"
+  },
+  "popupPreviewHint": {
+    "message": "Klick blendet aus – jederzeit zurückholbar."
+  },
+  "popupToggleVisibility": {
+    "message": "Original / bereinigt"
+  },
+  "popupUndo": {
+    "message": "Letztes Speichern zurücknehmen"
+  },
+  "popupManageRules": {
+    "message": "Regeln verwalten"
+  },
+  "popupPageStatusLoading": {
+    "message": "Seitenstatus wird gelesen…"
+  },
+  "popupAdvanced": {
+    "message": "Auto-Erkennung und Einstellungen"
+  },
+  "popupAiToggle": {
+    "message": "KI auf dieser Website verwenden"
+  },
+  "popupAiHint": {
+    "message": "Braucht einen Jev-API-Schlüssel. Auf neuen Seiten aus."
+  },
+  "popupContextLabel": {
+    "message": "Bereinigungsregeln für diese Website"
+  },
+  "popupContextSiteHost": {
+    "message": "Bereinigungsregeln für {1}"
+  },
+  "popupContextPlaceholder": {
+    "message": "Z. B.: Fragen, Antworten und Artikel behalten; Werbung, Creator-Links, Empfehlungen und Fußzeilen ausblenden."
+  },
+  "popupContextHint": {
+    "message": "Gilt ohne Regeln; manuelle Regeln haben Vorrang."
+  },
+  "popupKeyStateOn": {
+    "message": "Konfiguriert"
+  },
+  "popupKeyStateOff": {
+    "message": "Nicht konfiguriert"
+  },
+  "popupKeyPlaceholder": {
+    "message": "API-Schlüssel eingeben"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "Gespeichert. Neuen Schlüssel eingeben zum Ersetzen"
+  },
+  "popupKeyHint": {
+    "message": "Leer lassen, um den gespeicherten Schlüssel zu behalten"
+  },
+  "popupClearKey": {
+    "message": "Schlüssel löschen"
+  },
+  "popupSave": {
+    "message": "Speichern und anwenden"
+  },
+  "popupRetry": {
+    "message": "Neu prüfen"
+  },
+  "popupClearPageRules": {
+    "message": "Regeln dieser Seite löschen"
+  },
+  "popupPrivacy": {
+    "message": "Daten und Datenschutz"
+  },
+  "popupPrivacyNote": {
+    "message": "Die KI-Prüfung sendet an TypeSafe Jev: Elementtexte, Bildbeschreibungen und Linkpfade – nie das komplette DOM oder Cookies. Manuelle Auswahl braucht keine KI; Regeln bleiben auf diesem Gerät."
+  },
+  "popupStatusLoading": {
+    "message": "Einstellungen werden geladen…"
+  },
+  "popupReconnect": {
+    "message": "Neu verbinden"
+  },
+  "popupFocusReading": {
+    "message": "Fokus aufs Lesen"
+  },
+  "popupErrorTimeout": {
+    "message": "Zeitüberschreitung. Neu verbinden; falls es bleibt: PagePure auf der Erweiterungsseite neu laden und die Webseite aktualisieren"
+  },
+  "popupErrorRequest": {
+    "message": "Anfrage fehlgeschlagen. Bitte erneut versuchen"
+  },
+  "popupStatusNoPage": {
+    "message": "Öffne eine Webseite, um den Status zu sehen"
+  },
+  "popupStatusFail": {
+    "message": "Prüfung fehlgeschlagen: {1}"
+  },
+  "popupStatusHidden": {
+    "message": "{1} ausgeblendet · {2} ausstehend"
+  },
+  "popupEnabledOn": {
+    "message": "Eingeschaltet. Wähle mit der Schaltfläche oben Inhalte aus"
+  },
+  "popupEnabledOff": {
+    "message": "Ausgeschaltet. Seiteninhalt wiederhergestellt"
+  },
+  "popupErrorNeedGoal": {
+    "message": "Beschreibe, was du behalten möchtest"
+  },
+  "popupSavedOff": {
+    "message": "Gespeichert. Die Seitenbereinigung ist aus"
+  },
+  "popupSavedManual": {
+    "message": "Gespeichert. Manuelle Auswahl geht sofort; für KI fehlt noch der API-Schlüssel"
+  },
+  "popupSavedOn": {
+    "message": "Gespeichert. Diese Seite aktualisiert sich automatisch"
+  },
+  "popupKeyCleared": {
+    "message": "Schlüssel gelöscht"
+  },
+  "popupRetried": {
+    "message": "Neue Prüfung dieser Seite angefordert"
+  },
+  "popupErrorEnableFirst": {
+    "message": "Zuerst die Bereinigung einschalten und speichern, dann auswählen"
+  },
+  "popupEnteringSelection": {
+    "message": "Auswahlmodus aktiv. Klicke an, was weg soll"
+  },
+  "popupToggledVisibility": {
+    "message": "Ansicht gewechselt. Noch einmal klicken zum Zurückschalten"
+  },
+  "popupUndone": {
+    "message": "Letztes Speichern zurückgenommen"
+  },
+  "popupClearedPageRules": {
+    "message": "Regeln für diese Seite gelöscht"
+  },
+  "statusPurifierOff": {
+    "message": "Die Seitenbereinigung ist aus"
+  },
+  "popupErrorLoadSettings": {
+    "message": "Einstellungen nicht lesbar: {1}"
+  },
+  "popupNotConnected": {
+    "message": "Nicht mit PagePure verbunden"
+  },
+  "consolePanelAria": {
+    "message": "PagePure-Bedienfeld"
+  },
+  "consoleCollapse": {
+    "message": "Bedienfeld einklappen"
+  },
+  "consoleLauncherAria": {
+    "message": "PagePure-Bedienfeld öffnen"
+  },
+  "consoleFrameTitle": {
+    "message": "PagePure-Einstellungen"
+  },
+  "previewNoHelper": {
+    "message": "Keine Verbindung zum Helfer. Seite bitte aktualisieren"
+  },
+  "toolbarStatusHidden": {
+    "message": "{1} ausgeblendet · gilt beim Speichern"
+  },
+  "toolbarStatusLegacy": {
+    "message": "Weitere {1} Bereichsregeln (inkl. Behalten-Ausnahmen)"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}: {3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "Nur diese Seite "
+  },
+  "actionHide": {
+    "message": "Ausblenden"
+  },
+  "actionKeep": {
+    "message": "Einblenden"
+  },
+  "previewEmbedRegion": {
+    "message": "Eingebetteter Inhalt"
+  },
+  "previewImageRegion": {
+    "message": "Bild- oder Inhaltsbereich"
+  },
+  "splitNeedsAi": {
+    "message": "Intelligentes Teilen braucht KI für diese Website und einen API-Schlüssel"
+  },
+  "splitExpandFirst": {
+    "message": "Erst die Auswahl vergrößern, dann teilen"
+  },
+  "splitInProgress": {
+    "message": "Wird geteilt…"
+  },
+  "splitLabel": {
+    "message": "Intelligent teilen"
+  },
+  "splitErrorChanged": {
+    "message": "Der Bereich hat sich geändert. Erneut teilen"
+  },
+  "splitErrorTooFew": {
+    "message": "Weniger als zwei eigenständige Blöcke gefunden; der ursprüngliche Bereich bleibt"
+  },
+  "splitDone": {
+    "message": "In {1} Bereiche geteilt. Bitte einen auswählen."
+  },
+  "quickSelectedRegion": {
+    "message": "Ausgewählter Bereich"
+  },
+  "selectionName": {
+    "message": "Ausgewählt: {1}"
+  },
+  "splitUnstableSave": {
+    "message": "Diese Teilgrenzen lassen sich noch nicht stabil speichern. Bereich anpassen und erneut speichern; bestehende Regeln blieben unverändert."
+  },
+  "savePageChanged": {
+    "message": "Regeln gespeichert, aber die Seite hat sich geändert. Auswahlmodus erneut starten."
+  },
+  "areaRuleFallback": {
+    "message": "Noch nicht speicherbar. Bereich vergrößern und erneut versuchen."
+  },
+  "previewPageOnlyHide": {
+    "message": "Nur auf dieser Seite ausgeblendet · gilt beim Speichern"
+  },
+  "previewPageOnlyKeep": {
+    "message": "Nur auf dieser Seite eingeblendet · gilt beim Speichern"
+  },
+  "candidateAria": {
+    "message": "Bereich {1} auswählen"
+  },
+  "candidateTitle": {
+    "message": "Klicken, um diesen Bereich auszuwählen und das Auszublendende zu bestimmen"
+  },
+  "toolbarStamp": {
+    "message": "Sauber"
+  },
+  "maxRangeReached": {
+    "message": "Das ist schon der größte wählbare Bereich"
+  },
+  "effectPreview": {
+    "message": "Vorschau"
+  },
+  "effectBack": {
+    "message": "Zurück zur Auswahl"
+  },
+  "unknownAction": {
+    "message": "Unbekannte Aktion"
+  },
+  "toolbarAria": {
+    "message": "Bereichsaktionen"
+  },
+  "moreAria": {
+    "message": "Weitere Aktionen"
+  },
+  "cancelAria": {
+    "message": "Abbrechen und beenden"
+  },
+  "scopeRangeLabel": {
+    "message": "Umfang"
+  },
+  "rangeGroupAria": {
+    "message": "Umfang anpassen"
+  },
+  "largerBtn": {
+    "message": "Größer"
+  },
+  "largerTitle": {
+    "message": "Auswahl vergrößern"
+  },
+  "smallerBtn": {
+    "message": "Kleiner"
+  },
+  "smallerTitle": {
+    "message": "Auswahl verkleinern"
+  },
+  "splitTitle": {
+    "message": "Einen großen Bereich in kleinere, einzeln wählbare Bereiche teilen"
+  },
+  "areaScopeLabel": {
+    "message": "Bereich"
+  },
+  "areaGroupAria": {
+    "message": "Bereichsaktionen"
+  },
+  "hideAreaBtn": {
+    "message": "Bereich ausblenden"
+  },
+  "keepAreaBtn": {
+    "message": "Bereich einblenden"
+  },
+  "pageScopeLabel": {
+    "message": "Diese Seite"
+  },
+  "pageGroupAria": {
+    "message": "Aktionen nur für diese Seite"
+  },
+  "pageHideAria": {
+    "message": "Nur auf dieser Seite ausblenden"
+  },
+  "pageKeepAria": {
+    "message": "Nur auf dieser Seite einblenden"
+  },
+  "saveBtn": {
+    "message": "Änderungen speichern"
+  },
+  "scopeSite": {
+    "message": "Ganze Website"
+  },
+  "scopeType": {
+    "message": "Dieser Seitentyp"
+  },
+  "scopeCurrentPage": {
+    "message": "Diese Seite"
+  },
+  "bgDisallowed": {
+    "message": "Nicht erlaubte Erweiterungsanfrage"
+  },
+  "bgErrorSettings": {
+    "message": "Ungültige Einstellungen: maximal 4000 Zeichen"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "Öffne eine Webseite, um Leseeinstellungen zu speichern"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "Öffne eine Webseite, um die KI zu schalten"
+  },
+  "bgErrorInvalidKey": {
+    "message": "Ungültiger API-Schlüssel"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "Den vollständigen Schlüssel ohne Leerzeichen eingeben"
+  },
+  "bgErrorRuleScope": {
+    "message": "Ungültiger Regelbereich"
+  },
+  "bgErrorRuleContent": {
+    "message": "Ungültiger Regelinhalt"
+  },
+  "bgErrorPartition": {
+    "message": "Ungültige Teilgrenzen"
+  },
+  "bgErrorTooManyRules": {
+    "message": "Zu viele Regeln"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "Zu viele Teilgrenzen"
+  },
+  "bgErrorStatus": {
+    "message": "Ungültiger Status"
+  },
+  "bgStatusNotWebpage": {
+    "message": "Auf einer normalen Webseite verwenden"
+  },
+  "bgErrorPageAction": {
+    "message": "Ungültige Seitenaktion"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "Seitenaktion fehlgeschlagen"
+  },
+  "bgReasonAiOff": {
+    "message": "KI ist auf dieser Website aus. In den Einstellungen einschalten oder manuell wählen"
+  },
+  "bgReasonNoKey": {
+    "message": "Noch kein API-Schlüssel: Bereiche lassen sich manuell wählen"
+  },
+  "bgErrorSplitCount": {
+    "message": "Zum Teilen werden 2 bis 20 Kandidatenblöcke benötigt"
+  },
+  "bgErrorBlockId": {
+    "message": "Block-ID ungültig oder doppelt"
+  },
+  "bgErrorBlockField": {
+    "message": "Ungültiges Blockfeld: {1}"
+  },
+  "bgErrorBatchCount": {
+    "message": "Pro Stapel sind 1 bis 5 Blöcke nötig"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "KI ist auf dieser Website aus. In den Einstellungen einschalten, dann teilen"
+  },
+  "bgErrorNeedKey": {
+    "message": "Zuerst den Jev-API-Schlüssel in der Erweiterung speichern"
+  },
+  "bgErrorAiOff": {
+    "message": "KI ist auf dieser Website aus"
+  },
+  "clsInvalidFormat": {
+    "message": "Ungültiges Antwortformat von Jev"
+  },
+  "clsCategoryFormat": {
+    "message": "Ungültiges Kategorieformat von Jev"
+  },
+  "clsSplitFormat": {
+    "message": "Ungültiges Teilformat von Jev"
+  },
+  "clsTimeout": {
+    "message": "Jev-Anfrage hat zu lange gedauert. Bitte erneut versuchen"
+  },
+  "clsConnect": {
+    "message": "Jev-Dienst nicht erreichbar"
+  },
+  "clsKeyInvalid": {
+    "message": "Ungültiger Jev-API-Schlüssel"
+  },
+  "clsKeyForbidden": {
+    "message": "Dieser Jev-API-Schlüssel hat keinen Zugriff"
+  },
+  "clsRateLimited": {
+    "message": "Jev begrenzt Anfragen. Später erneut versuchen"
+  },
+  "clsHttpError": {
+    "message": "Jev-Anfrage fehlgeschlagen (HTTP {1})"
+  },
+  "clsInvalidJson": {
+    "message": "Jev lieferte ungültiges JSON"
+  },
+  "snapScopeInvalid": {
+    "message": "Ungültiger Schnappschussbereich"
+  },
+  "snapContentInvalid": {
+    "message": "Ungültiger Schnappschussinhalt"
+  },
+  "mgrScopeSite": {
+    "message": "Ganze Website"
+  },
+  "mgrScopeType": {
+    "message": "Dieser Seitentyp"
+  },
+  "mgrScopePage": {
+    "message": "Nur diese Seite"
+  },
+  "mgrEntriesChanged": {
+    "message": "Die gewählten Adressen haben sich geändert. Aktualisieren und neu wählen"
+  },
+  "mgrRevisionChanged": {
+    "message": "Regeln haben sich geändert. Liste aktualisieren und erneut bestätigen"
+  },
+  "contentNoHelper": {
+    "message": "Verbindung zum Helfer fehlgeschlagen. Seite aktualisieren"
+  },
+  "manualHttpOnly": {
+    "message": "Nur HTTP/HTTPS-Seiten werden unterstützt"
+  },
+  "managerTitle": {
+    "message": "Bereinigungsregeln · PagePure"
+  },
+  "managerHeading": {
+    "message": "Bereinigungsregeln"
+  },
+  "managerNavAria": {
+    "message": "Verwaltungsnavigation"
+  },
+  "managerLocalNote": {
+    "message": "Regeln werden in diesem Browser gespeichert"
+  },
+  "managerEyebrow": {
+    "message": "Dein Leseraum"
+  },
+  "managerIntro": {
+    "message": "Gespeicherte Regeln ordnen und Webseiten in die gewünschte Form bringen."
+  },
+  "managerWorkspaceAria": {
+    "message": "Regelliste"
+  },
+  "managerSearchPlaceholder": {
+    "message": "Site- oder Seitenadressen suchen"
+  },
+  "managerRefresh": {
+    "message": "Aktualisieren"
+  },
+  "managerSavedAddresses": {
+    "message": "Gespeicherte Adressen"
+  },
+  "managerSelectAll": {
+    "message": "Alle Treffer auswählen"
+  },
+  "managerClearSelection": {
+    "message": "Auswahl aufheben"
+  },
+  "managerFootnote": {
+    "message": "Nach dem Löschen gelten diese Regeln für die betroffenen Adressen nicht mehr."
+  },
+  "managerConfirmTitle": {
+    "message": "Gewählte Regeln löschen?"
+  },
+  "managerCancel": {
+    "message": "Abbrechen"
+  },
+  "managerConfirmDelete": {
+    "message": "Löschen bestätigen"
+  },
+  "managerUnknownAddress": {
+    "message": "Unbekannte Adresse"
+  },
+  "managerErrorDefault": {
+    "message": "Aktion nicht abgeschlossen. Bitte erneut versuchen."
+  },
+  "managerSelectedCount": {
+    "message": "{1} Adressen ausgewählt"
+  },
+  "managerNoneSelected": {
+    "message": "Nichts ausgewählt"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "Ausgewählte löschen ({1})"
+  },
+  "managerDeleteSelected": {
+    "message": "Ausgewählte löschen"
+  },
+  "managerEntryAria": {
+    "message": "{1}, {2}, {3} Regeln auswählen"
+  },
+  "managerRulesSuffix": {
+    "message": " Regel(n)"
+  },
+  "managerRuleTotal": {
+    "message": "Regeln insgesamt: {1}"
+  },
+  "managerEmptyNoMatch": {
+    "message": "Keine passenden Adressen"
+  },
+  "managerEmptyNone": {
+    "message": "Noch keine gespeicherten Regeln"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "Andere Suchwörter probieren oder die Suche leeren, um alles zu sehen."
+  },
+  "managerEmptyNoneDesc": {
+    "message": "Auf einer Webseite Bereinigung speichern – und alles hier verwalten."
+  },
+  "managerLoading": {
+    "message": "Regeln werden geladen…"
+  },
+  "managerErrorLoad": {
+    "message": "Regeln konnten nicht geladen werden. Aktualisieren und erneut versuchen."
+  },
+  "managerErrorLoadFallback": {
+    "message": "Laden fehlgeschlagen. Aktualisieren und erneut versuchen."
+  },
+  "managerStaleDialog": {
+    "message": "Regeln haben sich geändert. Abbrechen und die Auswahl erneut bestätigen."
+  },
+  "managerConfirmSummary": {
+    "message": "Es werden {2} Regeln auf {1} Adressen gelöscht – unwiderruflich. Site-Regeln, die mit nicht gewählten Adressen geteilt werden, können weiter gelten."
+  },
+  "managerCountShort": {
+    "message": "{1}"
+  },
+  "managerDeleting": {
+    "message": "Wird gelöscht…"
+  },
+  "managerDeleted": {
+    "message": "Regeln auf {1} Adressen gelöscht."
+  },
+  "managerStaleRetry": {
+    "message": "Regeln haben sich geändert, die Liste wurde aktualisiert. Adressen prüfen und erneut bestätigen."
+  },
+  "managerDeleteFailed": {
+    "message": "{1} Vorhandene gewählte Adressen blieben erhalten. Prüfen und erneut versuchen."
+  },
+  "managerSettingsNav": {
+    "message": "Einstellungen"
+  },
+  "managerSettingsHeading": {
+    "message": "Einstellungen"
+  },
+  "managerLanguageLabel": {
+    "message": "Oberflächensprache"
+  },
+  "managerLangDefault": {
+    "message": "Wie im Browser"
+  },
+  "managerLanguageHint": {
+    "message": "Wird sofort gespeichert, diese Seite lädt neu; die Seitenleiste greift beim nächsten Auswahlmodus, das Pop-up beim nächsten Öffnen."
+  },
+  "popupManualToolsAria": {
+    "message": "Visuelle Bereinigung"
+  }
+}

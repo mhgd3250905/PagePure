@@ -1,4 +1,5 @@
 (() => {
+  const {t} = globalThis.PagePureI18n;
   const {collect, describe} = globalThis.JevZhihu;
   let config = {enabled: false, configured: false};
   let generation = 0, serial = 0, timer, active = false, dirty = false, lastError = '', paused = false;
@@ -7,7 +8,7 @@
   let pageUrl = currentPage();
   async function message(type, payload) {
     const response = await chrome.runtime.sendMessage({type, payload});
-    if (!response?.ok) throw new Error(response?.error || '助手连接失败，请刷新页面');
+    if (!response?.ok) throw new Error(response?.error || globalThis.PagePureI18n.t('contentNoHelper'));
     return response.data;
   }
   function report() {

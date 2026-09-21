@@ -8,7 +8,7 @@
 
   function scope(raw, mode = 'type') {
     const url = new URL(raw);
-    if (!/^https?:$/.test(url.protocol)) throw new Error('仅支持 HTTP/HTTPS 网页');
+    if (!/^https?:$/.test(url.protocol)) throw new Error(globalThis.PagePureI18n.t('manualHttpOnly'));
     if (mode === 'site') return url.origin + '|site';
     if (mode === 'page') return url.origin + '|page:' + url.pathname + url.search;
     if (url.hostname === 'blog.csdn.net' && /^\/[^/]+\/article\/details\/\d+\/?$/.test(url.pathname)) return url.origin + '|type:/:author/article/details/:id';

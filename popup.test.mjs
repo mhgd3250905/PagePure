@@ -3,15 +3,18 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
+import {i18nSource, i18nChrome} from './i18n-support.mjs';
 
 const source = readFileSync(new URL('./extension/popup.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('./extension/popup.html', import.meta.url), 'utf8');
 const settle = async () => {for(let i=0;i<20;i++)await Promise.resolve();};
 async function environment(send) {
   const {document,window}=parseHTML(html), timers=new Map();let id=0;
-  runInNewContext(source,{document,window,URL,URLSearchParams,location:{search:'?embedded=1'},
+  const context = {document,window,URL,URLSearchParams,location:{search:'?embedded=1'},
     setTimeout(callback,delay){timers.set(++id,{callback,delay});return id;},clearTimeout(id){timers.delete(id);},
-    chrome:{runtime:{sendMessage:send}}});
+    chrome:{...i18nChrome,runtime:{sendMessage:message=>message.type==='i18nGet'?Promise.resolve({ok:true,data:{}}):send(message)}}};
+  runInNewContext(i18nSource, context);
+  runInNewContext(source, context);
   await settle();
   return {document,timers,async expire(delay){const work=[...timers].filter(([,v])=>v.delay===delay);for(const [id,v] of work){timers.delete(id);v.callback();}await settle();}};
 }

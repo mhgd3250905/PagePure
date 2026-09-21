@@ -1,19 +1,25 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>净化规则 · PagePure</title><link rel="stylesheet" href="rules-manager.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-i18n="managerTitle">净化规则 · PagePure</title><link rel="stylesheet" href="rules-manager.css"></head>
 <body>
-<aside class="sidebar"><a class="brand" href="rules-manager.html"><img src="icons/pagepure-48.png" alt=""><span>PagePure<small>让阅读更纯粹</small></span></a><nav aria-label="管理导航"><a class="nav-item" href="rules-manager.html" aria-current="page"><span aria-hidden="true">▤</span> 净化规则</a></nav><p class="local-note">规则保存在此浏览器中</p></aside>
+<aside class="sidebar"><a class="brand" href="rules-manager.html"><img src="icons/pagepure-48.png" alt=""><span>PagePure<small data-i18n="appTagline">让阅读更纯粹</small></span></a><nav data-i18n-aria-label="managerNavAria" aria-label="管理导航"><a class="nav-item" id="nav-rules" href="rules-manager.html" aria-current="page"><span aria-hidden="true">▤</span> <span data-i18n="managerHeading">净化规则</span></a><a class="nav-item" id="nav-settings" href="#settings"><span aria-hidden="true">⚙</span> <span data-i18n="managerSettingsNav">设置</span></a></nav><p class="local-note" data-i18n="managerLocalNote">规则保存在此浏览器中</p></aside>
 <main>
-<header><div class="eyebrow">你的阅读空间</div><h1>净化规则</h1><p class="intro">整理已保存的规则，让网页回到你想要的样子。</p></header>
-<section class="workspace" aria-label="规则列表">
-<div class="search-row"><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索网站或页面地址" aria-label="搜索网站或页面地址" autocomplete="off"></label><button id="refresh" class="secondary" type="button">刷新</button></div>
-<div class="list-heading"><h2>已保存的地址 <span id="total">—</span></h2><span id="ruleTotal" class="muted"></span></div>
-<div class="selection-bar"><label class="select-all"><input id="selectAll" type="checkbox"><span>全选当前结果</span></label><div class="selection-actions"><span id="selectedCount" class="muted">未选择</span><button id="clearSelection" class="text-button" type="button" hidden>取消选择</button><button id="deleteSelected" class="danger-button" type="button" disabled>清理所选</button></div></div>
-<div id="entries" class="entries"></div><div id="empty" class="empty" hidden><div class="empty-icon" aria-hidden="true">✓</div><h3 id="emptyTitle">还没有保存的规则</h3><p id="emptyDescription">在网页中保存净化设置后，可以在这里统一管理。</p></div>
+<header><div class="eyebrow" data-i18n="managerEyebrow">你的阅读空间</div><h1 data-i18n="managerHeading">净化规则</h1><p class="intro" data-i18n="managerIntro">整理已保存的规则，让网页回到你想要的样子。</p></header>
+<section id="rules-view" class="workspace" data-i18n-aria-label="managerWorkspaceAria" aria-label="规则列表">
+<div class="search-row"><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" data-i18n-placeholder="managerSearchPlaceholder" placeholder="搜索网站或页面地址" data-i18n-aria-label="managerSearchPlaceholder" aria-label="搜索网站或页面地址" autocomplete="off"></label><button id="refresh" class="secondary" type="button" data-i18n="managerRefresh">刷新</button></div>
+<div class="list-heading"><h2><span data-i18n="managerSavedAddresses">已保存的地址</span> <span id="total">—</span></h2><span id="ruleTotal" class="muted"></span></div>
+<div class="selection-bar"><label class="select-all"><input id="selectAll" type="checkbox"><span data-i18n="managerSelectAll">全选当前结果</span></label><div class="selection-actions"><span id="selectedCount" class="muted" data-i18n="managerNoneSelected">未选择</span><button id="clearSelection" class="text-button" type="button" hidden data-i18n="managerClearSelection">取消选择</button><button id="deleteSelected" class="danger-button" type="button" disabled data-i18n="managerDeleteSelected">清理所选</button></div></div>
+<div id="entries" class="entries"></div><div id="empty" class="empty" hidden><div class="empty-icon" aria-hidden="true">✓</div><h3 id="emptyTitle" data-i18n="managerEmptyNone">还没有保存的规则</h3><p id="emptyDescription" data-i18n="managerEmptyNoneDesc">在网页中保存净化设置后，可以在这里统一管理。</p></div>
+<p class="footnote" data-i18n="managerFootnote">清理后，对应地址将不再应用这些已保存的规则。</p>
 </section>
 <p id="status" role="status" aria-live="polite"></p>
-<p class="footnote">清理后，对应地址将不再应用这些已保存的规则。</p>
+<section id="settings-view" class="workspace settings" data-i18n-aria-label="managerSettingsHeading" aria-label="设置" hidden>
+<h2 data-i18n="managerSettingsHeading">设置</h2>
+<div class="setting-row"><label for="uiLocale" data-i18n="managerLanguageLabel">界面语言</label><select id="uiLocale"><option value="default" data-i18n="managerLangDefault">跟随浏览器</option><option value="zh_CN">简体中文</option><option value="zh_TW">繁體中文</option><option value="en">English</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="es">Español</option><option value="pt_BR">Português (Brasil)</option><option value="ru">Русский</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="it">Italiano</option><option value="tr">Türkçe</option></select></div>
+<p class="hint" data-i18n="managerLanguageHint">选择后立即保存并刷新本页；网页内工具条在下次进入选择模式时生效，弹窗重新打开时生效。</p>
+</section>
 </main>
-<dialog id="confirmDialog" aria-labelledby="confirmTitle" aria-describedby="confirmDescription"><form method="dialog"><div class="dialog-mark" aria-hidden="true">↺</div><h2 id="confirmTitle">清理所选规则？</h2><p id="confirmDescription"></p><ul id="confirmEntries"></ul><p id="dialogStatus" role="status" aria-live="polite"></p><div class="dialog-actions"><button id="cancelDelete" class="secondary" value="cancel">取消</button><button id="confirmDelete" class="danger-button" type="button">确认清理</button></div></form></dialog>
+<dialog id="confirmDialog" aria-labelledby="confirmTitle" aria-describedby="confirmDescription"><form method="dialog"><div class="dialog-mark" aria-hidden="true">↺</div><h2 id="confirmTitle" data-i18n="managerConfirmTitle">清理所选规则？</h2><p id="confirmDescription"></p><ul id="confirmEntries"></ul><p id="dialogStatus" role="status" aria-live="polite"></p><div class="dialog-actions"><button id="cancelDelete" class="secondary" value="cancel" data-i18n="managerCancel">取消</button><button id="confirmDelete" class="danger-button" type="button" data-i18n="managerConfirmDelete">确认清理</button></div></form></dialog>
+<script src="i18n.js"></script>
 <script src="rules-manager.js"></script>
 </body></html>

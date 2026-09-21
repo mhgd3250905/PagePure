@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
+import './i18n-support.mjs';
 import './extension/manual.js';
 const {scope, describeRule, matches} = globalThis.JevManual;
 const documentFor = html => parseHTML(`<html><body>${html}</body></html>`).document;

@@ -1,4 +1,5 @@
 import test from 'node:test';
+import './i18n-support.mjs';
 import assert from 'node:assert/strict';
 import {createMessageHandler,DEFAULT_CONTEXT} from './extension/background.js';
 import {parseAnswer, parseCategoryAnswer, CATEGORY_LABELS} from './extension/classifier.mjs';
@@ -543,4 +544,16 @@ test('saving and undoing mixed legacy storage never reactivates categories',asyn
  await h.send('rulesUndo',{keys:[key]});
  assert.deepEqual(values['rules:'+key],[category,old]);
  assert.deepEqual((await h.send('rulesGet',{keys:[key]})).data.groups,[{key,rules:[old]}]);
+});
+
+test('content scripts can request the active locale table',async()=>{
+ const h=harness();
+ await h.api.storage.local.set({uiLocale:'en',uiMessages:{extName:{message:'PagePure'}}});
+ const result=await h.send('i18nGet');
+ assert.equal(result.ok,true);
+ assert.equal(result.data.locale,'en');
+ assert.equal(result.data.messages.extName.message,'PagePure');
+ await h.api.storage.local.remove('uiLocale');await h.api.storage.local.remove('uiMessages');
+ const empty=await h.send('i18nGet');
+ assert.deepEqual(empty.data,{});
 });

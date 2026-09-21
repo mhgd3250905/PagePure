@@ -1,0 +1,590 @@
+{
+  "extName": {
+    "message": "PagePure - Purificatore web"
+  },
+  "extDescription": {
+    "message": "Seleziona una zona della pagina, regola le dimensioni, nascondi o ripristina. Le regole per sito e pagina si riapplicano a ogni visita."
+  },
+  "appTagline": {
+    "message": "Una lettura più pura"
+  },
+  "popupPurify": {
+    "message": "Purifica pagine"
+  },
+  "popupPreviewButton": {
+    "message": "Seleziona cosa nascondere"
+  },
+  "popupPreviewHint": {
+    "message": "Un clic nasconde; ripristini quando vuoi."
+  },
+  "popupToggleVisibility": {
+    "message": "Originale / purificato"
+  },
+  "popupUndo": {
+    "message": "Annulla ultimo salvataggio"
+  },
+  "popupManageRules": {
+    "message": "Gestisci regole"
+  },
+  "popupPageStatusLoading": {
+    "message": "Lettura dello stato della pagina…"
+  },
+  "popupAdvanced": {
+    "message": "Rilevamento automatico e impostazioni"
+  },
+  "popupAiToggle": {
+    "message": "Usa l'IA su questo sito"
+  },
+  "popupAiHint": {
+    "message": "Richiede una chiave API Jev. Disattivato sui nuovi siti."
+  },
+  "popupContextLabel": {
+    "message": "Preferenze di purificazione per questo sito"
+  },
+  "popupContextSiteHost": {
+    "message": "Preferenze di purificazione per {1}"
+  },
+  "popupContextPlaceholder": {
+    "message": "Es.: mantieni domande, risposte e articoli; nascondi promo, accessi creator, consigliati e piè di pagina."
+  },
+  "popupContextHint": {
+    "message": "Usato in assenza di regole; quelle manuali hanno priorità."
+  },
+  "popupKeyStateOn": {
+    "message": "Configurata"
+  },
+  "popupKeyStateOff": {
+    "message": "Non configurata"
+  },
+  "popupKeyPlaceholder": {
+    "message": "Inserisci la tua chiave API"
+  },
+  "popupKeyPlaceholderSaved": {
+    "message": "Salvata. Inseriscine una nuova per sostituirla"
+  },
+  "popupKeyHint": {
+    "message": "Lascia vuoto per mantenere la chiave salvata"
+  },
+  "popupClearKey": {
+    "message": "Cancella chiave"
+  },
+  "popupSave": {
+    "message": "Salva e applica"
+  },
+  "popupRetry": {
+    "message": "Riverifica"
+  },
+  "popupClearPageRules": {
+    "message": "Cancella regole di questa pagina"
+  },
+  "popupPrivacy": {
+    "message": "Dati e privacy"
+  },
+  "popupPrivacyNote": {
+    "message": "La verifica IA invia a TypeSafe Jev il testo dei moduli, le descrizioni delle immagini e i percorsi dei link; mai il DOM completo o i cookie. La selezione manuale non usa l'IA e le regole restano su questo dispositivo."
+  },
+  "popupStatusLoading": {
+    "message": "Caricamento impostazioni…"
+  },
+  "popupReconnect": {
+    "message": "Riconnetti"
+  },
+  "popupFocusReading": {
+    "message": "Solo lettura"
+  },
+  "popupErrorTimeout": {
+    "message": "Connessione scaduta. Riconnetti; se persiste, ricarica PagePure nella pagina delle estensioni e aggiorna il sito"
+  },
+  "popupErrorRequest": {
+    "message": "Richiesta non riuscita. Riprova"
+  },
+  "popupStatusNoPage": {
+    "message": "Apri una pagina web per vedere lo stato"
+  },
+  "popupStatusFail": {
+    "message": "Verifica non riuscita: {1}"
+  },
+  "popupStatusHidden": {
+    "message": "{1} nascosti · {2} in attesa"
+  },
+  "popupEnabledOn": {
+    "message": "Attivato. Usa il pulsante qui sopra per selezionare i contenuti"
+  },
+  "popupEnabledOff": {
+    "message": "Disattivato. Contenuti della pagina ripristinati"
+  },
+  "popupErrorNeedGoal": {
+    "message": "Descrivi cosa vuoi mantenere"
+  },
+  "popupSavedOff": {
+    "message": "Salvato. La purificazione delle pagine è disattivata"
+  },
+  "popupSavedManual": {
+    "message": "Salvato. La selezione manuale funziona subito; per l'IA serve anche una chiave API"
+  },
+  "popupSavedOn": {
+    "message": "Salvato. Questa pagina si aggiornerà automaticamente"
+  },
+  "popupKeyCleared": {
+    "message": "Chiave cancellata"
+  },
+  "popupRetried": {
+    "message": "Richiesta una nuova verifica di questa pagina"
+  },
+  "popupErrorEnableFirst": {
+    "message": "Attiva la purificazione e salva prima di selezionare"
+  },
+  "popupEnteringSelection": {
+    "message": "Modalità selezione attiva. Fai clic su ciò che vuoi nascondere"
+  },
+  "popupToggledVisibility": {
+    "message": "Vista alternata. Fai di nuovo clic per tornare"
+  },
+  "popupUndone": {
+    "message": "Ultimo salvataggio annullato"
+  },
+  "popupClearedPageRules": {
+    "message": "Regole di questa pagina cancellate"
+  },
+  "statusPurifierOff": {
+    "message": "La purificazione delle pagine è disattivata"
+  },
+  "popupErrorLoadSettings": {
+    "message": "Impossibile leggere le impostazioni: {1}"
+  },
+  "popupNotConnected": {
+    "message": "Non connesso a PagePure"
+  },
+  "consolePanelAria": {
+    "message": "Pannello di controllo PagePure"
+  },
+  "consoleCollapse": {
+    "message": "Comprimi pannello"
+  },
+  "consoleLauncherAria": {
+    "message": "Apri il pannello PagePure"
+  },
+  "consoleFrameTitle": {
+    "message": "Impostazioni PagePure"
+  },
+  "previewNoHelper": {
+    "message": "Impossibile contattare l'assistente. Aggiorna la pagina"
+  },
+  "toolbarStatusHidden": {
+    "message": "{1} nascosti · vale al salvataggio"
+  },
+  "toolbarStatusLegacy": {
+    "message": "{1} altre regole di zona (incluse eccezioni di ripristino)"
+  },
+  "ruleEntry": {
+    "message": "{1}{2}: {3} ×"
+  },
+  "rulePagePrefix": {
+    "message": "Solo questa pagina "
+  },
+  "actionHide": {
+    "message": "Nascondi"
+  },
+  "actionKeep": {
+    "message": "Ripristina"
+  },
+  "previewEmbedRegion": {
+    "message": "Contenuto incorporato"
+  },
+  "previewImageRegion": {
+    "message": "Immagine o area di contenuto"
+  },
+  "splitNeedsAi": {
+    "message": "La divisione intelligente richiede l'IA attiva su questo sito e una chiave API"
+  },
+  "splitExpandFirst": {
+    "message": "Allarga prima la selezione, poi dividi"
+  },
+  "splitInProgress": {
+    "message": "Divisione…"
+  },
+  "splitLabel": {
+    "message": "Divisione intelligente"
+  },
+  "splitErrorChanged": {
+    "message": "La zona è cambiata. Dividi di nuovo"
+  },
+  "splitErrorTooFew": {
+    "message": "Trovati meno di due blocchi indipendenti; resta la zona originale"
+  },
+  "splitDone": {
+    "message": "Diviso in {1} zone. Selezionane una."
+  },
+  "quickSelectedRegion": {
+    "message": "Zona selezionata"
+  },
+  "selectionName": {
+    "message": "Selezionato: {1}"
+  },
+  "splitUnstableSave": {
+    "message": "Questi confini di divisione non si possono ancora salvare in modo stabile. Sistema la selezione e salva di nuovo; le regole esistenti sono invariate."
+  },
+  "savePageChanged": {
+    "message": "Regole salvate, ma la pagina è cambiata. Rientra nella modalità di selezione."
+  },
+  "areaRuleFallback": {
+    "message": "Per ora non si può salvare. Allarga la selezione e riprova."
+  },
+  "previewPageOnlyHide": {
+    "message": "Nascosto solo su questa pagina · vale al salvataggio"
+  },
+  "previewPageOnlyKeep": {
+    "message": "Ripristinato solo su questa pagina · vale al salvataggio"
+  },
+  "candidateAria": {
+    "message": "Seleziona la zona {1}"
+  },
+  "candidateTitle": {
+    "message": "Fai clic per scegliere questa zona e decidere cosa nascondere"
+  },
+  "toolbarStamp": {
+    "message": "Pulito"
+  },
+  "maxRangeReached": {
+    "message": "Sei già alla zona più grande selezionabile"
+  },
+  "effectPreview": {
+    "message": "Anteprima"
+  },
+  "effectBack": {
+    "message": "Torna alla selezione"
+  },
+  "unknownAction": {
+    "message": "Azione sconosciuta"
+  },
+  "toolbarAria": {
+    "message": "Azioni sulla zona"
+  },
+  "moreAria": {
+    "message": "Altre azioni"
+  },
+  "cancelAria": {
+    "message": "Annulla ed esci"
+  },
+  "scopeRangeLabel": {
+    "message": "Ampiezza"
+  },
+  "rangeGroupAria": {
+    "message": "Regola l'ampiezza"
+  },
+  "largerBtn": {
+    "message": "Allarga"
+  },
+  "largerTitle": {
+    "message": "Allarga la selezione"
+  },
+  "smallerBtn": {
+    "message": "Restringi"
+  },
+  "smallerTitle": {
+    "message": "Restringi la selezione"
+  },
+  "splitTitle": {
+    "message": "Divide una zona grande in zone più piccole, selezionabili singolarmente"
+  },
+  "areaScopeLabel": {
+    "message": "Zona"
+  },
+  "areaGroupAria": {
+    "message": "Azioni sulla zona"
+  },
+  "hideAreaBtn": {
+    "message": "Nascondi zona"
+  },
+  "keepAreaBtn": {
+    "message": "Ripristina zona"
+  },
+  "pageScopeLabel": {
+    "message": "Questa pagina"
+  },
+  "pageGroupAria": {
+    "message": "Azioni solo per questa pagina"
+  },
+  "pageHideAria": {
+    "message": "Nascondi solo su questa pagina"
+  },
+  "pageKeepAria": {
+    "message": "Ripristina solo su questa pagina"
+  },
+  "saveBtn": {
+    "message": "Salva modifiche"
+  },
+  "scopeSite": {
+    "message": "Tutto il sito"
+  },
+  "scopeType": {
+    "message": "Questo tipo di pagina"
+  },
+  "scopeCurrentPage": {
+    "message": "Questa pagina"
+  },
+  "bgDisallowed": {
+    "message": "Richiesta dell'estensione non consentita"
+  },
+  "bgErrorSettings": {
+    "message": "Impostazioni non valide: massimo 4000 caratteri per le preferenze di lettura"
+  },
+  "bgErrorSaveOnWeb": {
+    "message": "Apri una pagina web per salvare le preferenze di lettura"
+  },
+  "bgErrorAiOnWeb": {
+    "message": "Apri una pagina web per attivare l'IA"
+  },
+  "bgErrorInvalidKey": {
+    "message": "Chiave API non valida"
+  },
+  "bgErrorKeyWhitespace": {
+    "message": "Inserisci la chiave completa, senza spazi"
+  },
+  "bgErrorRuleScope": {
+    "message": "Ambito delle regole non valido"
+  },
+  "bgErrorRuleContent": {
+    "message": "Contenuto delle regole non valido"
+  },
+  "bgErrorPartition": {
+    "message": "Confini di divisione non validi"
+  },
+  "bgErrorTooManyRules": {
+    "message": "Troppe regole"
+  },
+  "bgErrorTooManyPartitions": {
+    "message": "Troppi confini di divisione"
+  },
+  "bgErrorStatus": {
+    "message": "Stato non valido"
+  },
+  "bgStatusNotWebpage": {
+    "message": "Usalo su una normale pagina web"
+  },
+  "bgErrorPageAction": {
+    "message": "Azione di pagina non valida"
+  },
+  "bgErrorPageActionFailed": {
+    "message": "Azione di pagina non riuscita"
+  },
+  "bgReasonAiOff": {
+    "message": "L'IA è spenta su questo sito. Attivala nelle impostazioni o seleziona manualmente"
+  },
+  "bgReasonNoKey": {
+    "message": "Ancora nessuna chiave API: le zone si possono scegliere comunque a mano"
+  },
+  "bgErrorSplitCount": {
+    "message": "La divisione richiede da 2 a 20 blocchi candidati"
+  },
+  "bgErrorBlockId": {
+    "message": "Id del blocco non valido o duplicato"
+  },
+  "bgErrorBlockField": {
+    "message": "Campo {1} del blocco non valido"
+  },
+  "bgErrorBatchCount": {
+    "message": "Ogni lotto contiene da 1 a 5 blocchi"
+  },
+  "bgErrorAiOffSplit": {
+    "message": "L'IA è spenta su questo sito. Attivala nelle impostazioni prima di dividere"
+  },
+  "bgErrorNeedKey": {
+    "message": "Salva prima la chiave API Jev nell'estensione"
+  },
+  "bgErrorAiOff": {
+    "message": "L'IA è spenta su questo sito"
+  },
+  "clsInvalidFormat": {
+    "message": "Formato di decisione non valido da Jev"
+  },
+  "clsCategoryFormat": {
+    "message": "Formato di categoria non valido da Jev"
+  },
+  "clsSplitFormat": {
+    "message": "Formato di divisione non valido da Jev"
+  },
+  "clsTimeout": {
+    "message": "Richiesta a Jev scaduta. Riprova"
+  },
+  "clsConnect": {
+    "message": "Impossibile contattare il servizio Jev"
+  },
+  "clsKeyInvalid": {
+    "message": "Chiave API Jev non valida"
+  },
+  "clsKeyForbidden": {
+    "message": "Questa chiave API Jev non ha accesso"
+  },
+  "clsRateLimited": {
+    "message": "Jev sta limitando le richieste. Riprova più tardi"
+  },
+  "clsHttpError": {
+    "message": "Richiesta a Jev non riuscita (HTTP {1})"
+  },
+  "clsInvalidJson": {
+    "message": "Jev ha restituito un JSON non valido"
+  },
+  "snapScopeInvalid": {
+    "message": "Ambito dell'istantanea non valido"
+  },
+  "snapContentInvalid": {
+    "message": "Contenuto dell'istantanea non valido"
+  },
+  "mgrScopeSite": {
+    "message": "Tutto il sito"
+  },
+  "mgrScopeType": {
+    "message": "Questo tipo di pagina"
+  },
+  "mgrScopePage": {
+    "message": "Solo questa pagina"
+  },
+  "mgrEntriesChanged": {
+    "message": "Gli indirizzi selezionati sono cambiati. Aggiorna e scegli di nuovo"
+  },
+  "mgrRevisionChanged": {
+    "message": "Le regole sono cambiate. Aggiorna l'elenco e conferma di nuovo"
+  },
+  "contentNoHelper": {
+    "message": "Connessione con l'assistente non riuscita. Aggiorna la pagina"
+  },
+  "manualHttpOnly": {
+    "message": "Sono supportate solo pagine HTTP/HTTPS"
+  },
+  "managerTitle": {
+    "message": "Regole di purificazione · PagePure"
+  },
+  "managerHeading": {
+    "message": "Regole di purificazione"
+  },
+  "managerNavAria": {
+    "message": "Navigazione di gestione"
+  },
+  "managerLocalNote": {
+    "message": "Le regole sono salvate in questo browser"
+  },
+  "managerEyebrow": {
+    "message": "Il tuo spazio di lettura"
+  },
+  "managerIntro": {
+    "message": "Metti in ordine le regole salvate e riporta le pagine all'aspetto che vuoi."
+  },
+  "managerWorkspaceAria": {
+    "message": "Elenco regole"
+  },
+  "managerSearchPlaceholder": {
+    "message": "Cerca indirizzi di siti o pagine"
+  },
+  "managerRefresh": {
+    "message": "Aggiorna"
+  },
+  "managerSavedAddresses": {
+    "message": "Indirizzi salvati"
+  },
+  "managerSelectAll": {
+    "message": "Seleziona tutti i risultati"
+  },
+  "managerClearSelection": {
+    "message": "Azzera selezione"
+  },
+  "managerFootnote": {
+    "message": "Dopo la cancellazione, queste regole non si applicheranno più agli indirizzi corrispondenti."
+  },
+  "managerConfirmTitle": {
+    "message": "Cancellare le regole selezionate?"
+  },
+  "managerCancel": {
+    "message": "Annulla"
+  },
+  "managerConfirmDelete": {
+    "message": "Conferma cancellazione"
+  },
+  "managerUnknownAddress": {
+    "message": "Indirizzo sconosciuto"
+  },
+  "managerErrorDefault": {
+    "message": "Azione non completata. Riprova."
+  },
+  "managerSelectedCount": {
+    "message": "{1} indirizzi selezionati"
+  },
+  "managerNoneSelected": {
+    "message": "Nessuna selezione"
+  },
+  "managerDeleteSelectedCount": {
+    "message": "Cancella selezionati ({1})"
+  },
+  "managerDeleteSelected": {
+    "message": "Cancella selezionati"
+  },
+  "managerEntryAria": {
+    "message": "Seleziona {1}, {2}, {3} regole"
+  },
+  "managerRulesSuffix": {
+    "message": " regola/e"
+  },
+  "managerRuleTotal": {
+    "message": "Regole in totale: {1}"
+  },
+  "managerEmptyNoMatch": {
+    "message": "Nessun indirizzo corrispondente"
+  },
+  "managerEmptyNone": {
+    "message": "Ancora nessuna regola salvata"
+  },
+  "managerEmptyNoMatchDesc": {
+    "message": "Prova altre parole chiave o azzera la ricerca per vedere tutto."
+  },
+  "managerEmptyNoneDesc": {
+    "message": "Salva le impostazioni di purificazione su una pagina e gestiscile tutte qui."
+  },
+  "managerLoading": {
+    "message": "Caricamento regole…"
+  },
+  "managerErrorLoad": {
+    "message": "Impossibile caricare le regole. Aggiorna e riprova."
+  },
+  "managerErrorLoadFallback": {
+    "message": "Caricamento non riuscito. Aggiorna e riprova."
+  },
+  "managerStaleDialog": {
+    "message": "Le regole sono cambiate. Annulla e riconferma la selezione."
+  },
+  "managerConfirmSummary": {
+    "message": "{2} regole su {1} indirizzi verranno cancellate, senza possibilità di annullamento. Le regole di sito condivise con indirizzi non selezionati potrebbero restare attive."
+  },
+  "managerCountShort": {
+    "message": "{1}"
+  },
+  "managerDeleting": {
+    "message": "Cancellazione…"
+  },
+  "managerDeleted": {
+    "message": "Regole cancellate su {1} indirizzi."
+  },
+  "managerStaleRetry": {
+    "message": "Le regole sono cambiate e l'elenco è stato aggiornato. Ricontrolla gli indirizzi e riconferma."
+  },
+  "managerDeleteFailed": {
+    "message": "{1} Gli indirizzi selezionati esistenti sono stati mantenuti. Ricontrolla e riprova."
+  },
+  "managerSettingsNav": {
+    "message": "Impostazioni"
+  },
+  "managerSettingsHeading": {
+    "message": "Impostazioni"
+  },
+  "managerLanguageLabel": {
+    "message": "Lingua dell'interfaccia"
+  },
+  "managerLangDefault": {
+    "message": "Come il browser"
+  },
+  "managerLanguageHint": {
+    "message": "Salva subito e questa pagina si ricarica; la barra nella pagina vale al prossimo avvio della modalità di selezione, il popup alla riapertura."
+  },
+  "popupManualToolsAria": {
+    "message": "Purificazione visiva"
+  }
+}

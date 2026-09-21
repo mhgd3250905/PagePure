@@ -3,15 +3,16 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
+import {i18nSource, i18nChrome} from './i18n-support.mjs';
 const html=readFileSync('extension/rules-manager.html','utf8'),js=readFileSync('extension/rules-manager.js','utf8');
 const samples=[{id:'a',origin:'https://alpha.test',address:'https://alpha.test',scope:'site',count:3},{id:'b',origin:'https://beta.test',address:'https://beta.test/page',scope:'page',count:2},{id:'c',origin:'https://alpha.test',address:'https://alpha.test/<img src=x>',scope:'page',count:1}];
 async function setup(){
- const {document,window}=parseHTML(html),calls=[];let entries=structuredClone(samples),revision='1',changed,fail=false;
+ const {document,window}=parseHTML(html),calls=[],saved=[];let entries=structuredClone(samples),revision='1',changed,fail=false;
  const dialog=document.querySelector('dialog');dialog.showModal=()=>{dialog.open=true;};dialog.close=()=>{dialog.open=false;dialog.dispatchEvent(new window.Event('close'));};
  const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve();};
- const chrome={runtime:{async sendMessage(message){calls.push(message);if(message.type==='rulesManagerList')return {ok:true,data:{entries:structuredClone(entries),revision}};if(fail)return {ok:false,error:'规则已变化'};entries=entries.filter(e=>!message.payload.ids.includes(e.id));revision='2';return {ok:true,data:{}};}},storage:{onChanged:{addListener(fn){changed=fn;}}}};
- runInNewContext(js,{document,chrome});await flush();
- return {document,calls,flush,dialog,change(keys){changed(Object.fromEntries(keys.map(k=>[k,{}])),'local');},fail(){fail=true;},search(q){document.querySelector('#search').value=q;document.querySelector('#search').dispatchEvent(new window.Event('input'));},selectAll(){const el=document.querySelector('#selectAll');el.checked=true;el.dispatchEvent(new window.Event('change'));},click(id){document.querySelector('#'+id).click();}};
+ const chrome={...i18nChrome,runtime:{getURL:p=>p,async sendMessage(message){if(message.type==='i18nGet')return {ok:true,data:{}};calls.push(message);if(message.type==='rulesManagerList')return {ok:true,data:{entries:structuredClone(entries),revision}};if(fail)return {ok:false,error:{message:'规则已变化',code:'revision'}};entries=entries.filter(e=>!message.payload.ids.includes(e.id));revision='2';return {ok:true,data:{}};}},storage:{local:{get:async()=>({}),set:async entries=>{saved.push(entries);}},onChanged:{addListener(fn){changed=fn;}}}};
+ const context={document,chrome,fetch:async()=>({ok:true,json:async()=>({managerSettingsNav:{message:'Settings'}})})};runInNewContext(i18nSource,context);runInNewContext(js,context);await flush();
+ return {document,window,saved,calls,flush,dialog,change(keys){changed(Object.fromEntries(keys.map(k=>[k,{}])),'local');},fail(){fail=true;},search(q){document.querySelector('#search').value=q;document.querySelector('#search').dispatchEvent(new window.Event('input'));},selectAll(){const el=document.querySelector('#selectAll');el.checked=true;el.dispatchEvent(new window.Event('change'));},click(id){document.querySelector('#'+id).click();}};
 }
 test('manager filters addresses, preserves cross-search selection and requires explicit confirmation',async()=>{
  const e=await setup();assert.equal(e.document.querySelectorAll('.entry').length,3);assert.equal(e.document.querySelector('.entry img'),null);
@@ -28,4 +29,21 @@ test('only rule changes invalidate an open confirmation; snapshots do not',async
 test('failed cleanup preserves selection and refreshes the catalog',async()=>{
  const e=await setup();e.selectAll();e.click('deleteSelected');e.fail();e.click('confirmDelete');await e.flush();
  assert.equal(e.document.querySelector('#selectedCount').textContent,'已选 3 个地址');assert.match(e.document.querySelector('#status').textContent,/重新确认/);assert.ok(e.calls.filter(c=>c.type==='rulesManagerList').length>=2);
+});
+
+test('settings view stores the chosen UI locale and switches views',async()=>{
+ const e=await setup();
+ assert.equal(e.document.querySelector('#settings-view').hidden,true);
+ e.document.querySelector('#nav-settings').click();
+ assert.equal(e.document.querySelector('#settings-view').hidden,false);
+ assert.equal(e.document.querySelector('#rules-view').hidden,true);
+ await e.flush();
+ // linkedom 未实现 select.value，这里用属性拦截模拟原生行为。
+ const select=e.document.querySelector('#uiLocale');
+ Object.defineProperty(select,'value',{configurable:true,get(){return this._value||'default';},set(v){this._value=v;}});
+ select.value='en';select.dispatchEvent(new e.window.Event('change'));
+ await e.flush();
+ assert.equal(e.saved.at(-1).uiLocale,'en');
+ assert.ok(e.saved.at(-1).uiMessages && e.saved.at(-1).uiMessages.managerSettingsNav);
+ assert.match(e.document.querySelector('#emptyTitle').textContent,/还没|没有/);
 });

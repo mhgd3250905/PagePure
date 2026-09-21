@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
+import {i18nSource, i18nChrome} from './i18n-support.mjs';
 
 const source = readFileSync(new URL('./extension/console.js', import.meta.url), 'utf8');
 function environment(bodyReady = true) {
@@ -19,7 +20,8 @@ function environment(bodyReady = true) {
     const value = Reflect.get(target, key);
     return typeof value === 'function' ? value.bind(target) : value;
   }});
-  const context = {document:contentDocument, window, chrome:{runtime:{getURL:path => `chrome-extension://test/${path}`}}};
+  const context = {document:contentDocument, window, chrome:{...i18nChrome, runtime:{getURL:path => `chrome-extension://test/${path}`}}};
+  runInNewContext(i18nSource, context);
   const run = () => runInNewContext(source, context);
   run();
   return {document, window, run, get root() {return root;}, ready() {
@@ -73,10 +75,12 @@ async function popupEnvironment(config = {}) {
     if (message.type === 'statusGet') return {ok:true, data:{hidden:0, pending:0}};
     return {ok:true, data:{configured:false}};
   }};
-  runInNewContext(source, {
-    document, chrome:{runtime}, URLSearchParams, location:{search:'?embedded=1'},
+  const context = {
+    document, chrome:{...i18nChrome, runtime}, URLSearchParams, location:{search:'?embedded=1'},
     window:{parent:{postMessage: message => messages.push(message)}}, setTimeout:() => 0, clearTimeout:() => {}
-  });
+  };
+  runInNewContext(i18nSource, context);
+  runInNewContext(source, context);
   const flush = () => new Promise(resolve => setImmediate(resolve));
   await flush();
   return {document, window, requests, messages, flush};

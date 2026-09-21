@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
+import {i18nSource, i18nChrome} from './i18n-support.mjs';
 
 const manualSource = readFileSync(new URL('./extension/manual.js', import.meta.url), 'utf8');
 const previewSource = readFileSync(new URL('./extension/preview.js', import.meta.url), 'utf8');
@@ -35,9 +36,10 @@ async function environment(initialGroups = [], body = null, options = {}) {
     setTimeout(callback) {timers.set(++timerId, callback); return timerId;},
     clearTimeout(id) {timers.delete(id);},
     MutationObserver: class {constructor(callback) {mutation = callback;} observe(_target,config) {options.onObserve?.(config);}},
-    chrome: {runtime: {
+    chrome: {...i18nChrome, runtime: {
       onMessage: {addListener(callback) {listener = callback;}},
       async sendMessage(message) {
+        if (message.type === 'i18nGet') return {ok: true, data: {}};
         calls.push(message);
         if (message.type === 'configGet') return {ok: true, data: {enabled: true, aiEnabled:true, configured:true,splitExperienceAvailable:!!options.experience,...options.config}};
         const payload = message.payload;
@@ -66,6 +68,7 @@ async function environment(initialGroups = [], body = null, options = {}) {
       }
     }}
   };
+  runInNewContext(i18nSource, context);
   runInNewContext(manualSource, context);
   if(options.realCollect){const describe=context.JevZhihu.describe;runInNewContext(blocksSource,context);context.JevZhihu.describe=describe;}
   runInNewContext(previewSource, context);
