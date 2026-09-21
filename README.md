@@ -4,7 +4,7 @@
 
 ## 下载安装
 
-适用于 Chrome、Edge 和星愿浏览器。已发布下载版本：**0.6.32**；当前本地开发版本：**0.7.5**（尚未发布）。
+适用于 Chrome、Edge 和星愿浏览器。已发布下载版本：**0.6.32**；当前本地开发版本：**0.7.5**（已提交 Edge 商店审核，过审后可[从 Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen)）。
 
 1. **[点击下载安装包](https://github.com/mhgd3250905/PagePure/releases/download/v0.6.32/PagePure-0.6.32.zip)**，解压到一个固定文件夹。
 2. 打开浏览器的“扩展管理”页面：Chrome 在地址栏输入 `chrome://extensions`，Edge 输入 `edge://extensions`；星愿从菜单进入扩展管理。
