@@ -6,6 +6,21 @@ import './extension/layout-snapshot.js';
 const {key, region, matchRegion} = globalThis.JevLayoutSnapshot;
 const documentFor = html => parseHTML(`<html><body>${html}</body></html>`).document;
 
+test('automatic region discovery bounds selector queries and leaves manual fallback available', () => {
+  const doc = documentFor('<main class="Main Shell"><section class="Feed List"><article class="Card Item"><a href="/first">One</a></article><article class="Card Item"><a href="/second">Two</a></article></section></main>');
+  const node = doc.querySelector('article'), query = doc.querySelectorAll.bind(doc);
+  const selectors = [];
+  doc.querySelectorAll = selector => {selectors.push(selector); return query(selector);};
+  Object.defineProperty(node, 'innerText', {get() {throw new Error('Snapshot must not read rendered text');}, configurable:true});
+  assert.equal(region(node), null);
+  assert.ok(selectors.length <= 24, `queries: ${selectors.length}`);
+  assert.ok(selectors.every(selector => !/:has|:nth/.test(selector)));
+  delete node.innerText;
+  const rule = globalThis.JevManual.describeRule(node, doc);
+  assert.ok(rule);
+  assert.deepEqual([...query(rule.selector)], [node]);
+});
+
 test('layout keys survive replaced text, links and image sources', () => {
   const doc = documentFor('<main class="Main"><article class="FeedCard"><a href="/old">Old title</a><img src="old.png"></article></main>');
   const node = doc.querySelector('article'), before = key(node);

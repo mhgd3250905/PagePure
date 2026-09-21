@@ -92,6 +92,21 @@ const selected = (env, id) => env.document.querySelector(`#${id}`).hasAttribute(
 const hidden = (env, id) => env.document.querySelector(`#${id}`).hasAttribute('data-jev-manual-hidden');
 const overlay = (env, index) => env.layer.querySelectorAll('button')[index];
 
+test('failed region discovery is reused across mutations and retried when identity changes', async () => {
+  const env = await environment([{key:'https://example.com|site',rules:[{category:'advertisement'}]}],
+    '<html><body><main><article class="Card">Sponsored one</article><article class="Card">Sponsored two</article></main></body></html>');
+  const original = env.context.JevLayoutSnapshot.region;
+  let attempts = 0;
+  env.context.JevLayoutSnapshot.region = node => {attempts++; return original(node);};
+  for (let i=0;i<5;i++) await env.mutate();
+  assert.equal(attempts, 0, 'unchanged ambiguous regions must not repeat selector discovery');
+  const node = env.document.querySelector('article');
+  node.id = 'unique-ad';
+  await env.mutate();
+  assert.equal(attempts, 1);
+  assert.ok(node.hasAttribute('data-jev-manual-hidden'));
+});
+
 test('original region toolbar retains actions without a standalone instruction panel',async()=>{
  const env=await environment();await env.start();
  assert.equal(env.ui.querySelectorAll('[role="toolbar"]').length,1);

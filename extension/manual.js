@@ -17,9 +17,11 @@
     return url.origin + '|type:' + path;
   }
 
-  function describeRule(node, doc = node?.ownerDocument) {
+  function describeRule(node, doc = node?.ownerDocument, {snapshotOnly=false} = {}) {
     if (!node || !doc || node.matches(forbidden) || node.closest('[data-jev-ui]') || node.querySelector('[data-jev-ui]')) return null;
+    let attempts=0;
     const unique = selector => {
+      if(snapshotOnly&&++attempts>24)return false;
       try { const found = doc.querySelectorAll(selector); return found.length === 1 && found[0] === node; }
       catch { return false; }
     };
@@ -41,7 +43,7 @@
       result.push(tag);
       return result;
     }
-    const label = (node.getAttribute('aria-label') || node.getAttribute('data-testid') ||
+    const label = snapshotOnly ? '' : (node.getAttribute('aria-label') || node.getAttribute('data-testid') ||
       node.innerText || node.textContent || node.localName).replace(/\s+/g, ' ').trim().slice(0, 80);
     // Anonymous split containers can be identified by a stable descendant
     // (e.g. a service entry link), rather than the container's sibling index.
@@ -51,11 +53,13 @@
     // into nth-of-type before reaching that ancestor.
     const targets=segments(node).filter(value=>value!==node.localName);
     for(let ancestor=node.parentElement,depth=0;ancestor&&ancestor!==doc.body&&depth++<8;ancestor=ancestor.parentElement) {
+      if(snapshotOnly&&attempts>=24)break;
       for(const prefix of segments(ancestor))for(const target of targets) {
         const candidate=prefix+' '+target;
         if(candidate.length<=1500&&unique(candidate))return {selector:candidate,label};
       }
     }
+    if(snapshotOnly)return null;
     const anchors=[...node.querySelectorAll('[data-testid],[data-component],[id],a[href],[aria-label],[class]')].filter(anchor =>
       !anchor.closest('svg,script,style,[contenteditable],[data-jev-ui]')).slice(0,80);
     for(const anchor of anchors) {

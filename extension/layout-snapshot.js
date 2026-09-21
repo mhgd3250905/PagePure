@@ -47,7 +47,7 @@
   function region(node) {
     const identity = regionIdentity(node);
     if (!identity) return null;
-    const rule = globalThis.JevManual?.describeRule(node);
+    const rule = globalThis.JevManual?.describeRule(node,node.ownerDocument,{snapshotOnly:true});
     const selector = rule?.selector;
     // Positional paths and descendant/content anchors are not reliable during
     // loading. A bare tag can become ambiguous as more page content arrives.
@@ -62,5 +62,5 @@
   function matchRegion(node, identity) {
     return typeof identity === 'string' && identity.length > 0 && regionIdentity(node) === identity;
   }
-  globalThis.JevLayoutSnapshot = {key, region, matchRegion};
+  globalThis.JevLayoutSnapshot = {key, region, matchRegion, regionIdentity};
 })();

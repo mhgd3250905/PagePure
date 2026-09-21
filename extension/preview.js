@@ -38,16 +38,20 @@
       const category=fresh || snapshot.get(signature(node)) || (()=>{const key=layoutKey(node),value=key&&snapshot.get(key);return value!=='other'?value:undefined;})();
       if(!category)continue;
       snapshot.set(signature(node),category);
-      let region=learnedRegions.get(node);
-      if(!region||!globalThis.JevLayoutSnapshot?.matchRegion(node,region.identity)) {
-        region=globalThis.JevLayoutSnapshot?.region(node);
-        if(region)learnedRegions.set(node,region);
+      const key=layoutKey(node),identity=globalThis.JevLayoutSnapshot?.regionIdentity(node)||'';
+      let learned=learnedRegions.get(node);
+      // Failed structural anchors are cached too. Repeating the full manual
+      // selector search on every page mutation used to dominate snapshot work.
+      if(!learned||learned.layout!==key||learned.identity!==identity||
+          (learned.region&&!globalThis.JevLayoutSnapshot?.matchRegion(node,learned.region.identity))) {
+        learned={layout:key,identity,region:globalThis.JevLayoutSnapshot?.region(node)};
+        learnedRegions.set(node,learned);
       }
+      const region=learned.region;
       if(region&&!snapshot.has('layout-v1:disabled')) {
         const key='region-v1:'+JSON.stringify(region), previous=snapshot.get(key);
         snapshot.set(key,previous&&previous!==category?'other':category);
       }
-      const key=layoutKey(node);
       if(key) {
         const previous=snapshot.get(key);
         snapshot.set(key,previous && previous!==category ? 'other' : category);
