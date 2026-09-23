@@ -84,7 +84,7 @@
     "message": "数据与隐私"
   },
   "popupPrivacyNote": {
-    "message": "AI 判断会将模块文字、图片描述和链接路径发送给 TypeSafe Jev；不发送完整 DOM 或 Cookie。手动选择无需 AI，规则保存在本机。"
+    "message": "AI 判断会将模块文字、图片描述、结构与嵌入媒体提示及链接路径发送给 TypeSafe Jev；不发送完整 DOM 或 Cookie。手动选择无需 AI，规则保存在本机。"
   },
   "popupStatusLoading": {
     "message": "正在读取设置…"

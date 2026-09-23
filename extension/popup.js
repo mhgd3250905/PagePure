@@ -25,6 +25,14 @@ const status = document.querySelector('#status');
 const pageStatus = document.querySelector('#pageStatus');
 let configured = false;
 let savedContext = '';
+let limited = true;
+function showAccess() {
+  for (const element of [document.querySelector('label[for="enabled"]'), document.querySelector('.advanced')]) {
+    element.hidden = limited;
+    element.style.display = limited ? 'none' : '';
+  }
+}
+showAccess();
 async function request(type, payload, timeoutMs = 0) {
   let timer;
   const response = chrome.runtime.sendMessage({type, ...(payload ? {payload} : {})});
@@ -64,6 +72,7 @@ async function perform(action) {
   finally { controls.disabled = false; clearKey.disabled = !configured; }
 }
 enabled.addEventListener('change', () => {
+  if (limited) return;
   const next = enabled.checked;
   perform(async () => {
     try {
@@ -76,6 +85,7 @@ enabled.addEventListener('change', () => {
 });
 document.querySelector('#settings').addEventListener('submit', event => {
   event.preventDefault();
+  if (limited) return;
   const goal = context.value === savedContext ? savedContext : context.value.trim();
   // Keep custom wording intact; the blocking-list format is a suggested template.
   if (context.value !== savedContext && (!goal || /^\u5c4f\u853d\s*[:\uff1a][\s\u3001\uff0c,]*$/.test(goal))) {
@@ -93,9 +103,11 @@ document.querySelector('#settings').addEventListener('submit', event => {
   });
 });
 clearKey.addEventListener('click', () => perform(async () => {
+  if (limited) return;
   await request('keyClear'); key.value = ''; showKeyState(false); showMessage(t('popupKeyCleared')); await refreshStatus();
 }));
 document.querySelector('#retry').addEventListener('click', () => perform(async () => {
+  if (limited) return;
   await request('retry'); showMessage(t('popupRetried')); await refreshStatus();
 }));
 document.querySelector('#preview').addEventListener('click', () => perform(async () => {
@@ -105,7 +117,7 @@ document.querySelector('#preview').addEventListener('click', () => perform(async
   showMessage(t('popupEnteringSelection'));
   if (new URLSearchParams(location.search).get('embedded') === '1') {
     window.parent.postMessage({type: 'jev-console-close'}, '*');
-  } else window.close();
+  } else if (!location.pathname?.endsWith('/settings.html')) window.close();
 }));
 
 for (const [action, message] of [['toggleVisibility', 'popupToggledVisibility']]) {
@@ -116,11 +128,12 @@ for (const [action, message] of [['toggleVisibility', 'popupToggledVisibility']]
   }));
 }
 document.querySelector('#manageRules').addEventListener('click', () => perform(async () => {
-  await request('rulesManagerOpen');
+  await request(limited ? 'settingsOpen' : 'rulesManagerOpen');
   if(new URLSearchParams(location.search).get('embedded')==='1')window.parent.postMessage({type:'jev-console-close'}, '*');
 }));
 
 document.querySelector('#clearRules').addEventListener('click', () => perform(async () => {
+  if (limited) return;
   await request('pageAction', {action: 'clearRules'});
   showMessage(t('popupClearedPageRules'));
   await refreshStatus();
@@ -137,6 +150,8 @@ async function initialize() {
   pageStatus.textContent = t('popupPageStatusLoading');
   try {
     const config = await request('configGet', undefined, 8000);
+    limited = config.limited !== false;
+    showAccess();
     enabled.checked = Boolean(config.enabled);
     aiEnabled.checked = Boolean(config.aiEnabled);
     context.value = config.context || '';

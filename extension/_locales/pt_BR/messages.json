@@ -84,7 +84,7 @@
     "message": "Dados e privacidade"
   },
   "popupPrivacyNote": {
-    "message": "A IA envia ao TypeSafe Jev o texto dos módulos, descrições de imagens e caminhos de links; nunca o DOM completo nem cookies. A seleção manual dispensa IA e as regras ficam neste aparelho."
+    "message": "A IA envia ao TypeSafe Jev o texto legível dos módulos, descrições e caminhos de imagens, dicas de estrutura e mídia incorporada e caminhos de links; nunca o DOM completo nem cookies. A seleção manual dispensa IA e as regras ficam neste aparelho."
   },
   "popupStatusLoading": {
     "message": "Carregando ajustes…"

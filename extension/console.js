@@ -2,9 +2,10 @@
   'use strict';
   const {t} = globalThis.PagePureI18n;
   function mount() {
-    if (!document.body || document.querySelector('[data-jev-ui="console"]')) return;
+    if (!document.body || globalThis.JevZhihu.findUi('console')) return;
     const host = document.createElement('div');
     host.setAttribute('data-jev-ui', 'console');
+    globalThis.JevZhihu.registerUi(host, 'console');
     host.style.cssText = 'all:initial!important;position:fixed!important;left:16px!important;bottom:16px!important;z-index:2147483647!important;display:block!important;';
     const root = host.attachShadow({mode: 'closed'});
     root.innerHTML = `<style>

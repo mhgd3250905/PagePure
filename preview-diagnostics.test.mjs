@@ -70,16 +70,20 @@ async function environment(initialGroups = [], body = null, options = {}) {
   };
   runInNewContext(i18nSource, context);
   runInNewContext(manualSource, context);
-  if(options.realCollect){const describe=context.JevZhihu.describe;runInNewContext(blocksSource,context);context.JevZhihu.describe=describe;}
+  const mock=context.JevZhihu;
+  runInNewContext(blocksSource,context);
+  const realDescribe=context.JevZhihu.describe;
+  context.JevZhihu.describe=node=>({...mock.describe(node),text:realDescribe(node).text});
+  if(!options.realCollect)context.JevZhihu.collect=mock.collect;
   runInNewContext(previewSource, context);
   await settle();
   return {
     document, context, calls, stored,
-    get ui() {return document.querySelector('[data-jev-ui="preview"]')?.shadowRoot;},
-    get layer() {return document.querySelector('[data-jev-ui="selection-layer"]')?.shadowRoot;},
+    get ui() {return shadows.find(root=>root.host===document.querySelector('[data-jev-ui="preview"]'));},
+    get layer() {return shadows.find(root=>root.host===document.querySelector('[data-jev-ui="selection-layer"]'));},
     get suspended() {return suspended;}, get resumed() {return resumed;},
     async start() {await context.JevPreview.start(); await settle();},
-    async click(node) {const event = new window.Event('click', {bubbles:true, cancelable:true, composed:true}); node.dispatchEvent(event); await settle(); return event;},
+    async click(node, trusted=true) {const event = new window.Event('click', {bubbles:true, cancelable:true, composed:true}); Object.defineProperty(event,'isTrusted',{value:trusted}); node.dispatchEvent(event); await settle(); return event;},
     async action(action) {const response = await new Promise(resolve => listener({type:'pageAction', action}, {}, resolve)); await settle(); return response;},
     async notify(type,extra={}) {listener({type,...extra},{},()=>{});await settle();},
     async mutate(changes) {mutation(changes||[{type:'childList', target:document.querySelector('main')}]); const work = [...timers.values()]; timers.clear(); work.forEach(callback => callback()); await settle();}

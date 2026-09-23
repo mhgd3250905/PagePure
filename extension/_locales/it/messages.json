@@ -84,7 +84,7 @@
     "message": "Dati e privacy"
   },
   "popupPrivacyNote": {
-    "message": "La verifica IA invia a TypeSafe Jev il testo dei moduli, le descrizioni delle immagini e i percorsi dei link; mai il DOM completo o i cookie. La selezione manuale non usa l'IA e le regole restano su questo dispositivo."
+    "message": "La verifica IA invia a TypeSafe Jev il testo leggibile dei moduli, le descrizioni e i percorsi delle immagini, gli indizi strutturali e sui media incorporati, e i percorsi dei link; mai il DOM completo o i cookie. La selezione manuale non usa l'IA e le regole restano su questo dispositivo."
   },
   "popupStatusLoading": {
     "message": "Caricamento impostazioni…"

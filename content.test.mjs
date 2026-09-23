@@ -9,12 +9,13 @@ const blocksSource = readFileSync(new URL('./extension/blocks.js', import.meta.u
 const contentSource = readFileSync(new URL('./extension/content.js', import.meta.url), 'utf8');
 const settle = async () => { for (let i = 0; i < 16; i++) await Promise.resolve(); };
 
-async function environment({preview, startup} = {}) {
-  const {document, window} = parseHTML('<html><body><div class="Topstory-container"><main><article id="reading" class="Card TopstoryItem--advertCard">阅读文章</article><article id="promotion" class="Card">推广活动</article></main></div></body></html>');
+async function environment({preview, startup, classifyError, html} = {}) {
+  const {document, window} = parseHTML(html || '<html><body><div class="Topstory-container"><main><article id="reading" class="Card TopstoryItem--advertCard">阅读文章</article><article id="promotion" class="Card">推广活动</article></main></div></body></html>');
   window.HTMLElement.prototype.getBoundingClientRect = () => ({width: 650, height: 180});
   let config = {enabled: true, configured: true, context: '保留阅读内容'};
   let listener, mutation, timerId = 0;
   const timers = new Map(), calls = [], reports = [];
+  let classifyAttempts = 0;
   const context = {
     document, URL, JevPreview: preview, JevStartup: startup,
     setTimeout(callback) { timers.set(++timerId, callback); return timerId; },
@@ -26,7 +27,11 @@ async function environment({preview, startup} = {}) {
         if (msg.type === 'i18nGet') return Promise.resolve({ok: true, data: {}});
         if (msg.type === 'configGet') return Promise.resolve({ok: true, data: {...config}});
         if (msg.type === 'statusSet') { reports.push(msg.payload); return Promise.resolve({ok: true}); }
-        if (msg.type === 'classify') return new Promise(resolve => calls.push({blocks: msg.payload.blocks, resolve}));
+        if (msg.type === 'classify') {
+          classifyAttempts++;
+          if (classifyError) return Promise.resolve({ok:false, ...classifyError});
+          return new Promise(resolve => calls.push({blocks: msg.payload.blocks, resolve}));
+        }
         throw new Error(`Unexpected message ${msg.type}`);
       }
     }}
@@ -40,7 +45,7 @@ async function environment({preview, startup} = {}) {
   };
   await flush();
   return {
-    document, calls, reports, flush,
+    document, calls, reports, flush, get classifyAttempts() {return classifyAttempts;},
     rulesApplied: async () => { document.dispatchEvent(new window.Event('pagepure-rules-applied')); await flush(); },
     mutate: () => mutation([]),
     change: async values => { config = {...config, ...values}; listener({type: 'configChanged'}, {}, () => {}); await settle(); await flush(); },
@@ -122,6 +127,24 @@ test('saved rules allow asynchronous classification of uncovered blocks and prot
   await env.rulesApplied();
   assert.deepEqual(env.marked(), [], 'new rules remove existing AI hiding');
   assert.equal(env.calls.length, 1);
+});
+
+test('classification payload omits opacity-zero, filtered, and content-visibility-hidden content', async () => {
+  const env = await environment({html:'<html><body><div class="Topstory-container"><article id="reading">Visible text <span style="opacity:0">OPACITY_SECRET</span><span style="filter:opacity(0)">FILTER_SECRET</span><span style="content-visibility:hidden">SKIPPED_SECRET</span></article><article id="hidden" style="opacity:0">ROOT_SECRET</article></div></body></html>'});
+  assert.equal(env.calls.length, 1);
+  assert.deepEqual(Array.from(env.calls[0].blocks, block => block.text), ['Visible text']);
+  assert.doesNotMatch(JSON.stringify(env.calls[0].blocks), /OPACITY_SECRET|FILTER_SECRET|SKIPPED_SECRET|ROOT_SECRET/);
+});
+
+test('canceled classification stays retryable and is not reported as a connection failure', async () => {
+  const env = await environment({classifyError:{error:'Request canceled',code:'canceled'}});
+  assert.equal(env.classifyAttempts, 1);
+  assert.equal(env.reports.at(-1).error, '');
+  const late = env.document.createElement('article'); late.className = 'Card'; late.textContent = '新加载内容';
+  env.document.querySelector('main').append(late);
+  env.mutate(); await env.flush();
+  assert.equal(env.classifyAttempts, 2, 'a later scan retries instead of being left paused');
+  assert.equal(env.reports.at(-1).error, '');
 });
 
 test('rules applied during a request discard late AI decisions for protected blocks', async () => {

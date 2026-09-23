@@ -84,7 +84,7 @@
     "message": "Daten und Datenschutz"
   },
   "popupPrivacyNote": {
-    "message": "Die KI-Prüfung sendet an TypeSafe Jev: Elementtexte, Bildbeschreibungen und Linkpfade – nie das komplette DOM oder Cookies. Manuelle Auswahl braucht keine KI; Regeln bleiben auf diesem Gerät."
+    "message": "Die KI-Prüfung sendet an TypeSafe Jev lesbaren Elementtext, Bildbeschreibungen und -pfade, Struktur- und Medienhinweise sowie Linkpfade – nie das komplette DOM oder Cookies. Manuelle Auswahl braucht keine KI; Regeln bleiben auf diesem Gerät."
   },
   "popupStatusLoading": {
     "message": "Einstellungen werden geladen…"

@@ -1,5 +1,7 @@
 (() => {
-  const forbidden = 'html, body, script, style, template, [data-jev-ui]';
+  const forbidden = 'html, body, script, style, template';
+  const isExtensionUi = node => globalThis.JevZhihu?.isUi?.(node) === true;
+  const containsExtensionUi = node => globalThis.JevZhihu?.containsUi?.(node) === true;
   const escape = value => Array.from(String(value)).map((char, index) =>
     /[a-zA-Z_-]/.test(char) || (index > 0 && /[0-9]/.test(char)) ? char : `\\${char.codePointAt(0).toString(16)} `).join('');
   const quote = value => `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\n\r\f]/g, ' ')}"`;
@@ -18,7 +20,7 @@
   }
 
   function describeRule(node, doc = node?.ownerDocument, {snapshotOnly=false} = {}) {
-    if (!node || !doc || node.matches(forbidden) || node.closest('[data-jev-ui]') || node.querySelector('[data-jev-ui]')) return null;
+    if (!node || !doc || node.matches(forbidden) || isExtensionUi(node) || containsExtensionUi(node)) return null;
     let attempts=0;
     const unique = selector => {
       if(snapshotOnly&&++attempts>24)return false;
@@ -61,9 +63,9 @@
     }
     if(snapshotOnly)return null;
     const anchors=[...node.querySelectorAll('[data-testid],[data-component],[id],a[href],[aria-label],[class],img,iframe,video')].filter(anchor =>
-      !anchor.closest('svg,script,style,[contenteditable],[data-jev-ui]')).slice(0,80);
+      !anchor.closest('svg,script,style,[contenteditable]') && !isExtensionUi(anchor)).slice(0,80);
     for(const anchor of anchors) {
-      if(anchor.closest('script,style,[contenteditable],[data-jev-ui]'))continue;
+      if(anchor.closest('script,style,[contenteditable]') || isExtensionUi(anchor))continue;
       const hints=segments(anchor).filter(value=>value!==anchor.localName);
       // Image-only advertisements often have no stable class or link. Their
       // media structure can identify the wrapper without persisting a campaign
@@ -118,7 +120,7 @@
   // Only requested after a user selects an ambiguous component; never scan the
   // page for component families during startup or mutation handling.
   function describeGroupRule(node, doc = node?.ownerDocument) {
-    if (!node || !doc || node.matches(forbidden) || node.closest('[data-jev-ui]') || node.querySelector('[data-jev-ui]')) return null;
+    if (!node || !doc || node.matches(forbidden) || isExtensionUi(node) || containsExtensionUi(node)) return null;
     const single = describeRule(node, doc);
     if (single && !/:nth-/.test(single.selector)) return null;
     const classes = element => [...element.classList].filter(value => stable(value) && !/^jev[-_]/.test(value)).sort();
@@ -130,7 +132,7 @@
       let count = 0, meaningfulDescendant = false;
       const paths = [];
       function visit(element, depth, path) {
-        if (++count > 40 || depth > 4 || element.matches(forbidden) || element.hasAttribute('data-jev-ui')) return null;
+        if (++count > 40 || depth > 4 || element.matches(forbidden) || isExtensionUi(element)) return null;
         if (depth && componentClasses(element).length) meaningfulDescendant = true;
         if (depth) paths.push(path);
         const children = [...element.children].map(child => visit(child, depth + 1, path ? path + ' > ' + segment(child) : segment(child)));
@@ -153,7 +155,7 @@
           let found;
           try { found = [...doc.querySelectorAll(selector)]; } catch { return null; }
           if (found.length >= 2 && found.length <= 20 && found.includes(node) && found.every(other =>
-            other.parentElement === node.parentElement && !other.closest('[data-jev-ui]') && structure(other)?.signature === shape.signature)) {
+            other.parentElement === node.parentElement && !containsExtensionUi(other) && structure(other)?.signature === shape.signature)) {
             return {selector, label: single?.label || node.localName, nodes: found};
           }
         }
@@ -169,7 +171,7 @@
       if (typeof rule?.selector !== 'string' || !rule.selector || rule.selector.length > 4096) continue;
       try {
         for (const node of doc.querySelectorAll(rule.selector)) {
-          if (!node.matches(forbidden) && !node.closest('[data-jev-ui]') && !node.querySelector('[data-jev-ui]')) result.add(node);
+          if (!node.matches(forbidden) && !isExtensionUi(node) && !containsExtensionUi(node)) result.add(node);
         }
       } catch { /* A site's old or malformed selector must not interrupt other rules. */ }
     }

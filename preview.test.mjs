@@ -70,16 +70,20 @@ async function environment(initialGroups = [], body = null, options = {}) {
   };
   runInNewContext(i18nSource, context);
   runInNewContext(manualSource, context);
-  if(options.realCollect){const describe=context.JevZhihu.describe;runInNewContext(blocksSource,context);context.JevZhihu.describe=describe;}
+  const mock=context.JevZhihu;
+  runInNewContext(blocksSource,context);
+  const realDescribe=context.JevZhihu.describe;
+  context.JevZhihu.describe=node=>({...mock.describe(node),text:realDescribe(node).text});
+  if(!options.realCollect)context.JevZhihu.collect=mock.collect;
   runInNewContext(previewSource, context);
   await settle();
   return {
     document, context, calls, stored,
-    get ui() {return document.querySelector('[data-jev-ui="preview"]')?.shadowRoot;},
-    get layer() {return document.querySelector('[data-jev-ui="selection-layer"]')?.shadowRoot;},
+    get ui() {return shadows.find(root=>root.host===document.querySelector('[data-jev-ui="preview"]'));},
+    get layer() {return shadows.find(root=>root.host===document.querySelector('[data-jev-ui="selection-layer"]'));},
     get suspended() {return suspended;}, get resumed() {return resumed;},
     async start() {await context.JevPreview.start(); await settle();},
-    async click(node) {const event = new window.Event('click', {bubbles:true, cancelable:true, composed:true}); node.dispatchEvent(event); await settle(); return event;},
+    async click(node, trusted=true) {const event = new window.Event('click', {bubbles:true, cancelable:true, composed:true}); Object.defineProperty(event,'isTrusted',{value:trusted}); node.dispatchEvent(event); await settle(); return event;},
     async action(action) {const response = await new Promise(resolve => listener({type:'pageAction', action}, {}, resolve)); await settle(); return response;},
     async notify(type,extra={}) {listener({type,...extra},{},()=>{});await settle();},
     async mutate(changes) {mutation(changes||[{type:'childList', target:document.querySelector('main')}]); const work = [...timers.values()]; timers.clear(); work.forEach(callback => callback()); await settle();}
@@ -87,7 +91,8 @@ async function environment(initialGroups = [], body = null, options = {}) {
 }
 
 const feedPage = '<html><body><main><article id="sports"><a href="/sports">Sports score</a></article><article id="ad">Sponsored cloud service</article><article id="technology">Technology news</article><aside id="promotion">Creator service</aside></main></body></html>';
-const selected = (env, id) => env.document.querySelector(`#${id}`).hasAttribute('data-jev-selected');
+const selected = (env, id) => env.context.JevPreview.isSelected(env.document.querySelector(`#${id}`));
+const selectedCount = env => env.context.JevPreview.selectedCount;
 const hidden = (env, id) => env.document.querySelector(`#${id}`).hasAttribute('data-jev-manual-hidden');
 const overlay = (env, index) => env.layer.querySelectorAll('button')[index];
 
@@ -125,7 +130,7 @@ test('ambiguous ordinary hide never expands to a category rule',async()=>{
  await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-split'));
  await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-hide'));
  assert.match(env.ui.querySelector('#status').textContent,/无法保存/);
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.equal(selectedCount(env),0);
  await env.click(env.ui.querySelector('#q-save'));
  assert.equal(env.calls.find(c=>c.type==='rulesSet').payload.rules.length,0);
  assert.equal(env.document.querySelectorAll('[data-jev-manual-hidden]').length,0);
@@ -311,7 +316,7 @@ test('page-only edits cancel cleanly and a subsequent normal operation replaces 
 test('ambiguous page-only hide never falls back to a shared category rule',async()=>{
  const env=await environment([], '<html><body><main><article>Sponsored one</article><article>Sponsored two</article></main></body></html>');
  await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#page-hide'));
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.equal(selectedCount(env),0);
  assert.match(env.ui.querySelector('#status').textContent,/无法保存/);
  await env.click(env.ui.querySelector('#save'));assert.equal(env.calls.find(c=>c.type==='rulesSet').payload.rules.length,0);
 });
@@ -326,8 +331,8 @@ test('hiding one child only on this page preserves shared parent keep alongside 
 test('expand and shrink selection, hide stable section with future children',async()=>{
  const env=await environment([], '<html><body><main><div id="column"><article id="one">One</article><article id="two">Two</article></div><aside id="other">Other</aside></main></body></html>');
  await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#larger'));
- assert.ok(env.document.querySelector('#column').hasAttribute('data-jev-focus'));
- await env.click(env.ui.querySelector('#smaller'));assert.ok(env.document.querySelector('#one').hasAttribute('data-jev-focus'));
+ assert.equal(env.context.JevPreview.focusedNode,env.document.querySelector('#column'));
+ await env.click(env.ui.querySelector('#smaller'));assert.equal(env.context.JevPreview.focusedNode,env.document.querySelector('#one'));
  await env.click(env.ui.querySelector('#larger'));await env.click(env.ui.querySelector('#hide-area'));
  await env.click(env.ui.querySelector('#save'));assert.equal(hidden(env,'column'),true);assert.equal(hidden(env,'other'),false);
  env.document.querySelector('#column').insertAdjacentHTML('beforeend','<article>New title</article>');await env.mutate();assert.equal(hidden(env,'column'),true);
@@ -339,8 +344,8 @@ test('quick toolbar resizes hides stamps and saves without exposing script text'
  await env.start();await env.click(overlay(env,0));
  assert.equal(env.ui.querySelector('#quick').hidden,false);
  assert.doesNotMatch(env.ui.querySelector('#quick-name').textContent,/adsbygoogle/);
- await env.click(env.ui.querySelector('#q-larger'));assert.ok(env.document.querySelector('#unit').hasAttribute('data-jev-focus'));
- await env.click(env.ui.querySelector('#q-smaller'));assert.ok(env.document.querySelector('#sample').hasAttribute('data-jev-focus'));
+ await env.click(env.ui.querySelector('#q-larger'));assert.equal(env.context.JevPreview.focusedNode,env.document.querySelector('#unit'));
+ await env.click(env.ui.querySelector('#q-smaller'));assert.equal(env.context.JevPreview.focusedNode,env.document.querySelector('#sample'));
  await env.click(env.ui.querySelector('#q-hide'));assert.equal(env.layer.querySelector('[data-mask]').textContent,'净化');
  await env.click(env.ui.querySelector('#q-save'));assert.equal(hidden(env,'sample'),true);assert.equal(env.ui,undefined);
  assert.doesNotMatch(env.calls.find(c=>c.type==='rulesSet').payload.rules[0].label,/adsbygoogle/);
@@ -466,14 +471,14 @@ test('ambiguous sibling adverts require explicit group confirmation and persist 
  const cards=env.document.querySelectorAll('.Pc-card');
  await env.click(cards[1]);await env.click(env.ui.querySelector('#q-hide'));
  assert.equal(env.ui.querySelector('#group-offer').hidden,false);
- assert.equal(env.document.querySelectorAll('[data-jev-group-offer]').length,2);
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.equal(env.context.JevPreview.groupOfferCount,2);
+ assert.equal(selectedCount(env),0);
  assert.match(env.ui.querySelector('#group-confirm').textContent,/2/);
  await env.click(env.ui.querySelector('#group-cancel'));
- assert.equal(env.document.querySelectorAll('[data-jev-group-offer]').length,0);
+ assert.equal(env.context.JevPreview.groupOfferCount,0);
  await env.click(env.ui.querySelector('#q-hide'));await env.click(env.ui.querySelector('#group-confirm'));
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,2);
- assert.equal(cards[0].hasAttribute('data-jev-selected'),false);
+ assert.equal(selectedCount(env),2);
+ assert.equal(env.context.JevPreview.isSelected(cards[0]),false);
  await env.click(env.ui.querySelector('#q-save'));
  const saved=env.calls.find(c=>c.type==='rulesSet');assert.equal(saved.payload.rules.length,1);
  assert.equal(env.calls.some(c=>c.type==='classifyCategories'||c.type==='splitBlock'),false);
@@ -482,26 +487,76 @@ test('ambiguous sibling adverts require explicit group confirmation and persist 
  assert.equal(reload.document.querySelector('.Pc-card').hasAttribute('data-jev-manual-hidden'),false);
 });
 
+test('preview keeps selection state private and does not mutate page marker attributes',async()=>{
+ const body='<html><body><main class="Topstory-container"><div class="Topstory-mainColumn"><div class="Pc-card Card" data-jev-candidate="page-candidate" data-jev-selected="page-selected" data-jev-focus="page-focus" data-jev-group-offer="page-offer-a"><a class="Banner-link"><div class="AdvertImg Banner-image"><img></div></a></div></div><div class="css-bkewaf"><div class="css-18888ld"><div class="Pc-card Card" data-jev-group-offer="page-offer-b"><a class="Banner-link"><div class="AdvertImg Banner-image"><img></div></a></div><section>Following</section><div class="Pc-card Card"><a class="Banner-link"><div class="AdvertImg Banner-image"><img></div></a></div></div></div></main></body></html>';
+ const env=await environment([],body);await env.start();
+ const [first,second,third]=env.document.querySelectorAll('.Pc-card');
+ assert.equal(env.context.JevPreview.isCandidate(first),true);
+ assert.equal(env.document.querySelectorAll('[data-jev-candidate]').length,1,'preview does not add shared candidate attributes');
+ await env.click(second);await env.click(env.ui.querySelector('#q-hide'));
+ assert.equal(env.ui.querySelector('#group-offer').hidden,false);
+ assert.equal(env.context.JevPreview.groupOfferCount,2);
+ const groupBorders=[...env.layer.querySelectorAll('button')].filter(button=>button.style.border.includes('#315fe9')).length,groupOutlines=env.layer.querySelectorAll('[data-state-outline="group"]').length;
+ assert.equal(groupBorders+groupOutlines,2,'group status is drawn entirely in the closed extension overlay');
+ assert.equal(env.context.JevPreview.focusedNode,second);
+ assert.equal(first.getAttribute('data-jev-candidate'),'page-candidate');
+ assert.equal(first.getAttribute('data-jev-selected'),'page-selected');
+ assert.equal(first.getAttribute('data-jev-focus'),'page-focus');
+ assert.equal(first.getAttribute('data-jev-group-offer'),'page-offer-a');
+ assert.equal(second.getAttribute('data-jev-group-offer'),'page-offer-b');
+ await env.click(env.ui.querySelector('#group-cancel'));
+ third.setAttribute('data-jev-candidate','page-modified');
+ await env.click(env.ui.querySelector('#cancel'));
+ assert.equal(first.getAttribute('data-jev-candidate'),'page-candidate');
+ assert.equal(first.getAttribute('data-jev-selected'),'page-selected');
+ assert.equal(first.getAttribute('data-jev-focus'),'page-focus');
+ assert.equal(first.getAttribute('data-jev-group-offer'),'page-offer-a');
+ assert.equal(second.getAttribute('data-jev-group-offer'),'page-offer-b');
+ assert.equal(third.getAttribute('data-jev-candidate'),'page-modified');
+});
+
+test('selection status styling stays in the registered extension overlay',async()=>{
+ const env=await environment([],feedPage,{experience:true});await env.start();
+ const candidate=overlay(env,0);
+ assert.match(candidate.style.border,/dashed/);
+ await env.click(candidate);
+ assert.match(candidate.style.border,/f59e0b/,'focus status is drawn inside the extension overlay');
+ await env.click(env.ui.querySelector('#q-hide'));
+ assert.match(candidate.style.border,/f59e0b/,'focused selected state retains focus priority in the overlay');
+ assert.equal(env.context.JevPreview.isCandidate(env.document.querySelector('#sports')),true);
+ assert.equal(env.context.JevPreview.isSelected(env.document.querySelector('#sports')),true);
+ assert.equal(env.context.JevPreview.focusedNode,env.document.querySelector('#sports'));
+ assert.equal(env.document.querySelector('#sports').hasAttribute('data-jev-candidate'),false);
+ assert.equal(env.document.querySelector('#sports').hasAttribute('data-jev-selected'),false);
+ assert.equal(env.document.querySelector('#sports').hasAttribute('data-jev-focus'),false);
+ await env.click(env.ui.querySelector('#cancel'));
+ assert.equal(env.document.querySelector('#sports').hasAttribute('data-jev-candidate'),false);
+ assert.equal(env.document.querySelector('#sports').hasAttribute('data-jev-selected'),false);
+ assert.equal(env.document.querySelector('#sports').hasAttribute('data-jev-focus'),false);
+ const saved=await environment([{key:'https://example.com|site',rules:[{selector:'#sports',label:'Sports',action:'hide'}]}],feedPage,{experience:true});await saved.start();
+ assert.match(overlay(saved,0).style.border,/solid #64748b/,'saved selection status is drawn inside the extension overlay');
+});
+
 test('group confirmation refreshes its offer after matching siblings change',async()=>{
  const env=await environment([], '<html><body><aside id="rail"><div class="Pc-card Card"><a class="Banner-link"><img></a></div><div class="Pc-card Card"><a class="Banner-link"><img></a></div></aside></body></html>');
  await env.start();await env.click(overlay(env,1));await env.click(env.ui.querySelector('#q-hide'));
- const clone=env.document.querySelector('.Pc-card').cloneNode(true);clone.removeAttribute('data-jev-focus');clone.removeAttribute('data-jev-group-offer');env.document.querySelector('aside').append(clone);
+ const clone=env.document.querySelector('.Pc-card').cloneNode(true);env.document.querySelector('aside').append(clone);
  await env.click(env.ui.querySelector('#group-confirm'));
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.equal(selectedCount(env),0);
  assert.match(env.ui.querySelector('#group-confirm').textContent,/3/);
  await env.click(env.ui.querySelector('#cancel'));
- assert.equal(env.document.querySelectorAll('[data-jev-group-offer]').length,0);
+ assert.equal(env.context.JevPreview.groupOfferCount,0);
  assert.equal(env.calls.some(c=>c.type==='rulesSet'),false);
 });
 
 test('confirmed group hiding can be restored with the same explicit group confirmation',async()=>{
  const env=await environment([], '<html><body><main><div class="Pc-card Card"><a class="Banner-link"><img></a></div><div class="Pc-card Card"><a class="Banner-link"><img></a></div></main></body></html>');
  await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-hide'));await env.click(env.ui.querySelector('#group-confirm'));
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,2);
+ assert.equal(selectedCount(env),2);
  await env.click(env.ui.querySelector('#q-keep'));
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,2);
+ assert.equal(selectedCount(env),2);
  await env.click(env.ui.querySelector('#group-confirm'));
- assert.equal(env.document.querySelectorAll('[data-jev-selected]').length,0);
+ assert.equal(selectedCount(env),0);
  await env.click(env.ui.querySelector('#q-save'));
  assert.equal(env.document.querySelectorAll('[data-jev-manual-hidden]').length,0);
 });
@@ -531,4 +586,43 @@ test('AI outlet protects every explicit rule and waits for reveal while leaving 
  await env.start();assert.equal(outlet.aiReady,false);
  await env.click(env.ui.querySelector('#cancel'));assert.equal(outlet.aiReady,true);
  await env.action('toggleVisibility');assert.equal(outlet.aiReady,false);
+});
+
+
+test('closed selection UI rejects untrusted selection, mutation, save and split events',async()=>{
+ const env=await environment([], '<html><body><main><article id="whole"><div id="first">First</div><div id="second">Second</div></article></main></body></html>');
+ await env.start();
+ assert.equal(env.document.querySelector('[data-jev-ui="preview"]').shadowRoot,null);
+ assert.equal(env.document.querySelector('[data-jev-ui="selection-layer"]').shadowRoot,null);
+ await env.click(env.document.querySelector('#whole'),false);
+ await env.click(overlay(env,0),false);
+ assert.equal(env.context.JevPreview.focusedNode,null);
+ await env.click(overlay(env,0));
+ for(const id of ['q-hide','hide-area','q-split','q-save','save'])await env.click(env.ui.querySelector('#'+id),false);
+ assert.equal(selected(env,'whole'),false);
+ assert.equal(env.calls.some(c=>['rulesSet','splitBlock'].includes(c.type)),false);
+ await env.click(env.ui.querySelector('#q-hide'));
+ assert.equal(selected(env,'whole'),true);
+ await env.click(env.ui.querySelector('#q-save'));
+ assert.equal(env.calls.filter(c=>c.type==='rulesSet').length,1);
+});
+
+test('page-forged UI marker cannot suppress selection clicks or block expansion',async()=>{
+ const env=await environment([], '<html><body><main id="outer"><article id="whole" data-jev-ui>Page-owned label <span data-jev-ui>Visible text</span></article></main></body></html>');
+ await env.start();
+ const event=await env.click(env.document.querySelector('#whole'));
+ assert.equal(event.defaultPrevented,true,'page marker does not make a real page click look extension-owned');
+ assert.equal(env.context.JevPreview.focusedNode.id,'whole');
+ await env.click(env.ui.querySelector('#larger'));
+ assert.equal(env.context.JevPreview.focusedNode.id,'outer','page marker does not block larger-area selection');
+});
+
+test('partial two-of-three split keeps parent intact and saves no rejected partition',async()=>{
+ const env=await environment([], '<html><body><main><article id="whole"><div id="one">A</div><div id="two">B</div><div id="three">C</div></article></main></body></html>',{split:()=>({ok:true,data:{ids:['part-0','part-1']}})});
+ await env.start();await env.click(overlay(env,0));await env.click(env.ui.querySelector('#q-split'));
+ assert.equal(env.layer.querySelectorAll('button').length,1);
+ assert.equal(env.context.JevPreview.focusedNode.id,'whole');
+ await env.click(env.ui.querySelector('#q-save'));
+ const saved=env.calls.find(c=>c.type==='rulesSet').payload;
+ assert.equal(saved.partitions.length,0);assert.equal(saved.learnSplit,false);
 });

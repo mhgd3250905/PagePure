@@ -1,6 +1,6 @@
 (() => {
   const {t} = globalThis.PagePureI18n;
-  const {collect, describe} = globalThis.JevZhihu;
+  const {collect, describe, setHidden} = globalThis.JevZhihu;
   let config = {enabled: false, configured: false};
   let generation = 0, serial = 0, timer, active = false, dirty = false, lastError = '', paused = false;
   const records = new Map();
@@ -8,7 +8,11 @@
   let pageUrl = currentPage();
   async function message(type, payload) {
     const response = await chrome.runtime.sendMessage({type, payload});
-    if (!response?.ok) throw new Error(response?.error || globalThis.PagePureI18n.t('contentNoHelper'));
+    if (!response?.ok) {
+      const error = new Error(response?.error || globalThis.PagePureI18n.t('contentNoHelper'));
+      if (response?.code) error.code = response.code;
+      throw error;
+    }
     return response.data;
   }
   function report() {
@@ -19,7 +23,7 @@
     }).catch(() => {});
   }
   function restore() {
-    for (const node of records.keys()) node.removeAttribute('data-jev-zhihu-hidden');
+    for (const node of records.keys()) setHidden(node, 'data-jev-zhihu-hidden', false);
     records.clear();
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(scan, 250); }
@@ -31,7 +35,7 @@
   const allows = node => node.isConnected && (globalThis.JevPreview?.aiAllows?.(node) ?? true);
   function clearProtected() {
     for (const [node] of records) {
-      if (!allows(node)) { node.removeAttribute('data-jev-zhihu-hidden'); records.delete(node); }
+      if (!allows(node)) { setHidden(node, 'data-jev-zhihu-hidden', false); records.delete(node); }
     }
   }
   function scan() {
@@ -41,14 +45,14 @@
     const nodes = new Set(collect(document).filter(allows));
     for (const [node] of records) {
       if (!node.isConnected || !nodes.has(node)) {
-        node.removeAttribute('data-jev-zhihu-hidden'); records.delete(node);
+        setHidden(node, 'data-jev-zhihu-hidden', false); records.delete(node);
       }
     }
     for (const node of nodes) {
       const data = describe(node), signature = JSON.stringify(data);
       const old = records.get(node);
       if (old?.signature === signature) continue;
-      node.removeAttribute('data-jev-zhihu-hidden');
+      setHidden(node, 'data-jev-zhihu-hidden', false);
       records.set(node, {node, signature, data, id: String(++serial), state: 'pending'});
     }
     dirty = true;
@@ -73,19 +77,24 @@
           for (const record of batch) {
             if (records.get(record.node) !== record) continue;
             if (!ready() || !allows(record.node) || JSON.stringify(describe(record.node)) !== record.signature) {
-              record.node.removeAttribute('data-jev-zhihu-hidden');
+              setHidden(record.node, 'data-jev-zhihu-hidden', false);
               records.delete(record.node);
               schedule();
               continue;
             }
             const result = results.get(record.id);
             record.state = result ? 'done' : 'error';
-            if (result?.hide === true && record.node.isConnected) record.node.setAttribute('data-jev-zhihu-hidden', '');
+            if (result?.hide === true && record.node.isConnected) setHidden(record.node, 'data-jev-zhihu-hidden', true);
           }
           lastError = answer.errors?.[0]?.error || '';
           if (answer.errors?.length) { paused = true; break; }
         } catch (error) {
           if (version !== generation || pageUrl !== currentPage()) continue;
+          if (error.code === 'canceled') {
+            batch.forEach(record => {if(records.get(record.node)===record)record.state='pending';});
+            dirty = true;
+            break;
+          }
           batch.forEach(r => { r.state = 'error'; });
           lastError = error.message;
           paused = true;

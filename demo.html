@@ -29,11 +29,11 @@ window.JevPage={suspend(){},resume(){}};
 const demoLangs=['zh_CN','zh_TW','en','ja','ko','es','pt_BR','ru','de','fr','it','tr'];const requested=new URLSearchParams(location.search).get('lang');const demoLang=demoLangs.includes(requested)?requested:'zh_CN';
 let demoMessages={};
 window.chrome.i18n={getMessage(key){const entry=demoMessages[key];return entry?entry.message:'';},getUILanguage(){return demoLang.replace('_','-');}};
-const demoReady=fetch('extension/_locales/'+demoLang+'/messages.json').then(r=>{if(!r.ok)throw 0;return r.json();}).then(data=>{demoMessages=data;}).catch(()=>{});
+const demoReady=fetch('extension/_locales/'+demoLang+'/messages.json').then(r=>{if(!r.ok)throw 0;return r.json();}).then(data=>{demoMessages=data;});
 window.addEventListener('DOMContentLoaded',()=>{
   const start=document.querySelector('#start');if(!start)return;
   start.disabled=true;
-  demoReady.then(()=>{start.disabled=false;start.textContent=window.chrome.i18n.getMessage('popupPreviewButton');}).catch(()=>{start.textContent='语言资源加载失败，请通过本地 HTTP 服务器打开演示页。';});
+  demoReady.then(()=>{start.disabled=false;start.textContent=window.chrome.i18n.getMessage('popupPreviewButton');}).catch(()=>{start.disabled=true;start.textContent='语言资源加载失败，请通过本地 HTTP 服务器打开演示页。';});
 });
 </script><script src="extension/i18n.js"></script><script src="extension/blocks.js"></script><script src="extension/manual.js"></script><script src="extension/preview.js"></script><script>
 document.querySelector('#start').onclick=()=>JevPreview.start();

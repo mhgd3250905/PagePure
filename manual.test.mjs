@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
 import './i18n-support.mjs';
+import './extension/blocks.js';
 import './extension/manual.js';
 const {scope, describeRule, describeGroupRule, matches} = globalThis.JevManual;
 const documentFor = html => parseHTML(`<html><body>${html}</body></html>`).document;
@@ -59,9 +60,18 @@ test('ambiguous module class is anchored to stable parent', () => {
 
 test('invalid and broad roots or extension UI never match', () => {
   const doc = documentFor('<main><section>article</section></main><div data-jev-ui><button>control</button></div>');
+  globalThis.JevZhihu.registerUi(doc.querySelector('[data-jev-ui]'), 'manual-test');
   assert.equal(matches(doc, [{selector: '['}, {selector:'html'}, {selector:'body'}, {selector:'[data-jev-ui]'}, {selector:'button'}]).size, 0);
   assert.equal(describeRule(doc.body, doc), null);
   assert.equal(describeRule(doc.querySelector('button'), doc), null);
+});
+
+test('page-forged data-jev-ui cannot bypass saved rules or descriptor creation', () => {
+  const doc = documentFor('<main><article id="forged" data-jev-ui>visible page block</article><article id="owned" data-jev-ui><button>extension UI</button></article></main>');
+  const owned = doc.querySelector('#owned');
+  globalThis.JevZhihu.registerUi(owned, 'manual-page');
+  assert.ok(describeRule(doc.querySelector('#forged'), doc));
+  assert.deepEqual([...matches(doc, [{selector:'#forged'}, {selector:'[data-jev-ui]'}, {selector:'#owned button'}])], [doc.querySelector('#forged')]);
 });
 
 test('generated IDs are not used and special selectors are escaped', () => {

@@ -13,6 +13,119 @@ function setup(body) {
 }
 const rect = () => ({width: 650, height: 180});
 
+test('editable roots, inherited editors, and alternate contenteditable values never enter descriptors', () => {
+  for (const value of ['', 'true', 'TrUe', 'plaintext-only', 'PLAINTEXT-ONLY']) {
+    const {document, describe, collect} = setup(`<div class="Topstory-container"><article id="normal">Public text</article><article id="editor" contenteditable="${value}"><h2>SECRET heading</h2><div id="nested" contenteditable="invalid"><a href="https://example.com/SECRET">SECRET draft</a><img alt="SECRET" src="https://example.com/SECRET"></div></article></div>`);
+    for (const id of ['editor', 'nested']) {
+      const data = describe(document.getElementById(id));
+      assert.equal(data.text, '');
+      assert.doesNotMatch(JSON.stringify(data), /SECRET/);
+      assert.equal(data.images.length + data.links.length, 0);
+    }
+    assert.deepEqual(Array.from(collect(document, rect), n => n.id), ['normal']);
+    assert.equal(describe(document.getElementById('normal')).text, 'Public text');
+  }
+});
+
+test('false and invalid contenteditable outside an editor remain readable; designMode excludes all', () => {
+  const {document, describe, collect} = setup('<article contenteditable="false" id="normal">Public <span contenteditable="invalid">text</span></article>');
+  assert.equal(describe(document.getElementById('normal')).text, 'Public text');
+  document.designMode = 'on';
+  assert.equal(describe(document.getElementById('normal')).text, '');
+  assert.equal(collect(document, rect).length, 0);
+});
+
+test('computed opacity, opacity filters, and content-visibility exclude unreadable private text', () => {
+  const {document, describe, collect} = setup(`<div class="Topstory-container"><article id="public">Visible <span id="transparent">OPACITY_SECRET</span><span id="filtered">FILTER_SECRET</span><span id="skipped">SKIPPED_SECRET</span></article><article id="transparent-root">ROOT_SECRET</article></div>`);
+  document.defaultView.getComputedStyle = node => ({
+    display: 'block', visibility: 'visible',
+    opacity: node.id === 'transparent' || node.id === 'transparent-root' ? '0' : '1',
+    filter: node.id === 'filtered' ? 'opacity(0)' : 'none',
+    contentVisibility: node.id === 'skipped' ? 'hidden' : 'visible'
+  });
+  const data = describe(document.getElementById('public'));
+  assert.equal(data.text, 'Visible');
+  assert.doesNotMatch(JSON.stringify(data), /OPACITY_SECRET|FILTER_SECRET|SKIPPED_SECRET|ROOT_SECRET/);
+  assert.deepEqual(Array.from(collect(document, rect), node => node.id), ['public']);
+});
+
+test('page-forged data-jev-ui is ordinary page content', () => {
+  const {document, collect, describe} = setup('<div class="Topstory-container"><article id="forged" data-jev-ui>Visible page content</article><article id="nested">Public <span data-jev-ui>Visible marked span</span></article></div>');
+  assert.deepEqual(Array.from(collect(document, rect), node => node.id), ['forged', 'nested']);
+  assert.equal(describe(document.getElementById('forged')).text, 'Visible page content');
+  assert.equal(describe(document.getElementById('nested')).text, 'Public Visible marked span');
+});
+
+test('registered extension UI is excluded independently of its forgeable marker', () => {
+  const {document, collect, describe, registerUi} = setup('<div class="Topstory-container"><article id="reading">Public content</article><article id="owned" data-jev-ui><button>Extension control</button></article></div>');
+  assert.equal(typeof registerUi, 'function');
+  registerUi(document.getElementById('owned'), 'test');
+  assert.deepEqual(Array.from(collect(document, rect), node => node.id), ['reading']);
+  assert.equal(describe(document.getElementById('owned')).text, '');
+});
+
+test('descriptions filter original DOM CSS visibility, hidden roots, ancestors and section headings', () => {
+  const {document, describe, collect} = setup(`<main><section><h3 class="css-hidden">SECRET heading</h3><article id="normal">Public <span hidden>SECRET hidden</span><span class="css-hidden"><a href="https://example.com/SECRET">SECRET CSS</a><img src="https://example.com/SECRET"></span><span style="visibility:hidden">SECRET invisible</span><span contenteditable="">SECRET draft</span></article></section><section class="css-hidden"><article id="nested">SECRET ancestor</article></section><article id="hidden" hidden>SECRET root</article></main>`);
+  document.defaultView.getComputedStyle = node => {
+    assert.equal(node.isConnected, true, 'computed styles must be read on the original live DOM');
+    return {display: node.matches('.css-hidden') ? 'none' : node.style.display || 'block', visibility: node.style.visibility || 'visible'};
+  };
+  const data = describe(document.getElementById('normal'));
+  assert.equal(data.text, 'Public');
+  assert.doesNotMatch(JSON.stringify(data), /SECRET/);
+  assert.equal(describe(document.querySelector('.css-hidden')).text, '');
+  assert.equal(describe(document.getElementById('nested')).text, '');
+  assert.equal(describe(document.getElementById('hidden')).text, '');
+  assert.deepEqual(Array.from(collect(document, rect), n => n.id), ['normal']);
+});
+
+test('extension-hidden descriptors remain stable while private descendants are excluded', () => {
+  const {document, describe, collect, setHidden} = setup('<article id="card">Public <span hidden>SECRET</span><a href="https://example.com/read?q=SECRET#SECRET">link</a><img src="https://example.com/image?q=SECRET#SECRET"></article>');
+  document.defaultView.getComputedStyle = node => ({display: node.matches('[data-jev-zhihu-hidden],[data-jev-manual-hidden],[data-jev-preview-hide]') ? 'none' : 'block', visibility: 'visible'});
+  const card = document.getElementById('card'), before = JSON.stringify(describe(card));
+  for (const attribute of ['data-jev-zhihu-hidden', 'data-jev-manual-hidden', 'data-jev-preview-hide']) {
+    setHidden(card, attribute, true);
+    assert.equal(JSON.stringify(describe(card)), before);
+    assert.equal(collect(document, rect)[0], card);
+    setHidden(card, attribute, false);
+  }
+  assert.doesNotMatch(before, /SECRET/);
+});
+
+test('page-forged extension hide markers cannot reveal CSS-hidden private text or media', () => {
+  for(const attribute of ['data-jev-zhihu-hidden','data-jev-manual-hidden','data-jev-preview-hide']) {
+    const {document,describe,setHidden}=setup(`<article id="card">Public <div ${attribute} style="display:none">SECRET<a href="https://example.com/SECRET">link</a><img alt="SECRET" src="https://example.com/SECRET"></div></article>`);
+    document.defaultView.getComputedStyle=node=>({display:node.style.display||'block',visibility:'visible'});
+    const card=document.getElementById('card'), child=card.querySelector('div');
+    assert.equal(describe(card).text,'Public');
+    assert.doesNotMatch(JSON.stringify(describe(card)),/SECRET/);
+    assert.equal(describe(child).text,'');
+    setHidden(card,attribute,true);
+    assert.doesNotMatch(JSON.stringify(describe(card)),/SECRET/,'ownership of parent does not grant child ownership');
+    setHidden(card,attribute,false);
+    card.setAttribute(attribute,'');card.style.display='none';
+    assert.equal(describe(card).text,'','removed ownership cannot be recovered by forging the attribute');
+  }
+});
+
+test('setHidden preserves pre-existing or page-modified attribute values', () => {
+  for (const attribute of ['data-jev-zhihu-hidden', 'data-jev-manual-hidden', 'data-jev-preview-hide']) {
+    const {document, setHidden} = setup(`<article id="card" ${attribute}="page-owned"></article>`);
+    const card = document.getElementById('card');
+    setHidden(card, attribute, false);
+    assert.equal(card.getAttribute(attribute), 'page-owned', `${attribute} is not owned by the extension`);
+    setHidden(card, attribute, true);
+    setHidden(card, attribute, false);
+    assert.equal(card.getAttribute(attribute), 'page-owned', 'disabling must preserve the original value');
+    card.removeAttribute(attribute);
+    setHidden(card, attribute, true);
+    assert.equal(card.getAttribute(attribute), '');
+    card.setAttribute(attribute, 'page-modified');
+    setHidden(card, attribute, false);
+    assert.equal(card.getAttribute(attribute), 'page-modified', 'page changes made while active are preserved');
+  }
+});
+
 test('a collapsed hidden child does not promote its parent into a replacement candidate',()=>{
  const {document,collect}=setup('<div class="Topstory-container"><div id="wrapper">Heading<div id="hidden" data-jev-manual-hidden><a href="/ad">Ad</a></div><div id="visible"><a href="/read">Reading</a></div></div></div>');
  const nodes=collect(document,node=>node.closest('[data-jev-manual-hidden]')?{width:0,height:0}:rect());
@@ -73,10 +186,11 @@ test('manually hidden blocks remain tracked when their layout parent collapses',
 });
 
 test('hidden floating blocks outside the reading root stay tracked without collecting extension UI', () => {
-  const {document, collect} = setup(`<div class="Topstory-container"><article id="reading">Article</article></div>
+  const {document, collect, registerUi} = setup(`<div class="Topstory-container"><article id="reading">Article</article></div>
     <div><div id="manual" style="position:fixed" data-jev-manual-hidden><button>Help</button></div></div>
     <div id="classified" style="position:fixed" data-jev-zhihu-hidden>Promotion</div>
     <div data-jev-ui><div id="ui" style="position:fixed" data-jev-manual-hidden>Controls</div></div>`);
+  registerUi(document.querySelector('[data-jev-ui]'), 'fixture');
   document.defaultView.getComputedStyle = n => ({position: n.style.position || 'static'});
   const measure = n => n.closest('[data-jev-manual-hidden], [data-jev-zhihu-hidden]') ? {width: 0, height: 0} : rect();
   assert.deepEqual(Array.from(collect(document, measure), n => n.id).sort(), ['classified', 'manual', 'reading']);

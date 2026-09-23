@@ -84,7 +84,7 @@
     "message": "データとプライバシー"
   },
   "popupPrivacyNote": {
-    "message": "AI 判定では、要素のテキスト・画像の説明・リンクのパスを TypeSafe Jev に送信します。DOM 全体や Cookie は送信しません。手動選択に AI は不要で、ルールはこの端末に保存されます。"
+    "message": "AI 判定では、要素のテキスト・画像の説明とパス・構造や埋め込みメディアのヒント・リンクのパスを TypeSafe Jev に送信します。DOM 全体や Cookie は送信しません。手動選択に AI は不要で、ルールはこの端末に保存されます。"
   },
   "popupStatusLoading": {
     "message": "設定を読み込み中…"

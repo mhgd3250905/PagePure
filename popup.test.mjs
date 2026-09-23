@@ -8,23 +8,52 @@ import {i18nSource, i18nChrome} from './i18n-support.mjs';
 const source = readFileSync(new URL('./extension/popup.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('./extension/popup.html', import.meta.url), 'utf8');
 const settle = async () => {for(let i=0;i<20;i++)await Promise.resolve();};
-async function environment(send) {
-  const {document,window}=parseHTML(html), timers=new Map();let id=0;
-  const context = {document,window,URL,URLSearchParams,location:{search:'?embedded=1'},
+async function environment(send, options = {}) {
+  const {document,window}=parseHTML(options.settings ? readFileSync(new URL('./extension/settings.html', import.meta.url), 'utf8') : html), timers=new Map();let id=0, closes=0;
+  window.close=()=>{closes++;};
+  const context = {document,window,URL,URLSearchParams,location:{search:options.search ?? '?embedded=1',pathname:options.settings?'/settings.html':'/popup.html'},
     setTimeout(callback,delay){timers.set(++id,{callback,delay});return id;},clearTimeout(id){timers.delete(id);},
     chrome:{...i18nChrome,runtime:{sendMessage:message=>message.type==='i18nGet'?Promise.resolve({ok:true,data:{}}):send(message)}}};
   runInNewContext(i18nSource, context);
   runInNewContext(source, context);
   await settle();
-  return {document,timers,async expire(delay){const work=[...timers].filter(([,v])=>v.delay===delay);for(const [id,v] of work){timers.delete(id);v.callback();}await settle();}};
+  return {document,timers,get closes(){return closes;},async expire(delay){const work=[...timers].filter(([,v])=>v.delay===delay);for(const [id,v] of work){timers.delete(id);v.callback();}await settle();}};
 }
-const config={ok:true,data:{enabled:true,aiEnabled:false,configured:false,context:'',origin:'https://example.com'}};
+const config={ok:true,data:{limited:false,enabled:true,aiEnabled:false,configured:false,context:'',origin:'https://example.com'}};
 
 test('fresh install opens manual controls without an AI key',async()=>{
   const env=await environment(async message=>message.type==='configGet'?config:{ok:true,data:{}});
   assert.equal(env.document.querySelector('#controls').disabled,false);
   assert.equal(env.document.querySelector('#keyState').textContent,'未配置');
   assert.equal(env.document.querySelector('#reconnect').hidden,true);
+});
+
+test('limited authority hides writes even without an embedded query and cannot dispatch hidden controls',async()=>{
+ const requests=[];
+ const env=await environment(async msg=>{requests.push(msg);return msg.type==='configGet'?{ok:true,data:{...config.data,limited:true}}:{ok:true,data:{}};},{search:''});
+ assert.equal(env.document.querySelector('label[for="enabled"]').hidden,true);
+ assert.equal(env.document.querySelector('.advanced').hidden,true);
+ env.document.querySelector('#enabled').dispatchEvent(new env.document.defaultView.Event('change'));
+ env.document.querySelector('#settings').dispatchEvent(new env.document.defaultView.Event('submit',{cancelable:true}));
+ for(const id of ['clearKey','retry','clearRules'])env.document.getElementById(id).click();
+ await settle();
+ assert.equal(requests.some(msg=>['configSet','keyClear','retry','pageAction'].includes(msg.type)),false);
+ env.document.querySelector('#manageRules').click();await settle();
+ assert.equal(requests.at(-1).type,'settingsOpen');
+});
+
+test('trusted settings preserve full controls and stay open after selecting the original page',async()=>{
+ const requests=[];
+ const send=async msg=>{requests.push(msg);return msg.type==='configGet'?config:{ok:true,data:{}};};
+ const env=await environment(send,{settings:true,search:'?tabId=42'});
+ assert.equal(env.document.querySelector('.advanced').hidden,false);
+ assert.equal(env.document.querySelector('label[for="enabled"]').hidden,false);
+ env.document.querySelector('#preview').click();await settle();
+ assert.equal(requests.at(-1).payload.action,'preview');
+ assert.equal(env.closes,0);
+ const toolbar=await environment(send,{search:''});
+ toolbar.document.querySelector('#preview').click();await settle();
+ assert.equal(toolbar.closes,1);
 });
 
 test('stalled initialization times out and can reconnect without accepting a late stale result',async()=>{

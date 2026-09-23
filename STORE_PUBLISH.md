@@ -1,20 +1,22 @@
-# 网页净化助手 PagePure 商店发布指南（Edge Add-ons）
+﻿# 网页净化助手 PagePure 商店发布指南（Edge Add-ons）
 
 ## GitHub 下载（当前公开分发）
 
-仓库：<https://github.com/mhgd3250905/PagePure>。2026-09-21 已推送源码，并发布 [0.6.32 安装包](https://github.com/mhgd3250905/PagePure/releases/tag/v0.6.32)。README 提供无需开发工具的安装步骤。GitHub 分发与下方商店审核相互独立。
+仓库：<https://github.com/mhgd3250905/PagePure>。台账最后记录的 GitHub Release 是 [v0.7.5](https://github.com/mhgd3250905/PagePure/releases/tag/v0.7.5)，已发布安装包 SHA-256 为 `062729f66ba68e18b384f2fb109e73d957385b8e6a0311062f8d273059acdbA0`。2026-09-23 的审查修复已打包为 0.7.6 并提交 Chrome/Edge 商店（Chrome 当天过审上架、Edge 审核中，见下方台账），但 **GitHub Release 尚未发布**，v0.7.5 仍是 GitHub 当前公开安装包。GitHub 分发与商店审核相互独立。
 
 ## 发布状态台账
 
 | 市场 | 状态 | 日期 | 说明 |
 | --- | --- | --- | --- |
-| Edge Add-ons | ✅ 已发布（Live） | 2026-09-21 | **v0.6.32** 当天过审上架；商店链接 https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen |
-| Edge Add-ons | 🕐 正在审阅（In review） | 2026-09-21 | **v0.7.5** 当天提审（包 `PagePure-0.7.5.zip`，38 文件，SHA-256 062729f6…dba0），微软口径 7 个工作日反馈 |
-| Chrome Web Store | ⏳ 未计划 | — | 全站 host_permissions + 广告屏蔽类功能在 Chrome 审核更严，暂不提交 |
+| Edge Add-ons | ✅ 已发布（Live，最后观察） | 2026-09-23 | **v0.7.5** 已过审上架（Partner Center 扩展概述当日显示“版本 0.7.5 — Live”）；商店链接 https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen |
+| Edge Add-ons | 🕐 正在审阅（In review，最后观察） | 2026-09-23 | **v0.7.6** 当天提审（包 `PagePure-0.7.6.zip`，39 文件，190,414 字节，SHA-256 `47efcbfb…e0c3d5`；与 Chrome 候选包同一份，逐字节一致）；权限与 0.7.5 相同；一览沿用英语/中文(台湾)/中文(中国) 3 套，包内新识别的其余 9 语言一览已移除；认证说明沿用历史口径并追加 0.7.6 变化；后台显示“正在审阅”，微软口径约 7 个工作日 |
+| Chrome Web Store | ✅ 已上架（Live，用户确认） | 2026-09-23 | **v0.7.6** 审核通过并公开发布（用户当日确认）；详情页需登录会话才可稳定访问，公开搜索暂未返回结果；商品 ID `hfadgbminekfilodfjdpbllimaemlhdb`；公开商品 URL 待回填 |
 
 **Edge 更新流程经验（2026-09-21 实测）**：扩展处于“正在审阅”时无法发布更新（会提示“你的扩展正在审核中”）。若旧提交尚未发布过，可走「扩展概述 → 取消提交」（取消需 5–10 分钟生效），随后草稿上会出现「发布」按钮，补填认证说明后即可送审。
 
 **发布账号（Edge）**：复用 Jev 邮件助手已注册的 Microsoft 个人账户 `sk18101652104@outlook.com`；开发者发布者名 `Bboyugk`（中国区 / Individual）。Partner Center：https://partner.microsoft.com/dashboard/microsoftedge/overview 。同一账号可发布多个扩展，无需重新注册。
+
+本地隐私政策 `assets/store/privacy-policy.md` 于 2026-09-23 更新，补充用户自定义阅读需求、Bearer API Key、TypeSafe 服务处理/遥测边界及 CWS Limited Use 明确声明；公开 Gist 已于 2026-09-23 10:55:33Z 更新，7,961 字节并经原始 URL 与本地文件逐字核对一致。文案已将普通分类与智能拆分发送字段区分。中文视频由真实 `demo.html` 手动交互状态截图制作，标注为非 AI 演示，已上传 YouTube 并设为“不公开列出”：<https://youtu.be/SnaORhEHRTQ>。2026-09-23 CWS 后台草稿已上传 v0.7.6 包并保存详情及隐私声明；免费／公开／所有地区已选中；账号已选“非交易者”。该草稿已提交审核，提交时已选择审核通过后自动发布；当前后台显示待审核，全站主机权限可能触发深入审核并延迟发布时间。版本化商店文案下列内容仍是提交材料快照，不应当作当前商店页面的已核验文本。
 
 **首次提审信息快照（Edge v0.6.24，2026-09-20，已于 09-21 取消送审；账号/ID 类信息仍有效）**：
 - 类别：高效工作（Productivity）；可见性：公用（Public）；语言：English (United States)
@@ -25,9 +27,19 @@
 - 数据披露：勾选 Website content（网站内容）；三项证明全部勾选；权限理由与远程代码声明见第三节
 - 认证说明：已说明手动功能免密钥可用、BYOK 模式及逐按钮测试步骤（存于提交记录）
 - Microsoft Store ID：`0RDCKDS5H0H3`；CRX ID：`ijiaoneehjiebocilhnbmkoohlleaeen`；产品 ID：`647794d8-17b4-4ca3-954f-ecd211d3b985`
-- 审核通过后待办：把商店链接回填本文档台账和 README.md
+- 历史待办已完成：商店链接后来于 2026-09-21 回填到本台账与 README；0.6.24 提交随后取消，账号与产品 ID 记录仅保留为历史参考。
 
 **发布经验来源**：`E:\AII-Jev\0919\STORE_PUBLISH.md`（Jev 邮件助手已于 2026-09-20 用同一账号成功提审）。
+
+## 0.7.6 商店更新（2026-09-23 Edge 提审）
+
+0.7.5 过审 Live 后，当天直接走扩展概述「更新」流程提审 0.7.6（无需取消旧审，本次也未复发 0.7.5 的一览卡校验问题）。提交内容：
+
+- 程序包：`PagePure-0.7.6.zip`（与 `PagePure-0.7.6-chrome-candidate.zip` 为同一份 zip 的副本，39 文件、根目录即 manifest、190,414 字节，SHA-256 `47efcbfb489ebeb50cf443541b50a34510c51ec7191c6823dfc273f331e0c3d5`；权限与 0.7.5 完全相同）
+- 商店一览：上传新包后系统按包内 12 种语言重新生成一览行，英语/中文(台湾)/中文(中国) 3 套沿用 0.7.5 已完成文案，其余 9 种未完成语言一览已逐个移除（继续“待母语者抽查翻译后再加”口径）
+- 认证说明（每次提交必填）：沿用 0.6.32 文案并追加 0.7.6 变化说明（仅内部安全加固：内容脚本隔离与消息处理收紧、撤销/取消传播修复、删除两条无用 CSS；新增从弹窗打开的独立设置页；无新增权限）
+- 可用性/属性/隐私步骤全部沿用（公用、241 市场、高效工作、隐私政策 Gist、Website content 披露、三项证明）
+- 提审结果邮件发 sk18101652104@outlook.com；过审后 0.7.5 → 0.7.6 自动替换上架
 
 ## 0.7.5 商店更新（2026-09-21 提审）
 
@@ -45,7 +57,7 @@
 
 ## 0.7.0 本地更新（已并入 0.7.1）
 
-国际化：12 种界面语言（zh_CN 默认、zh_TW、en、ja、ko、es、pt_BR、ru、de、fr、it、tr），跟随浏览器语言，规则管理页设置视图可手动覆盖；中文文案逐字不变；详见 MILESTONE.md。交付物已并入 `PagePure-0.7.1.zip`。Edge 商店当前 0.6.32 审核中；0.7.1 待过审后按“后续版本更新”流程提交，届时商店描述可补充 "Follows your browser language."，并可为各语言添加商店一览。
+国际化：12 种界面语言（zh_CN 默认、zh_TW、en、ja、ko、es、pt_BR、ru、de、fr、it、tr），跟随浏览器语言，规则管理页设置视图可手动覆盖；中文文案逐字不变；详见 MILESTONE.md。交付物已并入 `PagePure-0.7.1.zip`。**当时状态快照（2026-09-21，已被后续提交取代）**：当时记录 Edge 0.6.32 审核中、0.7.1 待过审后提交；后续流程以本页顶部台账为准。
 
 ## 0.6.32 商店提交（2026-09-21）
 
@@ -56,7 +68,7 @@
 - 截图：`assets/store/screenshot-select.png`、`screenshot-clean.png` 已用 0.6.32 界面重新生成（1280×800，取自更新后的 demo.html“区域净化”演示页：选区高亮+净化盖章+快捷工具条 / 保存后广告消失）
 - 商店 logo、隐私政策 URL、支持邮箱、类别（高效工作）、市场（241）、可用性（公用）沿用原提交
 - 认证说明（每次提交必填）：Manual region selection and all rule features work fully offline, with no account and no API key required. The optional AI splitting is BYOK (bring your own key): a reviewer can test it by entering their own TypeSafe API key (https://console.typesafe.ai/), enabling AI for the site in the popup settings, and choosing the split action on a selected region. Without a key the extension simply skips AI splitting. All rules, snapshots and settings are stored locally in the browser's extension storage on this device only.
-- 审核通过后待办：把商店链接回填本文档台账和 README.md
+- 历史待办已完成：2026-09-21 的发布状态及商店链接已回填本台账顶部与 README；此处保留原提交步骤作为历史快照。
 
 ### 0.6.24 历史提审快照（已被 0.6.32 取代）
 
@@ -180,7 +192,7 @@ First release: click-to-hide with preview, per-site / page-type / URL rules, pag
    - **认证备注**：`Manual block selection and all rule features work without any account or API key. The optional AI classification is BYOK: the reviewer can test it by entering their own TypeSafe API key (https://console.typesafe.ai/) and enabling AI for the site; without a key the extension simply skips AI classification.`
 6. 提交审核（微软口径约 7 个工作日内反馈；结果邮件发账户邮箱）。
 
-**提交后待办**：把审核状态与商店链接回填本文档台账和 README.md。
+**历史待办已完成**：后续记录已把审核状态与商店链接回填本文档顶部和 README；此处是 0.6.24 提交流程快照，不再是当前待办。
 
 ## 后续版本更新
 

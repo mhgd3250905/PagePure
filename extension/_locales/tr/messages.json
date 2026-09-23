@@ -84,7 +84,7 @@
     "message": "Veri ve gizlilik"
   },
   "popupPrivacyNote": {
-    "message": "YZ değerlendirmesi; öğe metnini, görsel açıklamalarını ve bağlantı yollarını TypeSafe Jev'e gönderir. Tüm DOM veya çerezler asla gönderilmez. Elle seçim için YZ gerekmez, kurallar bu cihazda saklanır."
+    "message": "YZ değerlendirmesi; okunabilir modül metnini, görsel açıklamaları ve yollarını, yapı ve gömülü medya ipuçlarını ve bağlantı yollarını TypeSafe Jev'e gönderir. Tüm DOM veya çerezler asla gönderilmez. Elle seçim için YZ gerekmez, kurallar bu cihazda saklanır."
   },
   "popupStatusLoading": {
     "message": "Ayarlar yükleniyor…"

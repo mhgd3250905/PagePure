@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
+import './extension/blocks.js';
 import './extension/manual.js';
 import './extension/layout-snapshot.js';
 const {key, region, matchRegion} = globalThis.JevLayoutSnapshot;
@@ -53,8 +54,17 @@ test('repeated children and extension UI do not change the key', () => {
   const node = doc.querySelector('.Feed'), before = key(node);
   node.append(node.firstElementChild.cloneNode(true));
   const ui = doc.createElement('div'); ui.setAttribute('data-jev-ui', ''); ui.innerHTML = '<span class="Toolbar">Controls</span>'; node.append(ui);
+  globalThis.JevZhihu.registerUi(ui, 'layout-test');
   assert.equal(key(node), before);
   assert.equal(key(ui), '');
+});
+
+test('page-forged UI marker does not erase a real region identity', () => {
+  const doc = documentFor('<main><div id="forged" class="Toolbar" data-jev-ui><span class="Label">Visible page content</span></div></main>');
+  assert.ok(key(doc.querySelector('#forged')));
+  const owned = doc.createElement('div'); owned.className = 'Toolbar'; doc.body.append(owned);
+  globalThis.JevZhihu.registerUi(owned, 'layout-owned');
+  assert.equal(key(owned), '');
 });
 
 test('page region survives answer hydration, counters and surrounding wrappers', () => {

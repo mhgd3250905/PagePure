@@ -84,7 +84,7 @@
     "message": "資料與隱私"
   },
   "popupPrivacyNote": {
-    "message": "AI 判斷會將模組文字、圖片描述和連結路徑傳送給 TypeSafe Jev；不會傳送完整 DOM 或 Cookie。手動選擇無需 AI，規則儲存在本機。"
+    "message": "AI 判斷會將模組文字、圖片描述、結構與嵌入媒體提示及連結路徑傳送給 TypeSafe Jev；不會傳送完整 DOM 或 Cookie。手動選擇無需 AI，規則儲存在本機。"
   },
   "popupStatusLoading": {
     "message": "正在讀取設定…"

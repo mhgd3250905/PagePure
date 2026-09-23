@@ -48,12 +48,40 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
     typeof area?.setAccessLevel === 'function' ? area.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'}) : undefined));
   let ruleWrites = Promise.resolve();
   const pending = new Map();
+  let credentialEpoch = 0;
+  const siteEpochs = new Map(), jobs = new Set();
+  const epoch = origin => `${credentialEpoch}:${siteEpochs.get(origin) || 0}`;
+  const canceled = () => Object.assign(new Error(t('statusPurifierOff')), {code:'canceled'});
+  function invalidateAI(origin) {
+    if (origin) siteEpochs.set(origin, (siteEpochs.get(origin) || 0) + 1);
+    else credentialEpoch++;
+    for (const job of jobs) if (!origin || job.origin === origin) job.controller.abort();
+    for (let i = queue.length - 1; i >= 0; i--) if (queue[i].job.controller.signal.aborted) queue.splice(i,1)[0].reject(canceled());
+  }
   let active = 0;
   const queue = [];
-  async function limited(work) {
-    if (active >= 3) await new Promise(resolve => queue.push(resolve));
-    else active++;
-    try {return await work();} finally {const next = queue.shift(); if(next) next(); else active--;}
+  async function limited(origin, expectedEpoch, work) {
+    if (epoch(origin) !== expectedEpoch) throw canceled();
+    const job = {origin, controller:new AbortController()};
+    jobs.add(job);
+    let acquired = false;
+    try {
+      if (active >= 3) await new Promise((resolve,reject) => queue.push({resolve,reject,job}));
+      else active++;
+      acquired = true;
+      if (job.controller.signal.aborted || epoch(origin) !== expectedEpoch) throw canceled();
+      let result;
+      try {result = await work(job.controller.signal);}
+      catch(error) {
+        if (error?.code === 'canceled' || job.controller.signal.aborted || epoch(origin) !== expectedEpoch) throw canceled();
+        throw error;
+      }
+      if (job.controller.signal.aborted || epoch(origin) !== expectedEpoch) throw canceled();
+      return result;
+    } finally {
+      jobs.delete(job);
+      if (acquired) {const next = queue.shift(); if(next) next.resolve(); else active--;}
+    }
   }
   const config = async url => {
     const values = await chromeApi.storage.local.get(['enabled','context','jevApiKey']);
@@ -72,10 +100,18 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
     await Promise.allSettled(tabs.map(tab => chromeApi.tabs.sendMessage(tab.id,{type:'configChanged'})));
   };
   return (message, sender, respond) => {
-    const popup = ['popup.html','popup.html?embedded=1'].some(path => sender.url === chromeApi.runtime.getURL(path)) && (!sender.id || sender.id === chromeApi.runtime.id);
+    const popupUrl = ['popup.html','popup.html?embedded=1'].some(path => sender.url === chromeApi.runtime.getURL(path)) && sender.id === chromeApi.runtime.id;
+    const embedded = popupUrl && Boolean(sender.tab);
+    let settingsTabId;
+    try {
+      const url = new URL(sender.url), base = new URL(chromeApi.runtime.getURL('settings.html'));
+      if (sender.id === chromeApi.runtime.id && sender.frameId === 0 && url.protocol === base.protocol && url.host === base.host && url.pathname === base.pathname && /^\d+$/.test(url.searchParams.get('tabId') || '') && [...url.searchParams.keys()].length === 1) settingsTabId = Number(url.searchParams.get('tabId'));
+    } catch {}
+    const settingsPage = Number.isSafeInteger(settingsTabId);
+    const popup = (popupUrl && !sender.tab) || settingsPage;
     const manager = sender.url === chromeApi.runtime.getURL('rules-manager.html') && sender.id === chromeApi.runtime.id;
     const content = Boolean(sender.tab) && sender.frameId !== undefined && sender.frameId === 0 && onWeb(sender.url) && (!sender.id || sender.id === chromeApi.runtime.id);
-    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : content ? ['i18nGet','configGet','classify','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
+    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : embedded ? ['configGet','statusGet','settingsOpen','pageAction'] : content ? ['i18nGet','configGet','classify','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
     if (!allowed.includes(message?.type)) {respond({ok:false,error:t('bgDisallowed')}); return false;}
     const work = async () => {
       await ready;
@@ -90,10 +126,18 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
         const {uiLocale, uiMessages} = await chromeApi.storage.local.get(['uiLocale', 'uiMessages']);
         return uiLocale && uiMessages && typeof uiMessages === 'object' ? {locale: uiLocale, messages: uiMessages} : {};
       }
-      const targetTab = popup ? (sender.tab || await activeTab()) : sender.tab;
+      const targetTab = settingsPage ? await chromeApi.tabs.get(settingsTabId) : popup ? await activeTab() : sender.tab;
       const targetUrl = content ? sender.url : targetTab?.url;
+      if (settingsPage && !onWeb(targetUrl)) throw new Error(t('bgErrorSaveOnWeb'));
+      const aiOrigin = onWeb(targetUrl) ? new URL(targetUrl).origin : '';
+      const expectedEpoch = epoch(aiOrigin);
+      if (type === 'settingsOpen') {
+        if (!onWeb(targetUrl)) throw new Error(t('bgErrorSaveOnWeb'));
+        await chromeApi.tabs.create({url:chromeApi.runtime.getURL('settings.html')+'?tabId='+targetTab.id});
+        return {};
+      }
       if(type==='snapshotGet'||type==='snapshotSet')return snapshotRequest(chromeApi.storage.local,type,payload,new URL(sender.url).origin);
-      if (type === 'configGet') return config(targetUrl);
+      if (type === 'configGet') return {...await config(targetUrl), limited:embedded};
       if (type === 'configSet') {
         if (typeof payload?.enabled !== 'boolean' || typeof payload.context !== 'string' || payload.context.length > 4000) throw new Error(t('bgErrorSettings'));
         if(!onWeb(targetUrl))throw new Error(t('bgErrorSaveOnWeb'));
@@ -109,9 +153,11 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
           if (typeof payload.key !== 'string' || payload.key.length > 2048) throw new Error(t('bgErrorInvalidKey'));
           if (payload.key) {if (payload.key.length < 16 || /\s/.test(payload.key)) throw new Error(t('bgErrorKeyWhitespace')); update.jevApiKey = payload.key;}
         }
-        await chromeApi.storage.local.set(update); await notifyConfig(); return config(targetUrl);
+        await chromeApi.storage.local.set(update);
+        invalidateAI(Object.hasOwn(update,'jevApiKey') || payload.enabled !== current.enabled ? undefined : aiOrigin);
+        await notifyConfig(); return config(targetUrl);
       }
-      if (type === 'keyClear') {await chromeApi.storage.local.remove('jevApiKey'); await notifyConfig(); return config(targetUrl);}
+      if (type === 'keyClear') {await chromeApi.storage.local.remove('jevApiKey'); invalidateAI(); await notifyConfig(); return config(targetUrl);}
       if (['rulesGet','rulesSet','rulesDelete','rulesUndo'].includes(type)) {
         const origin = new URL(sender.url).origin;
         const validKey = key => typeof key === 'string' && key.length <= 3000 && key.startsWith(origin+'|');
@@ -220,7 +266,9 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
         const tab = targetTab && onWeb(targetTab.url) ? targetTab : undefined;
         if (!tab) return {hidden:0,pending:0,error:t('bgStatusNotWebpage'),available:false};
         if (type === 'pageAction') {
+          if (embedded && !['preview','toggleVisibility'].includes(payload?.action)) throw new Error(t('bgDisallowed'));
           if (!['preview','clearRules','toggleVisibility','undoSave'].includes(payload?.action)) throw new Error(t('bgErrorPageAction'));
+          if (settingsPage && payload.action === 'preview') await chromeApi.tabs.update(tab.id,{active:true});
           const reply = await chromeApi.tabs.sendMessage(tab.id,{type:'pageAction',action:payload.action});
           if (reply?.ok === false) throw new Error(reply.error || t('bgErrorPageActionFailed'));
           return {};
@@ -243,8 +291,8 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
         if (!jevApiKey) throw new Error(t('bgErrorNeedKey'));
         const learningScope=splitScope(sender.url), experienceKey='splitExperience:'+learningScope;
         const saved=(await chromeApi.storage.local.get(experienceKey))[experienceKey];
-        const result=await limited(()=>splitBlock(parent,blocks,jevApiKey,fetchImpl,Array.isArray(saved)?saved.slice(0,3):[]));
-        if(result.ids.length>=2&&!payload.auto) {
+        const result=await limited(aiOrigin,expectedEpoch,signal=>splitBlock(parent,blocks,jevApiKey,fetchImpl,Array.isArray(saved)?saved.slice(0,3):[],signal));
+        if(result.ids.length===blocks.length&&!payload.auto) {
           const provisionalKey='splitProvisional:'+sender.tab.id;
           const example={parent:compactSplitDescriptor(parent),parts:blocks.filter(block=>result.ids.includes(block.id)).map(compactSplitDescriptor)};
           const provisional=(await chromeApi.storage.session.get(provisionalKey))[provisionalKey];
@@ -266,24 +314,29 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
           const key = 'result:'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
           const cached = (await chromeApi.storage.session.get(key))[key];
           if (cached) {results.push({...cached,id}); return;}
-          if (!pending.has(key)) {
-            const promise = limited(async () => {
-              const result = await classifyBlock(block,settings.context,jevApiKey,fetchImpl);
+          const pendingKey = aiOrigin+'|'+expectedEpoch+'|'+key;
+          if (!pending.has(pendingKey)) {
+            const promise = limited(aiOrigin,expectedEpoch,async signal => {
+              const result = await classifyBlock(block,settings.context,jevApiKey,fetchImpl,signal);
               const answer = {hide:result.hide,confidence:result.confidence};
+              if (signal.aborted || epoch(aiOrigin) !== expectedEpoch) throw canceled();
               await chromeApi.storage.session.set({[key]:answer}); return answer;
             });
-            pending.set(key,promise);
-            promise.then(()=>pending.delete(key),()=>pending.delete(key));
+            pending.set(pendingKey,promise);
+            promise.then(()=>pending.delete(pendingKey),()=>pending.delete(pendingKey));
           }
-          results.push({...await pending.get(key),id});
-        } catch(error) {errors.push({id:block.id,error:error.message});}
+          results.push({...await pending.get(pendingKey),id});
+        } catch(error) {
+          if (error?.code === 'canceled') throw canceled();
+          errors.push({id:block.id,error:error.message});
+        }
       }));
       return {results,errors};
     };
     const writes=['rulesSet','rulesDelete','rulesUndo','rulesManagerDelete'];
     const result=writes.includes(message.type)?ruleWrites.then(work):work();
     if(writes.includes(message.type))ruleWrites=result.catch(()=>{});
-    result.then(data=>respond({ok:true,data})).catch(error=>respond({ok:false,error:error.message}));
+    result.then(data=>respond({ok:true,data})).catch(error=>respond({ok:false,error:error.message,...(error.code?{code:error.code}:{})}));
     return true;
   };
 }

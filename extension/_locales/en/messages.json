@@ -84,7 +84,7 @@
     "message": "Data and privacy"
   },
   "popupPrivacyNote": {
-    "message": "AI checks send module text, image descriptions and link paths to TypeSafe Jev; never the full DOM or cookies. Manual selection needs no AI, and rules stay on this device."
+    "message": "AI checks send readable module text, image descriptions and paths, structural and embedded-media hints, and link paths to TypeSafe Jev; never the full DOM or cookies. Manual selection needs no AI, and rules stay on this device."
   },
   "popupStatusLoading": {
     "message": "Loading settings…"

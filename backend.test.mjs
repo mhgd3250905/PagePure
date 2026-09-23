@@ -2,7 +2,7 @@ import test from 'node:test';
 import './i18n-support.mjs';
 import assert from 'node:assert/strict';
 import {createMessageHandler,DEFAULT_CONTEXT} from './extension/background.js';
-import {parseAnswer, parseCategoryAnswer, CATEGORY_LABELS} from './extension/classifier.mjs';
+import {classifyBlock, parseAnswer, parseCategoryAnswer, CATEGORY_LABELS} from './extension/classifier.mjs';
 const block = id => ({id,text:'活动推广',tag:'DIV',role:'banner',images:[],links:[]});
 const answer = choice => ({answers:{visibility:{type:'choice',choice,confidence:0.9,probabilities:{keep:choice==='keep'?0.9:0.1,hide:choice==='hide'?0.9:0.1}}}});
 const categoryAnswer = (choice, confidence=0.9) => ({answers:{category:{type:'choice',choice,confidence,probabilities:Object.fromEntries(Object.keys(CATEGORY_LABELS).map(key=>[key,key===choice?1:0]))}}});
@@ -12,13 +12,15 @@ function harness(fetchImpl=async()=>({ok:true,json:async()=>answer('hide')})) {
     const values = {};
     return {values,setAccessLevel:async()=>{},get:async keys => keys===null?{...values}:Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,values[key]])),set:async entries=>Object.assign(values,entries),remove:async key=>{delete values[key];}};
   };
-  const api = {runtime:{id:'test',getURL:path=>'chrome-extension://test/'+path},storage:{local:makeStorage(),session:makeStorage()},tabs:{query:async()=>[{id:1,url:'https://www.zhihu.com/'}],sendMessage:async()=>{}}};
+  const tabs = new Map([[1,{id:1,url:'https://www.zhihu.com/'}]]), opened=[],activated=[];
+  const api = {runtime:{id:'test',getURL:path=>'chrome-extension://test/'+path},storage:{local:makeStorage(),session:makeStorage()},tabs:{query:async()=>[tabs.get(1)].filter(Boolean),get:async id=>{if(!tabs.has(id))throw new Error('Tab closed');return tabs.get(id);},create:async options=>{opened.push(options);return {id:100,...options};},update:async(id,options)=>{activated.push({id,...options});return {...tabs.get(id),...options};},sendMessage:async()=>{}}};
   const handler=createMessageHandler(api,fetchImpl);
   const popup={id:'test',url:api.runtime.getURL('popup.html')};
   const content={id:'test',url:'https://www.zhihu.com/',tab:{id:1},frameId:0};
   const send=(type,payload,sender=content)=>new Promise(resolve=>handler({type,payload},sender,resolve));
   const configure=()=>send('configSet',{enabled:true,context:DEFAULT_CONTEXT,key:'test-key-1234567890'},popup);
-  return {api,popup,content,send,configure};
+  const settings = tab => {tabs.set(tab.id,tab);return {id:'test',url:api.runtime.getURL('settings.html?tabId='+tab.id),frameId:0,tab:{id:100,url:api.runtime.getURL('settings.html?tabId='+tab.id)}};};
+  return {api,popup,content,send,configure,settings,tabs,opened,activated};
 }
 
 test('fresh install can read settings when the browser lacks storage access-level APIs',async()=>{
@@ -220,16 +222,19 @@ test('settings and key removal notify every web tab despite missing content scri
   assert.equal((await h.send('configGet')).data.configured,false);
 });
 
-test('embedded extension console reads and retries its own Zhihu tab',async()=>{
+test('embedded extension console reads its own tab and opens trusted settings without write authority',async()=>{
   const h=harness(),messages=[];
   const embedded={...h.popup,url:h.popup.url+'?embedded=1',frameId:7,tab:{id:9,url:'https://www.zhihu.com/question/123'}};
   h.api.storage.session.values['status:9']={hidden:6,pending:1,error:''};
   h.api.storage.session.values['status:1']={hidden:99,pending:0,error:''};
   h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
   assert.equal((await h.send('statusGet',{tabId:1},embedded)).data.hidden,6);
-  assert.equal((await h.send('retry',{tabId:1},embedded)).ok,true);
-  assert.deepEqual(messages,[{id:9,message:{type:'retry'}}]);
-  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,key:'test-key-1234567890'},embedded)).ok,true);
+  assert.equal((await h.send('retry',{tabId:1},embedded)).ok,false);
+  assert.deepEqual(messages,[]);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,key:'test-key-1234567890'},embedded)).ok,false);
+  assert.equal((await h.send('settingsOpen',{tabId:1},embedded)).ok,true);
+  assert.deepEqual(h.opened,[{url:h.api.runtime.getURL('settings.html?tabId=9')}]);
+  assert.equal((await h.send('configGet',{},embedded)).data.limited,true);
   assert.equal(JSON.stringify(await h.send('configGet',{},embedded)).includes('test-key'),false);
 });
 
@@ -238,7 +243,8 @@ test('embedded console requires an HTTP(S) host tab and exact extension sender',
   for(const url of ['chrome://extensions/','file:///test.html','about:blank']) {
     const embedded={...h.popup,url:h.popup.url+'?embedded=1',tab:{id:9,url},frameId:7};
     assert.equal((await h.send('statusGet',{},embedded)).data.available,false);
-    assert.equal((await h.send('retry',{},embedded)).data.available,false);
+    assert.equal((await h.send('retry',{},embedded)).ok,false);
+    assert.equal((await h.send('settingsOpen',{},embedded)).ok,false);
   }
   for(const url of ['https://www.zhihu.com/popup.html','chrome-extension://evil/popup.html',h.popup.url+'?fake=1',h.popup.url+'?embedded=1&fake=1',h.popup.url+'?embedded=2']) {
     const sender={id:'test',url,tab:{id:9,url:'https://www.zhihu.com/'},frameId:7};
@@ -260,11 +266,11 @@ test('article origins can classify and report status while lookalike origins def
 test('generic sites require per-origin AI opt in before sending any content',async()=>{
   let calls=0; const h=harness(async()=>{calls++;return {ok:true,json:async()=>answer('hide')};}); await h.configure();
   const generic={...h.content,url:'https://example.org/news/1',tab:{id:4,url:'https://example.org/news/1'}};
-  const embedded={...h.popup,url:h.popup.url+'?embedded=1',tab:generic.tab};
+  const settings=h.settings(generic.tab);
   assert.equal((await h.send('configGet',{},generic)).data.aiEnabled,false);
   assert.equal((await h.send('classify',{blocks:[block('x')]},generic)).data.errors.length,1);
   assert.equal(calls,0);
-  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true},embedded)).ok,true);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true},settings)).ok,true);
   assert.equal((await h.send('configGet',{},generic)).data.aiEnabled,true);
   assert.equal((await h.send('classify',{blocks:[block('x')]},generic)).data.results[0].hide,true);
   assert.equal(calls,1);
@@ -383,8 +389,8 @@ test('blog migration does not affect other routes or lookalike origins',async()=
 
 test('reading goals are per origin and legacy Zhihu defaults do not leak into CSDN',async()=>{
  const h=harness();h.api.storage.local.values.context='只保留知乎的文章';
- const home={...h.popup,url:h.api.runtime.getURL('popup.html?embedded=1'),tab:{id:2,url:'https://www.csdn.net/'}};
- const blog={...home,tab:{id:3,url:'https://blog.csdn.net/a/article/details/1'}};
+ const home=h.settings({id:2,url:'https://www.csdn.net/'});
+ const blog=h.settings({id:3,url:'https://blog.csdn.net/a/article/details/1'});
  const c=await h.send('configGet',undefined,home);assert.equal(c.data.context,DEFAULT_CONTEXT);assert.doesNotMatch(c.data.context,/知乎/);
  await h.send('configSet',{enabled:true,context:'屏蔽：首页推广'},home);
  await h.send('configSet',{enabled:true,context:'屏蔽：文章推广'},blog);
@@ -529,7 +535,8 @@ test('manager rejects stale confirmation after save and serializes simultaneous 
  await h.send('rulesSet',{key:site,rules:[{selector:'.a',label:'A'}]});
  const old=(await h.send('rulesManagerList',{},managerSender(h))).data;
  await h.send('rulesSet',{key:site,rules:[{selector:'.a',label:'A'},{selector:'.b',label:'B'}]});
- assert.equal((await h.send('rulesManagerDelete',{ids:[site],revision:old.revision},managerSender(h))).ok,false);
+ const stale=await h.send('rulesManagerDelete',{ids:[site],revision:old.revision},managerSender(h));
+ assert.equal(stale.ok,false);assert.equal(stale.code,'revision');assert.equal(typeof stale.error,'string');assert.ok(stale.error.length);
  const current=(await h.send('rulesManagerList',{},managerSender(h))).data;
  const result=await Promise.all([1,2].map(()=>h.send('rulesManagerDelete',{ids:[site],revision:current.revision},managerSender(h))));
  assert.equal(result.filter(r=>r.ok).length,1);
@@ -589,6 +596,178 @@ test('custom requirements persist verbatim while empty edits are rejected and to
   assert.equal((await h.send('configGet')).data.context,'保留旧的阅读需求');
   assert.equal((await h.send('configSet',{enabled:true,context:'新的自由文本'},h.popup)).ok,true);
   assert.equal((await h.send('configGet')).data.context,'新的自由文本');
+});
+
+test('a rejected partial split cannot contaminate an earlier successful split learning save',async()=>{
+  let partial=false;
+  const h=harness(async()=>{const reply=splitAnswer(3);if(partial)reply.answers.candidate_2.confidence=0.5;return {ok:true,json:async()=>reply};});
+  await h.configure();
+  const payload={parent:block('parent'),blocks:[block('a'),block('b'),block('c')]};
+  await h.send('splitBlock',payload);
+  partial=true;
+  await h.send('splitBlock',{...payload,parent:{...block('parent'),text:'Rejected example'}});
+  await h.send('rulesSet',{key:'https://www.zhihu.com|type:/',rules:[],learnSplit:true,partitions:[{parent:'.sidebar',parts:['.a','.b','.c']}]});
+  const learned=h.api.storage.local.values['splitExperience:https://www.zhihu.com|type:/'];
+  assert.equal(learned.length,1);
+  assert.notEqual(learned[0].parent.text,'Rejected example');
+});
+
+async function waitFor(predicate) {
+  const deadline=Date.now()+2000;
+  while(!predicate()) {
+    assert.ok(Date.now()<deadline,'asynchronous work did not reach the expected checkpoint');
+    await new Promise(resolve=>setImmediate(resolve));
+  }
+}
+const drain = async () => {for(let i=0;i<5;i++)await new Promise(resolve=>setImmediate(resolve));};
+
+test('classifier preserves caller cancellation during fetch and response-body parsing',async()=>{
+  for(const phase of ['fetch','json']) {
+    const controller=new AbortController();let reached;
+    const started=new Promise(resolve=>{reached=resolve;});
+    const abortable=signal=>new Promise((resolve,reject)=>{
+      if(signal.aborted)reject(signal.reason);
+      else signal.addEventListener('abort',()=>reject(signal.reason),{once:true});
+    });
+    const fetch=async(_url,init)=>{
+      if(phase==='fetch'){reached();return abortable(init.signal);}
+      return {ok:true,json(){reached();return abortable(init.signal);}};
+    };
+    const work=classifyBlock(block('cancel-'+phase),DEFAULT_CONTEXT,'test-key-1234567890',fetch,controller.signal);
+    await started;controller.abort();
+    await assert.rejects(work,error=>error.code==='canceled');
+  }
+});
+
+test('native Fetch AbortError after key clearing is returned as coded cancellation',async()=>{
+  let requestSignal;
+  const h=harness((_url,init)=>new Promise((resolve,reject)=>{
+    requestSignal=init.signal;
+    if(init.signal.aborted)reject(init.signal.reason);
+    else init.signal.addEventListener('abort',()=>reject(init.signal.reason),{once:true});
+  }));
+  await h.configure();
+  const work=h.send('classify',{blocks:[block('native-abort')]});
+  await waitFor(()=>requestSignal);
+  await h.send('keyClear',{},h.popup);
+  const result=await work;
+  assert.equal(requestSignal.aborted,true);
+  assert.equal(result.ok,false);
+  assert.equal(result.code,'canceled');
+  assert.doesNotMatch(result.error,/无法连接 Jev 服务/);
+});
+
+function heldRequests() {
+  const requests=[];
+  const fetch=(_url,init)=>new Promise(resolve=>{
+    const body=JSON.parse(init.body);
+    requests.push({signal:init.signal,body,finish:()=>resolve({ok:true,json:async()=>body.state.candidates?splitAnswer(body.state.candidates.length):answer('hide')})});
+  });
+  return {requests,fetch};
+}
+
+for(const type of ['classify','splitBlock'])test(`clearing the key aborts three active ${type} requests and cancels two queued requests`,async()=>{
+  const held=heldRequests(),h=harness(held.fetch);await h.configure();
+  const work=Array.from({length:5},(_,i)=>h.send(type,type==='classify'
+    ? {blocks:[{...block('a'+i),text:'distinct module '+i}]}
+    : {parent:block('parent'),blocks:[block('a'),block('b')]}));
+  await waitFor(()=>held.requests.length===3);await drain();
+  assert.equal((await h.send('keyClear',{},h.popup)).ok,true);
+  assert.ok(held.requests.every(request=>request.signal.aborted));
+  await drain();assert.equal(held.requests.length,3,'queued work must not start after credentials are cleared');
+  // Even a transport that ignores AbortSignal must not publish or cache its late result.
+  held.requests.forEach(request=>request.finish());
+  const results=await Promise.all(work);
+  if(type==='classify')for(const result of results) {
+    assert.equal(result.ok,false);assert.equal(result.code,'canceled');
+  } else for(const result of results) {
+    assert.equal(result.ok,false);assert.equal(result.code,'canceled');assert.equal(typeof result.error,'string');
+  }
+  assert.equal(held.requests.length,3);
+  assert.equal(Object.keys(h.api.storage.session.values).some(key=>key.startsWith('result:')||key.startsWith('splitProvisional:')),false);
+});
+
+test('site AI revocation cancels only that origin and leaves other origin work running',async()=>{
+  const held=heldRequests(),h=harness(held.fetch);await h.configure();
+  const other={...h.content,url:'https://example.org/article',tab:{id:2,url:'https://example.org/article'}};
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true},h.settings(other.tab))).ok,true);
+  const first=h.send('classify',{blocks:[{...block('a'),text:'first origin'}]});
+  await waitFor(()=>held.requests.length===1);
+  const second=h.send('classify',{blocks:[{...block('b'),text:'second origin'}]},other);
+  await waitFor(()=>held.requests.length===2);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:false},h.popup)).ok,true);
+  assert.equal(held.requests[0].signal.aborted,true);assert.equal(held.requests[1].signal.aborted,false);
+  held.requests.forEach(request=>request.finish());
+  const [revoked,unaffected]=await Promise.all([first,second]);
+  assert.equal(revoked.ok,false);assert.equal(revoked.code,'canceled');
+  assert.equal(unaffected.data.results[0].hide,true);
+  assert.equal(Object.keys(h.api.storage.session.values).filter(key=>key.startsWith('result:')).length,1);
+});
+
+for(const [name,change] of [['global disable',{enabled:false}],['key replacement',{key:'replacement-key-123456'}],['context change',{context:'Keep only tutorials'}]])test(`${name} aborts pending AI work before accepting a late answer`,async()=>{
+  const held=heldRequests(),h=harness(held.fetch);await h.configure();
+  const work=h.send('classify',{blocks:[block('a')]});await waitFor(()=>held.requests.length===1);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,...change},h.popup)).ok,true);
+  assert.equal(held.requests[0].signal.aborted,true);held.requests[0].finish();
+  const result=await work;assert.equal(result.ok,false);assert.equal(result.code,'canceled');
+  assert.equal(Object.keys(h.api.storage.session.values).some(key=>key.startsWith('result:')),false);
+});
+
+test('WAR popup cannot recover write authority by omitting embedded query or using a top frame',async()=>{
+  const h=harness();await h.configure();
+  for(const search of ['', '?embedded=1'])for(const frameId of [0,7]) {
+    const sender={...h.popup,url:h.popup.url+search,frameId,tab:{id:9,url:'https://www.zhihu.com/'}};
+    const before=JSON.stringify(h.api.storage.local.values);
+    for(const type of ['configSet','keyClear','retry','rulesManagerOpen']) {
+      const result=await h.send(type,{enabled:false,context:'changed',key:'replacement-key-123456'},sender);
+      assert.equal(result.ok,false,`${search || 'no query'}, frame ${frameId}: ${type}`);
+    }
+    for(const action of ['clearRules','undoSave'])assert.equal((await h.send('pageAction',{action},sender)).ok,false);
+    for(const action of ['preview','toggleVisibility'])assert.equal((await h.send('pageAction',{action},sender)).ok,true);
+    assert.equal((await h.send('configGet',{},sender)).data.limited,true);
+    assert.equal(JSON.stringify(h.api.storage.local.values),before);
+  }
+});
+
+test('trusted settings bind all operations to the URL tab id instead of active or payload tabs',async()=>{
+  const h=harness(),messages=[];
+  const settings=h.settings({id:9,url:'https://example.org/news'});
+  h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
+  assert.equal((await h.send('configSet',{enabled:true,context:'Keep tutorials',aiEnabled:true,tabId:1},settings)).ok,true);
+  assert.equal(h.api.storage.local.values['context:https://example.org'],'Keep tutorials');
+  assert.equal(h.api.storage.local.values['context:https://www.zhihu.com'],undefined);
+  const config=await h.send('configGet',{tabId:1},settings);
+  assert.equal(config.data.origin,'https://example.org');assert.equal(config.data.limited,false);
+  await h.send('retry',{tabId:1},settings);
+  await h.send('pageAction',{action:'preview',tabId:1},settings);
+  assert.deepEqual(messages.filter(item=>item.message.type!=='configChanged'),[{id:9,message:{type:'retry'}},{id:9,message:{type:'pageAction',action:'preview'}}]);
+  assert.deepEqual(h.activated,[{id:9,active:true}]);
+});
+
+test('settings privilege rejects spoofed origins, ids, subframes and malformed bindings',async()=>{
+  const h=harness(),settings=h.settings({id:9,url:'https://example.org/'});
+  for(const sender of [
+    {...settings,id:'evil'}, {...settings,id:undefined}, {...settings,frameId:1}, {...settings,frameId:undefined},
+    ...['chrome-extension://evil/settings.html?tabId=9','https://test/settings.html?tabId=9',
+      'file:///settings.html?tabId=9',h.api.runtime.getURL('settings.html'),
+      h.api.runtime.getURL('settings.html?tabId=9&tabId=1'),h.api.runtime.getURL('settings.html?tabId=9&fake=1'),
+      h.api.runtime.getURL('settings.html?tabId=-1'),h.api.runtime.getURL('settings.html?tabId=9007199254740992')].map(url=>({...settings,url}))
+  ]) {
+    // An HTTP top frame retains the ordinary content-script read API, but cannot acquire settings writes.
+    for(const type of ['configGet','configSet','keyClear'])assert.equal((await h.send(type,{enabled:false,context:'changed'},sender)).ok,type==='configGet'&&sender.url.startsWith('https://'),`${sender.url}, ${sender.id}, ${sender.frameId}: ${type}`);
+  }
+  assert.deepEqual(h.api.storage.local.values,{});
+});
+
+test('settings never fall back to an active webpage after the bound tab closes or leaves HTTP(S)',async()=>{
+  const h=harness(),settings=h.settings({id:9,url:'https://example.org/'});
+  for(const destination of [null,'chrome://extensions/','file:///private.txt']) {
+    if(destination===null)h.tabs.delete(9);else h.tabs.set(9,{id:9,url:destination});
+    for(const type of ['configGet','configSet','keyClear','retry','statusGet','pageAction']) {
+      assert.equal((await h.send(type,{enabled:false,context:'changed',action:'preview',tabId:1},settings)).ok,false,`${destination}: ${type}`);
+    }
+  }
+  assert.deepEqual(h.api.storage.local.values,{});assert.deepEqual(h.activated,[]);
 });
 
 test('freeform requirements reach visibility with full-intent and mixed-content protections',async()=>{

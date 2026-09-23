@@ -84,7 +84,7 @@
     "message": "데이터 및 개인정보"
   },
   "popupPrivacyNote": {
-    "message": "AI 판정 시 요소 텍스트·이미지 설명·링크 경로를 TypeSafe Jev로 전송합니다. 전체 DOM이나 Cookie는 전송하지 않습니다. 수동 선택에는 AI가 필요 없으며 규칙은 이 기기에 저장됩니다."
+    "message": "AI 판정 시 읽을 수 있는 요소 텍스트, 이미지 설명과 경로, 구조 및 삽입 미디어 힌트, 링크 경로를 TypeSafe Jev로 전송합니다. 전체 DOM이나 Cookie는 전송하지 않습니다. 수동 선택에는 AI가 필요 없으며 규칙은 이 기기에 저장됩니다."
   },
   "popupStatusLoading": {
     "message": "설정을 읽는 중…"

@@ -6,8 +6,9 @@ import {parseHTML} from 'linkedom';
 import {i18nSource, i18nChrome} from './i18n-support.mjs';
 
 const source = readFileSync(new URL('./extension/console.js', import.meta.url), 'utf8');
+const blocksSource = readFileSync(new URL('./extension/blocks.js', import.meta.url), 'utf8');
 function environment(bodyReady = true, options = {}) {
-  const {document, window} = parseHTML('<html><body></body></html>');
+  const {document, window} = parseHTML(options.html || '<html><body></body></html>');
   window.innerWidth = 1024; window.innerHeight = 768;
   let root;
   const attach = window.HTMLElement.prototype.attachShadow;
@@ -21,12 +22,13 @@ function environment(bodyReady = true, options = {}) {
     const value = Reflect.get(target, key);
     return typeof value === 'function' ? value.bind(target) : value;
   }});
-  const context = {document:contentDocument, window, chrome:{...i18nChrome, runtime:{getURL:path => `chrome-extension://test/${path}`}}};
+  const context = {document:contentDocument, window, URL, chrome:{...i18nChrome, runtime:{getURL:path => `chrome-extension://test/${path}`}}};
   runInNewContext(i18nSource, context);
+  runInNewContext(blocksSource, context);
   if(options.i18n) context.PagePureI18n = options.i18n;
   const run = () => runInNewContext(source, context);
   run();
-  return {document, window, run, get root() {return root;}, ready() {
+  return {document, window, context, run, get root() {return root;}, ready() {
     ready = true;
     document.dispatchEvent(new window.Event('DOMContentLoaded'));
   }};
@@ -69,6 +71,14 @@ test('document_start waits for body and Escape collapses the console', () => {
   assert.equal(env.root.querySelector('.launcher').getAttribute('aria-expanded'), 'false');
 });
 
+test('page-forged console ownership marker cannot suppress the extension launcher', () => {
+  const env = environment(true, {html:'<html><body><div id="page-fake" data-jev-ui="console">page element</div></body></html>'});
+  const owned = env.context.JevZhihu.findUi('console');
+  assert.ok(owned);
+  assert.notEqual(owned, env.document.querySelector('#page-fake'));
+  assert.equal(env.document.querySelectorAll('[data-jev-ui="console"]').length, 2);
+});
+
 test('search-style body clearing and replacement restore the same console without duplicate handlers', async () => {
   const env = environment();
   const settle = () => new Promise(resolve => setImmediate(resolve));
@@ -103,7 +113,7 @@ async function popupEnvironment(config = {}) {
   const requests = [], messages = [];
   const runtime = {sendMessage: async message => {
     requests.push(message);
-    if (message.type === 'configGet') return {ok:true, data:{enabled:true, aiEnabled:false, context:'保留正文', configured:false,...config}};
+    if (message.type === 'configGet') return {ok:true, data:{limited:true, enabled:true, aiEnabled:false, context:'保留正文', configured:false,...config}};
     if (message.type === 'statusGet') return {ok:true, data:{hidden:0, pending:0}};
     return {ok:true, data:{configured:false}};
   }};
@@ -145,7 +155,7 @@ test('disabled preview keeps settings open and explains requirement', async () =
 });
 
 test('AI opt-in is saved separately and manual rules can be cleared', async () => {
-  const env = await popupEnvironment();
+  const env = await popupEnvironment({limited:false});
   env.document.querySelector('#aiEnabled').checked = true;
   env.document.querySelector('#settings').dispatchEvent(new env.window.Event('submit', {cancelable:true}));
   await env.flush();
@@ -180,7 +190,7 @@ test('original-page toggle remains and obsolete undo button is absent', async ()
 });
 
 test('master switch saves immediately without saving draft AI settings', async () => {
-  const env = await popupEnvironment();
+  const env = await popupEnvironment({limited:false});
   env.document.querySelector('#aiEnabled').checked = true;
   env.document.querySelector('#enabled').checked = false;
   env.document.querySelector('#enabled').dispatchEvent(new env.window.Event('change'));
@@ -190,11 +200,19 @@ test('master switch saves immediately without saving draft AI settings', async (
   assert.equal(saved.aiEnabled, false);
 });
 
-test('embedded console opens the dedicated rule manager and closes its panel',async()=>{
+test('embedded console opens trusted settings and closes its limited panel',async()=>{
  const env=await popupEnvironment();
+ assert.equal(env.document.querySelector('.advanced').hidden,true);
+ assert.equal(env.document.querySelector('label[for="enabled"]').hidden,true);
+ env.document.querySelector('#manageRules').click();await env.flush();
+ assert.ok(env.requests.some(message=>message.type==='settingsOpen'));
+ assert.equal(env.messages.at(-1).type,'jev-console-close');
+});
+
+test('trusted full controls open the rule manager regardless of embedded styling',async()=>{
+ const env=await popupEnvironment({limited:false});
  env.document.querySelector('#manageRules').click();await env.flush();
  assert.ok(env.requests.some(message=>message.type==='rulesManagerOpen'));
- assert.equal(env.messages.at(-1).type,'jev-console-close');
 });
 
 function pointer(env,type,x,y) {

@@ -1,5 +1,7 @@
 (() => {
-  const ignored = 'script,style,noscript,template,svg,[contenteditable="true"],[data-jev-ui]';
+  const ignored = 'script,style,noscript,template,svg,[contenteditable="true"]';
+  const isExtensionUi = node => globalThis.JevZhihu?.isUi?.(node) === true;
+  const containsExtensionUi = node => globalThis.JevZhihu?.containsUi?.(node) === true;
   const stable = value => typeof value === 'string' && value.length > 0 && value.length <= 100 &&
     !/^(?:jev[-_]|css-|jsx-|sc-|react[-_])|[a-f0-9]{8,}|\d{5,}/i.test(value) &&
     !/^(?:is-|has-)?(?:active|selected|focused|hover|loading|hidden)$/i.test(value);
@@ -10,7 +12,7 @@
     return {feature: JSON.stringify([node.localName, classes, attributes]), anchored: classes.length > 0 || attributes.length > 0};
   }
   function key(node) {
-    if (!node?.matches || node.closest(ignored)) return '';
+    if (!node?.matches || node.closest(ignored) || isExtensionUi(node)) return '';
     let anchored = false;
     const describeFeature = element => {
       const data = describe(element); anchored ||= data.anchored; return data.feature;
@@ -24,7 +26,7 @@
     let visited = 0;
     for (let index = 0; index < queue.length; index++) {
       const item = queue[index];
-      if (item.node.matches(ignored)) continue;
+      if (item.node.matches(ignored) || isExtensionUi(item.node)) continue;
       if (++visited > 600) return '';
       const path = [...item.path, describeFeature(item.node)];
       features.add(JSON.stringify(path));
@@ -37,7 +39,7 @@
     return result.length <= 16000 ? result : '';
   }
   function regionIdentity(node) {
-    if (!node?.matches || node.matches('html,body') || node.closest(ignored)) return '';
+    if (!node?.matches || node.matches('html,body') || node.closest(ignored) || isExtensionUi(node) || containsExtensionUi(node)) return '';
     const data = describe(node), id = stable(node.id) ? node.id : '';
     if (!data.anchored && !id) return '';
     // Only this element's semantic identity participates. Hydration, content,
