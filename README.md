@@ -4,7 +4,7 @@
 
 ## 下载安装
 
-适用于 Chrome、Edge 和星愿浏览器。GitHub 下载版本：**0.7.5**。商店动态（2026-09-23）：Chrome Web Store 已上架 0.7.6（首次发布当日过审）；Edge 商店 0.7.5 已上架、0.7.6 审核中，可查看[Edge 商店页面](https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen)。
+适用于 Chrome、Edge 和星愿浏览器。GitHub 下载版本：**0.7.5**。商店动态（2026-09-24）：Edge 商店 0.7.6 已过审上架（0.7.5 → 0.7.6 自动替换），可查看[Edge 商店页面](https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen)；Chrome Web Store 0.7.6 审核中，通过后自动发布。
 
 1. **[点击下载安装包](https://github.com/mhgd3250905/PagePure/releases/download/v0.7.5/PagePure-0.7.5.zip)**，解压到一个固定文件夹。
 2. 打开浏览器的“扩展管理”页面：Chrome 在地址栏输入 `chrome://extensions`，Edge 输入 `edge://extensions`；星愿从菜单进入扩展管理。
@@ -13,7 +13,7 @@
 
 安装后请保留这个文件夹，不要删除。无需下载 GitHub 的“Source code”，也不用安装 Node.js。
 
-说明：上方下载包是 GitHub 发布的 0.7.5 版本，配置仍在扩展弹窗中；本仓库当前源码为 0.7.6（已提交 Chrome/Edge 商店审核），含独立设置页等改动，源码工作区行为与下载包可能不同。
+说明：上方下载包是 GitHub 发布的 0.7.5 版本，配置仍在扩展弹窗中；本仓库当前源码为 0.7.6（Edge 商店已上架，Chrome 商店审核中），含独立设置页等改动，源码工作区行为与下载包可能不同。
 
 ## 开始使用
 

@@ -2,15 +2,14 @@
 
 ## GitHub 下载（当前公开分发）
 
-仓库：<https://github.com/mhgd3250905/PagePure>。台账最后记录的 GitHub Release 是 [v0.7.5](https://github.com/mhgd3250905/PagePure/releases/tag/v0.7.5)，已发布安装包 SHA-256 为 `062729f66ba68e18b384f2fb109e73d957385b8e6a0311062f8d273059acdbA0`。2026-09-23 的审查修复已打包为 0.7.6 并提交 Chrome/Edge 商店（Chrome 当天过审上架、Edge 审核中，见下方台账），但 **GitHub Release 尚未发布**，v0.7.5 仍是 GitHub 当前公开安装包。GitHub 分发与商店审核相互独立。
+仓库：<https://github.com/mhgd3250905/PagePure>。台账最后记录的 GitHub Release 是 [v0.7.5](https://github.com/mhgd3250905/PagePure/releases/tag/v0.7.5)，已发布安装包 SHA-256 为 `062729f66ba68e18b384f2fb109e73d957385b8e6a0311062f8d273059acdbA0`。2026-09-23 的审查修复已打包为 0.7.6 并提交 Chrome/Edge 商店（**Edge 09-24 已过审上架 Live；Chrome 仍在审核中**，见下方台账），但 **GitHub Release 尚未发布**，v0.7.5 仍是 GitHub 当前公开安装包。GitHub 分发与商店审核相互独立。
 
 ## 发布状态台账
 
 | 市场 | 状态 | 日期 | 说明 |
 | --- | --- | --- | --- |
-| Edge Add-ons | ✅ 已发布（Live，最后观察） | 2026-09-23 | **v0.7.5** 已过审上架（Partner Center 扩展概述当日显示“版本 0.7.5 — Live”）；商店链接 https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen |
-| Edge Add-ons | 🕐 正在审阅（In review，最后观察） | 2026-09-23 | **v0.7.6** 当天提审（包 `PagePure-0.7.6.zip`，39 文件，190,414 字节，SHA-256 `47efcbfb…e0c3d5`；与 Chrome 候选包同一份，逐字节一致）；权限与 0.7.5 相同；一览沿用英语/中文(台湾)/中文(中国) 3 套，包内新识别的其余 9 语言一览已移除；认证说明沿用历史口径并追加 0.7.6 变化；后台显示“正在审阅”，微软口径约 7 个工作日 |
-| Chrome Web Store | ✅ 已上架（Live，用户确认） | 2026-09-23 | **v0.7.6** 审核通过并公开发布（用户当日确认）；详情页需登录会话才可稳定访问，公开搜索暂未返回结果；商品 ID `hfadgbminekfilodfjdpbllimaemlhdb`；公开商品 URL 待回填 |
+| Edge Add-ons | ✅ 已发布（Live，最后观察） | 2026-09-24 | **v0.7.6** 于 09-23 提审、09-24 复核已过审上架（Partner Center 概述单卡“版本 0.7.6 — Live”；公开页 https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen 显示“版本0.7.6”） |
+| Chrome Web Store | 🕐 正在审核（审核中，最后观察） | 2026-09-24 | **v0.7.6** 09-23 提交审核；09-23 曾误记为当天过审上架，09-24 后台尝试发布时弹窗“无法修改或发布审核中的内容”，确认**仍在审核、未上架**；公开侧核验一致（直链 `detail/empty-title/<id>` 占位、站内搜索无结果、Google 未索引）；审核通过后按提交时选择自动发布；全站主机权限可能触发深入审核延迟。商品 ID `hfadgbminekfilodfjdpbllimaemlhdb`，公开 URL 待过审后回填 |
 
 **Edge 更新流程经验（2026-09-21 实测）**：扩展处于“正在审阅”时无法发布更新（会提示“你的扩展正在审核中”）。若旧提交尚未发布过，可走「扩展概述 → 取消提交」（取消需 5–10 分钟生效），随后草稿上会出现「发布」按钮，补填认证说明后即可送审。
 
@@ -39,7 +38,7 @@
 - 商店一览：上传新包后系统按包内 12 种语言重新生成一览行，英语/中文(台湾)/中文(中国) 3 套沿用 0.7.5 已完成文案，其余 9 种未完成语言一览已逐个移除（继续“待母语者抽查翻译后再加”口径）
 - 认证说明（每次提交必填）：沿用 0.6.32 文案并追加 0.7.6 变化说明（仅内部安全加固：内容脚本隔离与消息处理收紧、撤销/取消传播修复、删除两条无用 CSS；新增从弹窗打开的独立设置页；无新增权限）
 - 可用性/属性/隐私步骤全部沿用（公用、241 市场、高效工作、隐私政策 Gist、Website content 披露、三项证明）
-- 提审结果邮件发 sk18101652104@outlook.com；过审后 0.7.5 → 0.7.6 自动替换上架
+- 提审结果邮件发 sk18101652104@outlook.com；**09-24 复核已过审，0.7.5 → 0.7.6 自动替换上架（Live，后台与公开页双确认，公开页显示“版本0.7.6”）**
 
 ## 0.7.5 商店更新（2026-09-21 提审）
 
