@@ -2,26 +2,26 @@
 <html lang="zh-CN">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title data-i18n="extName">网页净化助手 · PagePure</title><link rel="stylesheet" href="popup.css"></head>
 <body>
-<header><span class="brand-seal" aria-hidden="true"><span class="seal-mark"></span><span class="brand-seal-word" data-i18n="toolbarStamp">净化</span></span><div><h1 data-i18n="brandName">网页净化</h1><p data-i18n="appTagline">让阅读更纯粹</p></div></header>
+<header><span class="brand-seal" aria-hidden="true"><span class="seal-mark"></span><span class="brand-seal-word" data-i18n="toolbarStamp">净化</span></span><div><h1 data-i18n="brandName">网页净化</h1><p data-i18n="appTagline">让阅读更纯粹</p><p id="siteIdentity" class="site-identity" hidden></p></div></header>
 <main>
 <form id="settings"><fieldset id="controls" disabled>
 <label class="master" for="enabled"><span data-i18n="popupPurify">网页净化</span><input type="checkbox" id="enabled" role="switch"></label>
 <section class="manual-tools" data-i18n-aria-label="popupManualToolsAria" aria-label="可视化净化">
-<button type="button" id="preview" class="primary" data-i18n="popupPreviewButton">选择要隐藏的内容</button>
-<p class="hint" data-i18n="popupPreviewHint">点选隐藏，随时恢复。</p>
+<button type="button" id="preview" class="primary" aria-describedby="previewHint" data-i18n="popupPreviewButton">选择要隐藏的内容</button>
+<p id="previewHint" class="hint" data-i18n="popupPreviewHint">点选隐藏，随时恢复。</p>
 <div class="quick-actions"><button type="button" id="toggleVisibility" class="secondary" data-i18n="popupToggleVisibility">原网页 / 净化</button></div>
 </section>
 <button type="button" id="manageRules" class="secondary manager-link"><span data-i18n="popupManageRules">设置</span> <span aria-hidden="true">↗</span></button>
 <div class="page-status"><span id="pageStatus" data-i18n="popupPageStatusLoading">正在读取页面状态…</span></div>
 <details class="advanced"><summary data-i18n="popupAdvanced">自动判断与设置</summary>
-<label class="ai-toggle" for="aiEnabled"><span data-i18n="popupAiToggle">此网站使用 AI 判断</span><input type="checkbox" id="aiEnabled" role="switch"></label>
-<p class="hint" data-i18n="popupAiHint">需配置 Jev 密钥，新网站默认关闭。规则执行后，AI 异步判断未覆盖区域。</p>
+<label class="ai-toggle" for="aiEnabled"><span data-i18n="popupAiToggle">此网站使用 AI 判断</span><input type="checkbox" id="aiEnabled" role="switch" aria-describedby="aiHint"></label>
+<p id="aiHint" class="hint" data-i18n="popupAiHint">需配置 Jev 密钥，新网站默认关闭。规则执行后，AI 异步判断未覆盖区域。</p>
 <label class="field" for="context" data-i18n="popupContextLabel">此网站的自动净化需求</label>
-<textarea id="context" rows="4" maxlength="4000" data-i18n-placeholder="popupContextPlaceholder" placeholder="屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"></textarea>
-<p class="hint" data-i18n="popupContextHint">按“屏蔽：项目、项目”填写。页面先显示，AI 随后净化；手动规则优先，明确保留的区域不受 AI 影响。</p>
+<textarea id="context" rows="4" maxlength="4000" aria-describedby="contextHint" data-i18n-placeholder="popupContextPlaceholder" placeholder="屏蔽：商业广告、付费推广、赞助内容、诱导下载或购买的营销模块"></textarea>
+<p id="contextHint" class="hint" data-i18n="popupContextHint">按“屏蔽：项目、项目”填写。页面先显示，AI 随后净化；手动规则优先，明确保留的区域不受 AI 影响。</p>
 <label class="field key-label" for="key"><span>Jev API Key</span><span id="keyState" data-i18n="popupKeyStateOff">未配置</span></label>
-<input type="password" id="key" autocomplete="off" spellcheck="false" data-i18n-placeholder="popupKeyPlaceholder" placeholder="填写你的 API Key">
-<div class="key-actions"><span class="hint" data-i18n="popupKeyHint">留空保留已保存的密钥</span><button type="button" id="clearKey" class="text-button" data-i18n="popupClearKey">清除密钥</button></div>
+<input type="password" id="key" autocomplete="off" spellcheck="false" aria-describedby="keyHint" data-i18n-placeholder="popupKeyPlaceholder" placeholder="填写你的 API Key">
+<div class="key-actions"><span id="keyHint" class="hint" data-i18n="popupKeyHint">留空保留已保存的密钥</span><button type="button" id="clearKey" class="text-button" data-i18n="popupClearKey">清除密钥</button></div>
 <button type="submit" class="primary" data-i18n="popupSave">保存并应用</button>
 <div class="quick-actions"><button type="button" id="retry" class="text-button" data-i18n="popupRetry">重新判断</button><button type="button" id="clearRules" class="text-button" data-i18n="popupClearPageRules">清除本页规则</button></div>
 <details class="privacy"><summary data-i18n="popupPrivacy">数据与隐私</summary><p class="note" data-i18n="popupPrivacyNote">AI 判断会将模块文字、图片描述、结构与嵌入媒体提示及链接路径发送给 TypeSafe Jev；不发送完整 DOM 或 Cookie。手动选择无需 AI，规则保存在本机。</p></details>

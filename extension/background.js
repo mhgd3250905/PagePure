@@ -111,7 +111,7 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
     const popup = (popupUrl && !sender.tab) || settingsPage;
     const manager = sender.url === chromeApi.runtime.getURL('rules-manager.html') && sender.id === chromeApi.runtime.id;
     const content = Boolean(sender.tab) && sender.frameId !== undefined && sender.frameId === 0 && onWeb(sender.url) && (!sender.id || sender.id === chromeApi.runtime.id);
-    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : embedded ? ['configGet','statusGet','settingsOpen','pageAction'] : content ? ['i18nGet','configGet','classify','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesUndo','snapshotGet','snapshotSet'] : [];
+    const allowed = manager ? ['rulesManagerList','rulesManagerDelete'] : popup ? ['rulesManagerOpen','configGet','configSet','keyClear','statusGet','retry','pageAction'] : embedded ? ['configGet','statusGet','settingsOpen','pageAction'] : content ? ['i18nGet','configGet','classify','splitBlock','statusSet','rulesGet','rulesSet','rulesDelete','rulesClearPage','rulesUndo','snapshotGet','snapshotSet'] : [];
     if (!allowed.includes(message?.type)) {respond({ok:false,error:t('bgDisallowed')}); return false;}
     const work = async () => {
       await ready;
@@ -126,8 +126,22 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
         const {uiLocale, uiMessages} = await chromeApi.storage.local.get(['uiLocale', 'uiMessages']);
         return uiLocale && uiMessages && typeof uiMessages === 'object' ? {locale: uiLocale, messages: uiMessages} : {};
       }
-      const targetTab = settingsPage ? await chromeApi.tabs.get(settingsTabId) : popup ? await activeTab() : sender.tab;
+      const siteChanged = () => Object.assign(new Error(t('bgErrorSiteChanged')), {code:'siteChanged'});
+      let targetTab;
+      try { targetTab = settingsPage ? await chromeApi.tabs.get(settingsTabId) : popup ? await activeTab() : sender.tab; }
+      catch (error) { if (settingsPage && Object.hasOwn(payload || {}, 'expectedOrigin')) throw siteChanged(); throw error; }
       const targetUrl = content ? sender.url : targetTab?.url;
+      const checkOrigin = async () => {
+        const required = settingsPage && ['configSet','keyClear','retry','pageAction'].includes(type);
+        if (!required && !Object.hasOwn(payload || {}, 'expectedOrigin')) return;
+        if (!onWeb(payload?.expectedOrigin) || new URL(payload.expectedOrigin).origin !== payload.expectedOrigin) throw new Error(t('bgErrorSettings'));
+        // The captured URL and the live tab must both match the displayed site.
+        let currentUrl;
+        try { currentUrl = targetTab ? (await chromeApi.tabs.get(targetTab.id)).url : undefined; }
+        catch { throw siteChanged(); }
+        if (!onWeb(targetUrl) || new URL(targetUrl).origin !== payload.expectedOrigin || !onWeb(currentUrl) || new URL(currentUrl).origin !== payload.expectedOrigin) throw siteChanged();
+      };
+      await checkOrigin();
       if (settingsPage && !onWeb(targetUrl)) throw new Error(t('bgErrorSaveOnWeb'));
       const aiOrigin = onWeb(targetUrl) ? new URL(targetUrl).origin : '';
       const expectedEpoch = epoch(aiOrigin);
@@ -153,12 +167,13 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
           if (typeof payload.key !== 'string' || payload.key.length > 2048) throw new Error(t('bgErrorInvalidKey'));
           if (payload.key) {if (payload.key.length < 16 || /\s/.test(payload.key)) throw new Error(t('bgErrorKeyWhitespace')); update.jevApiKey = payload.key;}
         }
+        await checkOrigin();
         await chromeApi.storage.local.set(update);
         invalidateAI(Object.hasOwn(update,'jevApiKey') || payload.enabled !== current.enabled ? undefined : aiOrigin);
         await notifyConfig(); return config(targetUrl);
       }
-      if (type === 'keyClear') {await chromeApi.storage.local.remove('jevApiKey'); invalidateAI(); await notifyConfig(); return config(targetUrl);}
-      if (['rulesGet','rulesSet','rulesDelete','rulesUndo'].includes(type)) {
+      if (type === 'keyClear') {await checkOrigin(); await chromeApi.storage.local.remove('jevApiKey'); invalidateAI(); await notifyConfig(); return config(targetUrl);}
+      if (['rulesGet','rulesSet','rulesDelete','rulesClearPage','rulesUndo'].includes(type)) {
         const origin = new URL(sender.url).origin;
         const validKey = key => typeof key === 'string' && key.length <= 3000 && key.startsWith(origin+'|');
         const keys = type === 'rulesSet' ? [payload?.key] : payload?.keys;
@@ -169,7 +184,8 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
           // Older versions included the author in article type keys. Keep local
           // selectors on that author's pages without reviving retired category rules.
           const articleKey = origin+'|type:/:author/article/details/:id';
-          if (!groups.length && csdnArticle(sender.url) && keys.includes(articleKey)) {
+          const onlyEmptyPageMarkers = groups.every(group => group.key.startsWith(origin+'|page:') && !group.rules.length && !group.partitions?.length);
+          if (onlyEmptyPageMarkers && csdnArticle(sender.url) && keys.includes(articleKey)) {
             const author = new URL(sender.url).pathname.split('/')[1];
             const legacyKey = origin+'|type:/'+author+'/article/details/:id';
             const all = await chromeApi.storage.local.get(null);
@@ -243,6 +259,24 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
             await chromeApi.storage.local.remove('rulesUndo:'+key);
             restored.push(key);
           }
+        } else if (type === 'rulesClearPage') {
+          const url = new URL(sender.url), pageKey = origin+'|page:'+url.pathname+url.search;
+          const values = await chromeApi.storage.local.get(null), update = {};
+          const ownedScope = key => key === origin+'|site' || key.startsWith(origin+'|type:/') || key.startsWith(origin+'|page:/');
+          for (const [storageKey, value] of Object.entries(values)) {
+            if (storageKey.startsWith('rules:') && ownedScope(storageKey.slice(6)) && Array.isArray(value)) {
+              const remaining = storageKey === 'rules:'+pageKey ? [] : value.filter(rule => rule?.page !== pageKey);
+              if (remaining.length !== value.length) update[storageKey] = remaining;
+            }
+            if (storageKey.startsWith('rulesUndo:') && ownedScope(storageKey.slice(10)) && storageKey !== 'rulesUndo:'+pageKey && Array.isArray(value?.rules)) {
+              const remaining = value.rules.filter(rule => rule?.page !== pageKey);
+              if (remaining.length !== value.rules.length) update[storageKey] = {...value, rules:remaining};
+            }
+          }
+          // Preserve empty markers and shared history so a later read or undo cannot revive this page's exceptions.
+          update['rules:'+pageKey] = [];
+          await chromeApi.storage.local.set(update);
+          for (const key of ['partitions:'+pageKey, 'rulesUndo:'+pageKey]) await chromeApi.storage.local.remove(key);
         } else {
           await chromeApi.storage.local.remove('splitExperience:'+splitScope(sender.url));
           await chromeApi.storage.session.remove('splitProvisional:'+sender.tab.id);
@@ -264,16 +298,21 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
       }
       if (type === 'statusGet' || type === 'retry' || type === 'pageAction') {
         const tab = targetTab && onWeb(targetTab.url) ? targetTab : undefined;
-        if (!tab) return {hidden:0,pending:0,error:t('bgStatusNotWebpage'),available:false};
+        if (!tab) {
+          if (type !== 'statusGet') throw new Error(t('bgStatusNotWebpage'));
+          return {hidden:0,pending:0,error:t('bgStatusNotWebpage'),available:false};
+        }
         if (type === 'pageAction') {
           if (embedded && !['preview','toggleVisibility'].includes(payload?.action)) throw new Error(t('bgDisallowed'));
           if (!['preview','clearRules','toggleVisibility','undoSave'].includes(payload?.action)) throw new Error(t('bgErrorPageAction'));
+          await checkOrigin();
           if (settingsPage && payload.action === 'preview') await chromeApi.tabs.update(tab.id,{active:true});
+          await checkOrigin();
           const reply = await chromeApi.tabs.sendMessage(tab.id,{type:'pageAction',action:payload.action});
           if (reply?.ok === false) throw new Error(reply.error || t('bgErrorPageActionFailed'));
           return {};
         }
-        if (type === 'retry') {await chromeApi.tabs.sendMessage(tab.id,{type:'retry'}); return {};}
+        if (type === 'retry') {await checkOrigin(); await chromeApi.tabs.sendMessage(tab.id,{type:'retry'}); return {};}
         const settings=await config(tab.url);
         const reason=!settings.enabled?t('statusPurifierOff'):!settings.aiEnabled?t('bgReasonAiOff'):!settings.configured?t('bgReasonNoKey'):'';
         return {reason,...((await chromeApi.storage.session.get('status:'+tab.id))['status:'+tab.id] ?? {hidden:0,pending:0,error:''}),available:true};
@@ -333,7 +372,7 @@ export function createMessageHandler(chromeApi, fetchImpl = fetch) {
       }));
       return {results,errors};
     };
-    const writes=['rulesSet','rulesDelete','rulesUndo','rulesManagerDelete'];
+    const writes=['rulesSet','rulesDelete','rulesClearPage','rulesUndo','rulesManagerDelete'];
     const result=writes.includes(message.type)?ruleWrites.then(work):work();
     if(writes.includes(message.type))ruleWrites=result.catch(()=>{});
     result.then(data=>respond({ok:true,data})).catch(error=>respond({ok:false,error:error.message,...(error.code?{code:error.code}:{})}));

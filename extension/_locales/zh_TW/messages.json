@@ -147,7 +147,7 @@
     "message": "已撤銷上次儲存"
   },
   "popupClearedPageRules": {
-    "message": "已清除適用於本頁的淨化規則"
+    "message": "已清除本頁專屬規則，共用規則已保留"
   },
   "statusPurifierOff": {
     "message": "網頁淨化已關閉"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "設定無效，閱讀需求最多 4000 字元"
+  },
+  "bgErrorSiteChanged": {
+    "message": "目標網站已變更。請返回原網站或重新開啟設定；尚未儲存的內容仍保留在表單中。"
   },
   "bgErrorSaveOnWeb": {
     "message": "請在目標網頁中儲存閱讀需求"

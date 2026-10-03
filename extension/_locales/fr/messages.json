@@ -147,7 +147,7 @@
     "message": "Dernier enregistrement annulé"
   },
   "popupClearedPageRules": {
-    "message": "Règles de cette page effacées"
+    "message": "Les règles propres à cette page ont été effacées. Les règles partagées ont été conservées."
   },
   "statusPurifierOff": {
     "message": "La purification des pages est désactivée"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Réglages invalides : 4000 caractères maximum pour les préférences de lecture"
+  },
+  "bgErrorSiteChanged": {
+    "message": "Le site cible a changé. Revenez au site initial ou rouvrez les paramètres ; vos modifications non enregistrées restent dans le formulaire."
   },
   "bgErrorSaveOnWeb": {
     "message": "Ouvrez une page web pour enregistrer les préférences de lecture"

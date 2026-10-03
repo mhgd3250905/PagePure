@@ -147,7 +147,7 @@
     "message": "마지막 저장을 취소했습니다"
   },
   "popupClearedPageRules": {
-    "message": "이 페이지에 적용되던 정화 규칙을 삭제했습니다"
+    "message": "이 페이지 전용 규칙을 지웠습니다. 공유 규칙은 유지됩니다."
   },
   "statusPurifierOff": {
     "message": "페이지 정화가 꺼져 있습니다"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "설정이 잘못되었습니다. 읽기 기준은 최대 4000자입니다"
+  },
+  "bgErrorSiteChanged": {
+    "message": "대상 사이트가 변경되었습니다. 원래 사이트로 돌아가거나 설정을 다시 여세요. 저장하지 않은 내용은 양식에 남아 있습니다."
   },
   "bgErrorSaveOnWeb": {
     "message": "대상 웹 페이지에서 읽기 기준을 저장해 주세요"

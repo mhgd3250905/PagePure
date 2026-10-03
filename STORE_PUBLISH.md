@@ -2,14 +2,29 @@
 
 ## GitHub 下载（当前公开分发）
 
-仓库：<https://github.com/mhgd3250905/PagePure>。台账最后记录的 GitHub Release 是 [v0.7.5](https://github.com/mhgd3250905/PagePure/releases/tag/v0.7.5)，已发布安装包 SHA-256 为 `062729f66ba68e18b384f2fb109e73d957385b8e6a0311062f8d273059acdbA0`。2026-09-23 的审查修复已打包为 0.7.6 并提交 Chrome/Edge 商店（**Edge 09-24 已过审上架 Live；Chrome 仍在审核中**，见下方台账），但 **GitHub Release 尚未发布**，v0.7.5 仍是 GitHub 当前公开安装包。GitHub 分发与商店审核相互独立。
+仓库：<https://github.com/mhgd3250905/PagePure>。2026-10-03 访问 [GitHub 最新 Release](https://github.com/mhgd3250905/PagePure/releases/latest) 仍指向 [v0.7.5](https://github.com/mhgd3250905/PagePure/releases/tag/v0.7.5)，已发布安装包 SHA-256 为 `062729f66ba68e18b384f2fb109e73d957385b8e6a0311062f8d273059acdba0`。**Chrome 与 Edge 商店均已上架 0.7.6**；当前源码修复版本为 **0.7.7（未发布）**，本轮保存/推送源码不等于发布新包、创建 Release 或商店更新。GitHub 分发与商店审核相互独立，主推渠道为两家浏览器商店。
 
 ## 发布状态台账
 
 | 市场 | 状态 | 日期 | 说明 |
 | --- | --- | --- | --- |
-| Edge Add-ons | ✅ 已发布（Live，最后观察） | 2026-09-24 | **v0.7.6** 于 09-23 提审、09-24 复核已过审上架（Partner Center 概述单卡“版本 0.7.6 — Live”；公开页 https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen 显示“版本0.7.6”） |
-| Chrome Web Store | 🕐 正在审核（审核中，最后观察） | 2026-09-24 | **v0.7.6** 09-23 提交审核；09-23 曾误记为当天过审上架，09-24 后台尝试发布时弹窗“无法修改或发布审核中的内容”，确认**仍在审核、未上架**；公开侧核验一致（直链 `detail/empty-title/<id>` 占位、站内搜索无结果、Google 未索引）；审核通过后按提交时选择自动发布；全站主机权限可能触发深入审核延迟。商品 ID `hfadgbminekfilodfjdpbllimaemlhdb`，公开 URL 待过审后回填 |
+| Edge Add-ons | ✅ 已发布（Live） | 独立核验 2026-09-24；用户确认 2026-10-03 | **v0.7.6**。09-24 Partner Center 与公开页双确认；用户 10-03 确认已上架。入口：[Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ijiaoneehjiebocilhnbmkoohlleaeen)。本轮网页抓取工具不可访问该站，未声称重新核验后台或版本。 |
+| Chrome Web Store | ✅ 已发布（公开页面可用） | 2026-10-03 | 官方公开页可查看并显示 **v0.7.6**、更新日期 **2026-09-26**；这是页面标注日期，不据此推断实际过审时间。入口：[Chrome Web Store](https://chromewebstore.google.com/detail/%E7%BD%91%E9%A1%B5%E5%87%80%E5%8C%96%E5%8A%A9%E6%89%8B-%C2%B7-pagepure/hfadgbminekfilodfjdpbllimaemlhdb)。09-24“仍在审核”记录保留为历史。 |
+
+## 0.7.7 本地源码保存（2026-10-03）
+
+五项缺陷修复与界面补齐纳入 0.7.7，详见 [版本台账](MILESTONE.md)和[修复报告](docs/PAGEPURE_FIXES_2026-10-03.md)。本版本尚未打包提审或创建 GitHub Release；当前推广页面展示的是用户在 CSDN 自选区域并保存规则后的结果，不代表默认安装后自动隐藏全部广告。
+
+## 宣传发布记录（2026-10-03）
+
+- 英文竖屏宣传视频：20 秒、1080×1920，真实 CSDN 使用前后截图与选区截图；合成英语旁白、原创程序生成背景节奏、英文标题。主 CTA 为 Chrome Web Store / Edge Add-ons 搜索 PagePure。中英文视频源与发布截图保存在忽略的 `output/pagepure-promo-2026-10-03-v2/`，不随 Git 分发。
+- X：账号 `盛开 / @mhgd3250905`，已公开发布视频与两家商店链接。[帖子](https://x.com/mhgd3250905/status/2106223496724685114)。
+- YouTube：频道 `盛开`，已公开发布英文 Shorts，附人工提供的英文 SRT、商店 URL 和搜索安装指引。[视频](https://www.youtube.com/shorts/FeT76Fi1FoI)。版权检查未发现问题；已披露合成旁白。频道上传自定义缩略图需手机号验证，本次使用生成的视频画面；Studio 提示可点击外链需一次性验证，因此保留搜索安装指引。
+- 上述是本会话浏览器 UI 已确认的发布观察；不作为 0.7.7 代码验证、商店更新或流量/转化效果证明。
+
+## 历史提交与发布材料
+
+以下记录按当时状态保留；旧“待审核”或“未发布”措辞不覆盖顶部当前台账。
 
 **Edge 更新流程经验（2026-09-21 实测）**：扩展处于“正在审阅”时无法发布更新（会提示“你的扩展正在审核中”）。若旧提交尚未发布过，可走「扩展概述 → 取消提交」（取消需 5–10 分钟生效），随后草稿上会出现「发布」按钮，补填认证说明后即可送审。
 

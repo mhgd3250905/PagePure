@@ -113,12 +113,12 @@ async function popupEnvironment(config = {}) {
   const requests = [], messages = [];
   const runtime = {sendMessage: async message => {
     requests.push(message);
-    if (message.type === 'configGet') return {ok:true, data:{limited:true, enabled:true, aiEnabled:false, context:'保留正文', configured:false,...config}};
+    if (message.type === 'configGet') return {ok:true, data:{limited:true, enabled:true, aiEnabled:false, context:'保留正文', configured:false,origin:'https://example.com',...config}};
     if (message.type === 'statusGet') return {ok:true, data:{hidden:0, pending:0}};
     return {ok:true, data:{configured:false}};
   }};
   const context = {
-    document, chrome:{...i18nChrome, runtime}, URLSearchParams, location:{search:'?embedded=1'},
+    document, chrome:{...i18nChrome, runtime}, URL, URLSearchParams, location:{search:'?embedded=1'},
     window:{parent:{postMessage: message => messages.push(message)}}, setTimeout:() => 0, clearTimeout:() => {}
   };
   runInNewContext(i18nSource, context);
@@ -167,7 +167,8 @@ test('AI opt-in is saved separately and manual rules can be cleared', async () =
   env.document.querySelector('#clearRules').click();
   await env.flush();
   assert.ok(env.requests.some(message => message.type === 'pageAction' && message.payload.action === 'clearRules'));
-  assert.match(env.document.querySelector('#status').textContent,/适用于本页的净化规则/);
+  assert.match(env.document.querySelector('#status').textContent,/本页专属规则/);
+  assert.match(env.document.querySelector('#status').textContent,/共享规则已保留/);
 });
 
 test('manual preview works without a key or AI consent and advanced settings start collapsed', async () => {

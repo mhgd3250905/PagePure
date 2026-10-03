@@ -147,7 +147,7 @@
     "message": "Último salvamento desfeito"
   },
   "popupClearedPageRules": {
-    "message": "Regras desta página apagadas"
+    "message": "As regras exclusivas desta página foram removidas. As regras compartilhadas foram mantidas."
   },
   "statusPurifierOff": {
     "message": "A depuração de páginas está desligada"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Ajustes inválidos. As preferências de leitura aceitam até 4000 caracteres"
+  },
+  "bgErrorSiteChanged": {
+    "message": "O site de destino mudou. Volte ao site original ou reabra as configurações; as alterações não salvas permanecem no formulário."
   },
   "bgErrorSaveOnWeb": {
     "message": "Abra uma página da web para salvar as preferências de leitura"

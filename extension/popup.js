@@ -26,15 +26,24 @@ const pageStatus = document.querySelector('#pageStatus');
 let configured = false;
 let savedContext = '';
 let limited = true;
+let boundOrigin = '';
+let pageAvailable = true;
+function showPageAvailability() {
+  for (const id of ['preview','toggleVisibility','retry','clearRules']) document.getElementById(id).disabled = !pageAvailable;
+  document.querySelector('#manageRules').disabled = limited && !pageAvailable;
+}
 function showAccess() {
   for (const element of [document.querySelector('label[for="enabled"]'), document.querySelector('.advanced')]) {
     element.hidden = limited;
     element.style.display = limited ? 'none' : '';
   }
+  const label = document.querySelector('#manageRules [data-i18n]'), key = limited ? 'popupManageRules' : 'managerHeading';
+  label.setAttribute('data-i18n', key); label.textContent = t(key);
 }
 showAccess();
 async function request(type, payload, timeoutMs = 0) {
   let timer;
+  if (boundOrigin && ['configGet','configSet','keyClear','statusGet','retry','pageAction','settingsOpen'].includes(type)) payload = {...payload, expectedOrigin:boundOrigin};
   const response = chrome.runtime.sendMessage({type, ...(payload ? {payload} : {})});
   let result;
   try {
@@ -42,7 +51,14 @@ async function request(type, payload, timeoutMs = 0) {
       timer = setTimeout(() => reject(new Error(t('popupErrorTimeout'))), timeoutMs);
     })]) : await response;
   } finally { if (timer !== undefined) clearTimeout(timer); }
-  if (!result?.ok) throw new Error(result?.error || t('popupErrorRequest'));
+  if (!result?.ok) {
+    if (result?.code === 'siteChanged') { pageAvailable = false; showPageAvailability(); }
+    throw Object.assign(new Error(result?.error || t('popupErrorRequest')), {code:result?.code});
+  }
+  if (['pageAction','retry'].includes(type) && result.data?.available === false) {
+    pageAvailable = false; showPageAvailability();
+    throw new Error(result.data.error || t('bgStatusNotWebpage'));
+  }
   return result.data;
 }
 function showKeyState(value) {
@@ -58,18 +74,23 @@ function showMessage(message, isError = false) {
 async function refreshStatus() {
   try {
     const state = await request('statusGet', undefined, 8000);
+    if (typeof state?.available === 'boolean') { pageAvailable = state.available; showPageAvailability(); }
     if (!state || (state.hidden == null && state.pending == null && !state.error)) {
       pageStatus.textContent = t('popupStatusNoPage');
       return;
     }
-    pageStatus.textContent = state.error ? t('popupStatusFail', state.error) : state.reason ? state.reason : t('popupStatusHidden', state.hidden || 0, state.pending || 0);
-  } catch (error) { pageStatus.textContent = error.message; }
+    const counts = t('popupStatusHidden', state.hidden || 0, state.pending || 0);
+    pageStatus.textContent = state.error ? t('popupStatusFail', state.error) : state.reason ? counts+'\n'+state.reason : counts;
+  } catch (error) {
+    pageStatus.textContent = error.message;
+    if (error.code === 'siteChanged') { pageAvailable = false; showPageAvailability(); }
+  }
 }
 async function perform(action) {
   controls.disabled = true;
   try { await action(); }
   catch (error) { showMessage(error.message, true); }
-  finally { controls.disabled = false; clearKey.disabled = !configured; }
+  finally { controls.disabled = false; clearKey.disabled = !configured; showPageAvailability(); }
 }
 enabled.addEventListener('change', () => {
   if (limited) return;
@@ -151,11 +172,16 @@ async function initialize() {
   try {
     const config = await request('configGet', undefined, 8000);
     limited = config.limited !== false;
+    boundOrigin = config.origin || '';
+    pageAvailable = Boolean(boundOrigin);
     showAccess();
+    showPageAvailability();
     enabled.checked = Boolean(config.enabled);
     aiEnabled.checked = Boolean(config.aiEnabled);
     context.value = config.context || '';
     savedContext = context.value;
+    const identity = document.querySelector('#siteIdentity');
+    identity.textContent = boundOrigin; identity.hidden = !boundOrigin;
     if(config.origin)document.querySelector('label[for="context"]').textContent=t('popupContextSiteHost', new URL(config.origin).hostname);
     showKeyState(config.configured);
     controls.disabled = false;

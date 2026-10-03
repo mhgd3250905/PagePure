@@ -21,7 +21,7 @@
       .seal-mark {width:10px;height:5px;border-left:2px solid #38766a;border-bottom:2px solid #38766a;transform:rotate(-53deg);margin-bottom:7px;pointer-events:none;}
       .seal-word {font-weight:650;line-height:1.2;transform:rotate(-8deg);pointer-events:none;white-space:nowrap;}
       button:focus-visible { outline:2px solid #315fe9; outline-offset:3px; }
-      .panel { position:fixed; width:358px; height:480px; background:#fbfcfe; border:1px solid #e1e6ef; border-radius:20px; overflow:hidden; box-shadow:0 18px 64px #18223520,0 3px 12px #1822350a; }
+      .panel { position:fixed; width:358px; height:440px; background:#fbfcfe; border:1px solid #e1e6ef; border-radius:20px; overflow:hidden; box-shadow:0 18px 64px #18223520,0 3px 12px #1822350a; }
       .panel[hidden] { display:none; }
       .bar { height:62px; padding:0 16px 0 20px; display:flex; align-items:center; justify-content:space-between; color:#182235; background:#fbfcfe; border-bottom:1px solid #edf0f5; }
       .brand {display:flex;align-items:center;gap:9px;font-size:15px;letter-spacing:.1px;}
@@ -31,7 +31,7 @@
       .brand-seal::before{content:"";position:absolute;inset:3px;border:1px dashed #235d5766;border-radius:50%}
       .brand-seal .seal-mark{width:6px;height:3px;border-width:1px;margin-bottom:3px}
       .brand-seal-word{font-weight:650;line-height:1.2;transform:rotate(-8deg)}
-      .close { display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:9px;background:transparent;color:#7b8597;font-size:21px;line-height:1; }
+      .close { display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:9px;background:transparent;color:#5e6c81;font-size:21px;line-height:1; }
       .close:hover {background:#edf1f7;color:#182235;}
       iframe { display:block; border:0; width:100%; height:calc(100% - 62px); background:#fbfcfe; }
     </style><section class="panel" id="jev-console-panel" aria-label="${t('consolePanelAria')}" hidden><div class="bar"><strong class="brand"><span class="brand-seal" aria-hidden="true"><span class="seal-mark"></span><span class="brand-seal-word"></span></span><span class="brand-name"></span></strong><button class="close" type="button" aria-label="${t('consoleCollapse')}">×</button></div></section><button class="launcher" type="button" aria-label="${t('consoleLauncherAria')}" aria-controls="jev-console-panel" aria-expanded="false"><span class="seal-mark" aria-hidden="true"></span><span class="seal-word" aria-hidden="true"></span></button>`;
@@ -51,7 +51,7 @@
       host.style.setProperty('bottom','auto','important');
       launcher.style.width = launcher.style.height = `${size}px`;
       const panelWidth = Math.max(0,Math.min(358,width-16));
-      const panelHeight = Math.max(0,Math.min(480,height-16));
+      const panelHeight = Math.max(0,Math.min(440,height-16));
       panel.style.width = `${panelWidth}px`;
       panel.style.height = `${panelHeight}px`;
       panel.style.left = `${clamp(position.x,8,width-panelWidth-8)}px`;

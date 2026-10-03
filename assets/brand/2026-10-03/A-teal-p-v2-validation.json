@@ -1,0 +1,30 @@
+{
+  "source": "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-v2-source.png",
+  "size": [
+    1254,
+    1254
+  ],
+  "original_mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "fully_transparent_pixel_count": 481496,
+  "partially_transparent_pixel_count": 1087985,
+  "fully_opaque_pixel_count": 3035,
+  "core_20_to_80_percent_alpha_min": 252,
+  "core_20_to_80_percent_alpha_below_255": 567009,
+  "top_left_pixel": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "exports": [
+    "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-v2-16.png",
+    "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-v2-32.png",
+    "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-v2-48.png",
+    "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-v2-128.png",
+    "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-v2-256.png"
+  ]
+}

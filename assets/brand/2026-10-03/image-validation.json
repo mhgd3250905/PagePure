@@ -1,0 +1,92 @@
+{
+  "A-teal-p": {
+    "source": "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-source.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "original_mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "fully_transparent_pixel_count": 490633,
+    "partially_transparent_pixel_count": 1079501,
+    "fully_opaque_pixel_count": 2382,
+    "core_20_to_80_percent_alpha_min": 1,
+    "core_20_to_80_percent_alpha_below_255": 567009,
+    "top_left_pixel": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "exports": [
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-16.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-32.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-48.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-128.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\A-teal-p-256.png"
+    ]
+  },
+  "B-blue-pure-page": {
+    "source": "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\B-blue-pure-page-source.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "original_mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "fully_transparent_pixel_count": 434279,
+    "partially_transparent_pixel_count": 1134649,
+    "fully_opaque_pixel_count": 3588,
+    "core_20_to_80_percent_alpha_min": 253,
+    "core_20_to_80_percent_alpha_below_255": 567009,
+    "top_left_pixel": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "exports": [
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\B-blue-pure-page-16.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\B-blue-pure-page-32.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\B-blue-pure-page-48.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\B-blue-pure-page-128.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\B-blue-pure-page-256.png"
+    ]
+  },
+  "C-ink-reading-page": {
+    "source": "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\C-ink-reading-page-source.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "original_mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "fully_transparent_pixel_count": 645008,
+    "partially_transparent_pixel_count": 924967,
+    "fully_opaque_pixel_count": 2541,
+    "core_20_to_80_percent_alpha_min": 253,
+    "core_20_to_80_percent_alpha_below_255": 567009,
+    "top_left_pixel": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "exports": [
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\C-ink-reading-page-16.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\C-ink-reading-page-32.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\C-ink-reading-page-48.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\C-ink-reading-page-128.png",
+      "E:\\AII-Jev\\zhihu\\assets\\brand\\2026-10-03\\C-ink-reading-page-256.png"
+    ]
+  }
+}

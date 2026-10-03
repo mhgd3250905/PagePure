@@ -147,7 +147,7 @@
     "message": "已撤销上次保存"
   },
   "popupClearedPageRules": {
-    "message": "已清除适用于本页的净化规则"
+    "message": "已清除本页专属规则，共享规则已保留"
   },
   "statusPurifierOff": {
     "message": "网页净化已关闭"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "设置无效，阅读需求最多 4000 字符"
+  },
+  "bgErrorSiteChanged": {
+    "message": "目标网站已变化。请返回原网站或重新打开设置；未保存的内容仍保留在表单中。"
   },
   "bgErrorSaveOnWeb": {
     "message": "请在目标网页中保存阅读需求"

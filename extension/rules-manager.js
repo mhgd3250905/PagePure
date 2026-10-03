@@ -185,6 +185,10 @@
   });
   function showView(view) {
     const rules = view === 'rules';
+    const titleKey = rules ? 'managerHeading' : 'managerSettingsHeading';
+    $('viewTitle').setAttribute('data-i18n', titleKey);
+    $('viewTitle').textContent = t(titleKey);
+    $('viewIntro').hidden = !rules;
     $('rules-view').hidden = !rules;
     $('settings-view').hidden = rules;
     $('nav-rules').setAttribute('aria-current', rules ? 'page' : 'false');

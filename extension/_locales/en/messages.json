@@ -147,7 +147,7 @@
     "message": "Last save undone"
   },
   "popupClearedPageRules": {
-    "message": "Rules for this page were cleared"
+    "message": "Cleared rules specific to this page. Shared rules were kept."
   },
   "statusPurifierOff": {
     "message": "Page purifier is off"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Invalid settings. Reading preferences are limited to 4000 characters"
+  },
+  "bgErrorSiteChanged": {
+    "message": "The target site has changed. Return to the original site or reopen settings; your unsaved edits remain in the form."
   },
   "bgErrorSaveOnWeb": {
     "message": "Open a web page to save reading preferences"

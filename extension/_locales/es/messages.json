@@ -147,7 +147,7 @@
     "message": "Último guardado deshecho"
   },
   "popupClearedPageRules": {
-    "message": "Reglas de esta página borradas"
+    "message": "Se borraron las reglas exclusivas de esta página. Se conservaron las reglas compartidas."
   },
   "statusPurifierOff": {
     "message": "La depuración de páginas está desactivada"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Ajustes no válidos. Las preferencias de lectura admiten hasta 4000 caracteres"
+  },
+  "bgErrorSiteChanged": {
+    "message": "El sitio de destino ha cambiado. Vuelve al sitio original o abre de nuevo los ajustes; los cambios sin guardar permanecen en el formulario."
   },
   "bgErrorSaveOnWeb": {
     "message": "Abre una página web para guardar las preferencias de lectura"

@@ -147,7 +147,7 @@
     "message": "Son kayıt geri alındı"
   },
   "popupClearedPageRules": {
-    "message": "Bu sayfanın temizleme kuralları silindi"
+    "message": "Bu sayfaya özel kurallar temizlendi. Paylaşılan kurallar korundu."
   },
   "statusPurifierOff": {
     "message": "Sayfa temizleme kapalı"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Ayarlar geçersiz: okuma tercihleri en fazla 4000 karakter olabilir"
+  },
+  "bgErrorSiteChanged": {
+    "message": "Hedef site değişti. Önceki siteye dönün veya ayarları yeniden açın; kaydedilmemiş değişiklikler formda kalır."
   },
   "bgErrorSaveOnWeb": {
     "message": "Okuma tercihlerini kaydetmek için bir web sayfası açın"

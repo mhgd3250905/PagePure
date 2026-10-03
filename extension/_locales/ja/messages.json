@@ -147,7 +147,7 @@
     "message": "直前の保存を取り消しました"
   },
   "popupClearedPageRules": {
-    "message": "このページの浄化ルールを削除しました"
+    "message": "このページ専用のルールを削除しました。共有ルールは保持されています。"
   },
   "statusPurifierOff": {
     "message": "ページ浄化はオフです"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "設定が無効です。閲読設定は最大 4000 文字です"
+  },
+  "bgErrorSiteChanged": {
+    "message": "対象サイトが変わりました。元のサイトに戻るか設定を開き直してください。未保存の内容はフォームに残っています。"
   },
   "bgErrorSaveOnWeb": {
     "message": "ウェブページ上で閲読設定を保存してください"

@@ -1,6 +1,24 @@
 # PagePure 版本台账
 
-## 0.7.6 商店发布候选（2026-09-23 提审）
+## 0.7.7 本地修复版本（2026-10-03，未发布）
+
+当前源码版本为 **0.7.7**。五项缺陷修复：设置固定核对来源网站；清理本页保留跨页共享规则；网站规则编辑固定差量基线，保留其他标签的增删；并发初始化复用同一 Promise，取消或导航后的迟到结果不挂载；不可净化页面返回失败并禁用相应操作。界面补齐网站标识、字号/对比度/焦点、窄屏布局、状态数量和规则管理标题，原 Logo 与生产图标保留。实现及截图见 [功能修复与界面补齐](docs/PAGEPURE_FIXES_2026-10-03.md)；[修复前审核](docs/PAGEPURE_REVIEW_2026-10-03.md)与未采用 Logo 候选仅作历史附件。
+
+`extension/manifest.json`、`package.json`、`package-lock.json` 根项目版本统一为 0.7.7；依赖、权限与存储格式沿用既有版本。本次只保存源码并普通推送；0.7.7 尚未提审商店或发布 GitHub Release。Chrome/Edge 商店已发布版本为 0.7.6，GitHub 当前公开下载为 0.7.5，具体观察时间与证据见 [商店发布记录](STORE_PUBLISH.md)。
+
+### 本阶段收束基线与验证
+
+- 基线：`5b8cc3d5cb9d525eca596c19f4f51f95b5411f74`（审核报告明确记录的起点，`master`）；Preflight HEAD 与基线相同，祖先关系通过，提交 delta 为 0。
+- Preflight 完整状态：27 个 tracked 修改（实现/UI 10、语言文件 12、测试 5），49 个 untracked 附件（报告 2、截图 20、Logo 探索附件 27）；暂存、删除和重命名均为 0。全部来自本会话授权的审核、修复与设计工作；附件保留原始内容，Logo 不采用。被忽略的本地视频与验证输出留在 `output/`，不纳入 Git。
+- 当前事实源：README 使用/安装说明、本文 0.7.7 节、STORE_PUBLISH 顶部发布状态；manifest/package/lockfile 是当前版本配置。VERSION_HISTORY、0.7.6 提审快照和修复前审核属于 history，不冒充当前修复验收。
+- 2026-10-03 18:47（Asia/Shanghai）在上述 HEAD 的未提交修复工作树运行 `npm test`，237/237 通过；`git diff --check` 通过。tracked delta SHA-256：`28ee90e379245589209d25e56e9671d3780fce2da2ddbc243ca6f557d85135d8`（PowerShell UTF-8 编码 `git diff --binary HEAD | Out-String`）。此前 219 项证据属于 0.7.6 历史，不能代替本轮验证。
+- 收尾验证：2026-10-03 18:52（Asia/Shanghai）运行 `npm test -- --test-reporter=dot`，237 项全部通过；随后对 5 个修改后的 JS 执行 `node --check`，核对 manifest/package/lockfile 四处根版本均为 0.7.7，并检查 87 个文档相对链接目标存在；`git diff --check` 通过。12 种语言 JSON、key 和占位符一致性由该完整测试中的 i18n 测试覆盖。
+- 上述证据绑定最终运行源码/测试/配置的 55 个文件集合 SHA-256 `1bba5cf9160bee5569527987dde9612f1e24fa846cf044dcfbafe88dee0c8e3a`：按 `git ls-files -- extension '*.test.mjs' package.json package-lock.json` 顺序，将每个路径及 `git hash-object` 结果以单个 LF 连接、UTF-8 编码后计算 SHA-256。后续只有文档更新，运行源码与该集合保持一致；提交前再核对集合与 staged diff，结果写入提交说明。
+- 浏览器截图与社交发布是此前的外部观察，不是本轮 HEAD 构建或所有网站兼容证明；本次没有复用旧安装包来证明 0.7.7，也未调用真实 AI。
+
+## 0.7.6 商店提审历史（2026-09-23；现已上架）
+
+以下为当时提审与 09-24 复核快照，其中“审核中”是历史状态。2026-10-03 已核验 Chrome 0.7.6 公开页面，当前商店状态以 STORE_PUBLISH 顶部为准。
 
 当前工作区以已发布 0.7.5 为基线形成 0.7.6 商店发布候选，保留 2026-09-22 的设置/隐私修复，并补充五项经复现的问题修复：阻止 CSS 全透明/零透明滤镜/`content-visibility:hidden` 内容进入 AI 描述；以隔离世界所有权登记取代可由网页伪造的 `data-jev-ui` 标记；把主动取消请求作为结构化取消状态传播，避免误报网络故障或暂停扫描；隐藏标记只清理由扩展添加且未被页面改写的值；预览候选、选中、焦点、分组状态不再写入页面节点，只由闭合扩展遮罩层绘制；另删除两条无生产使用者的共享 CSS 标记规则。`npm test` 219/219 通过，`npm audit` 无已知漏洞，JS 语法、12 个语言 JSON 和 `git diff --check` 通过。详细证据、复核结果、台账核对和外部状态限制见[深度审查与修复报告](docs/SECURITY_AUDIT_2026-09-23.md)。Chrome Web Store 首发包 `output/PagePure-0.7.6-chrome-candidate.zip`（39 文件，190,414 字节，SHA-256 `47efcbfb489ebeb50cf443541b50a34510c51ec7191c6823dfc273f331e0c3d5`）于 2026-09-23 提交审核（商品 ID `hfadgbminekfilodfjdpbllimaemlhdb`）；09-23 曾误记为当天过审上架，**09-24 经后台弹窗（“无法修改或发布审核中的内容”）与公开侧核验确认仍在审核中、未上架**，审核通过后按提交时选择自动发布；公开商品 URL 待过审后回填，详见发布台账。提交时已选择审核通过后自动公开发布。免费、公开、所有地区；开发者账号已验证联系邮箱并选择“非交易者”。Google 提示全站 HTTP/HTTPS 主机权限可能触发深入审核、延长发布时间，该权限支撑跨网站核心功能。演示视频已上传 YouTube 并设为“不公开列出”：<https://youtu.be/SnaORhEHRTQ>；公开隐私 Gist 已更新并与本地文件逐字核对一致（2026-09-23 10:55:33Z，7,961 字节）。**2026-09-23 同日以同一份包（`PagePure-0.7.6.zip`）提交 Edge Add-ons 更新审核**（当时 0.7.5 已过审 Live，走「更新」流程，无需取消旧审），**09-24 复核已过审并自动替换 0.7.5 上架（Live）**，详见 STORE_PUBLISH.md 台账；后台材料见[0.7.6 提审准备](docs/CHROME_WEB_STORE_0.7.6_SUBMISSION.md)。
 

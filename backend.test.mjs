@@ -270,7 +270,7 @@ test('generic sites require per-origin AI opt in before sending any content',asy
   assert.equal((await h.send('configGet',{},generic)).data.aiEnabled,false);
   assert.equal((await h.send('classify',{blocks:[block('x')]},generic)).data.errors.length,1);
   assert.equal(calls,0);
-  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true},settings)).ok,true);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true,expectedOrigin:'https://example.org'},settings)).ok,true);
   assert.equal((await h.send('configGet',{},generic)).data.aiEnabled,true);
   assert.equal((await h.send('classify',{blocks:[block('x')]},generic)).data.results[0].hide,true);
   assert.equal(calls,1);
@@ -392,8 +392,8 @@ test('reading goals are per origin and legacy Zhihu defaults do not leak into CS
  const home=h.settings({id:2,url:'https://www.csdn.net/'});
  const blog=h.settings({id:3,url:'https://blog.csdn.net/a/article/details/1'});
  const c=await h.send('configGet',undefined,home);assert.equal(c.data.context,DEFAULT_CONTEXT);assert.doesNotMatch(c.data.context,/知乎/);
- await h.send('configSet',{enabled:true,context:'屏蔽：首页推广'},home);
- await h.send('configSet',{enabled:true,context:'屏蔽：文章推广'},blog);
+ await h.send('configSet',{enabled:true,context:'屏蔽：首页推广',expectedOrigin:'https://www.csdn.net'},home);
+ await h.send('configSet',{enabled:true,context:'屏蔽：文章推广',expectedOrigin:'https://blog.csdn.net'},blog);
  assert.equal((await h.send('configGet',undefined,home)).data.context,'屏蔽：首页推广');
  assert.equal((await h.send('configGet',undefined,blog)).data.context,'屏蔽：文章推广');
  assert.equal((await h.send('configGet')).data.context,'只保留知乎的文章');
@@ -690,7 +690,7 @@ for(const type of ['classify','splitBlock'])test(`clearing the key aborts three 
 test('site AI revocation cancels only that origin and leaves other origin work running',async()=>{
   const held=heldRequests(),h=harness(held.fetch);await h.configure();
   const other={...h.content,url:'https://example.org/article',tab:{id:2,url:'https://example.org/article'}};
-  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true},h.settings(other.tab))).ok,true);
+  assert.equal((await h.send('configSet',{enabled:true,context:DEFAULT_CONTEXT,aiEnabled:true,expectedOrigin:'https://example.org'},h.settings(other.tab))).ok,true);
   const first=h.send('classify',{blocks:[{...block('a'),text:'first origin'}]});
   await waitFor(()=>held.requests.length===1);
   const second=h.send('classify',{blocks:[{...block('b'),text:'second origin'}]},other);
@@ -733,13 +733,13 @@ test('trusted settings bind all operations to the URL tab id instead of active o
   const h=harness(),messages=[];
   const settings=h.settings({id:9,url:'https://example.org/news'});
   h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
-  assert.equal((await h.send('configSet',{enabled:true,context:'Keep tutorials',aiEnabled:true,tabId:1},settings)).ok,true);
+  assert.equal((await h.send('configSet',{enabled:true,context:'Keep tutorials',aiEnabled:true,tabId:1,expectedOrigin:'https://example.org'},settings)).ok,true);
   assert.equal(h.api.storage.local.values['context:https://example.org'],'Keep tutorials');
   assert.equal(h.api.storage.local.values['context:https://www.zhihu.com'],undefined);
   const config=await h.send('configGet',{tabId:1},settings);
   assert.equal(config.data.origin,'https://example.org');assert.equal(config.data.limited,false);
-  await h.send('retry',{tabId:1},settings);
-  await h.send('pageAction',{action:'preview',tabId:1},settings);
+  await h.send('retry',{tabId:1,expectedOrigin:'https://example.org'},settings);
+  await h.send('pageAction',{action:'preview',tabId:1,expectedOrigin:'https://example.org'},settings);
   assert.deepEqual(messages.filter(item=>item.message.type!=='configChanged'),[{id:9,message:{type:'retry'}},{id:9,message:{type:'pageAction',action:'preview'}}]);
   assert.deepEqual(h.activated,[{id:9,active:true}]);
 });
@@ -768,6 +768,148 @@ test('settings never fall back to an active webpage after the bound tab closes o
     }
   }
   assert.deepEqual(h.api.storage.local.values,{});assert.deepEqual(h.activated,[]);
+});
+
+test('settings reject cross-origin saves and actions while accepting same-origin navigation',async()=>{
+  const h=harness(),settings=h.settings({id:9,url:'https://alpha.test/news'}),messages=[];
+  h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
+  const original=(await h.send('configGet',undefined,settings)).data;
+  const payload={enabled:false,context:'Keep tutorials',aiEnabled:true,key:'replacement-key-123456',expectedOrigin:original.origin};
+  h.api.storage.local.values.jevApiKey='original-key';
+  h.tabs.set(9,{id:9,url:'https://beta.test/news'});
+  for(const [type,extra] of [['configSet',{}],['keyClear',{}],['retry',{}],['pageAction',{action:'clearRules'}],['configGet',{}],['statusGet',{}]]) {
+    const result=await h.send(type,{...payload,...extra},settings);
+    assert.equal(result.ok,false,type);assert.equal(result.code,'siteChanged',type);
+  }
+  assert.deepEqual(h.api.storage.local.values,{jevApiKey:'original-key'});
+  assert.deepEqual(messages,[]);assert.deepEqual(h.activated,[]);
+  h.tabs.set(9,{id:9,url:'https://alpha.test/another?sort=latest#reading'});
+  assert.equal((await h.send('configSet',payload,settings)).ok,true);
+  assert.equal(h.api.storage.local.values['context:https://alpha.test'],'Keep tutorials');
+  assert.equal(h.api.storage.local.values['context:https://beta.test'],undefined);
+  assert.equal((await h.send('pageAction',{action:'preview',expectedOrigin:original.origin},settings)).ok,true);
+});
+
+test('settings require a canonical expected origin and recheck it after asynchronous configuration reads',async()=>{
+  const h=harness(),settings=h.settings({id:9,url:'https://alpha.test/news'});
+  for(const expectedOrigin of [undefined,null,'https://alpha.test/','https://alpha.test/path','file:///private.txt',42]) {
+    assert.equal((await h.send('configSet',{enabled:true,context:'Keep tutorials',expectedOrigin},settings)).ok,false);
+  }
+  const get=h.api.storage.local.get;
+  h.api.storage.local.get=async keys=>{
+    const result=await get(keys);
+    h.tabs.set(9,{id:9,url:'https://beta.test/news'});
+    return result;
+  };
+  const result=await h.send('configSet',{enabled:false,context:'Keep tutorials',expectedOrigin:'https://alpha.test'},settings);
+  assert.equal(result.ok,false);assert.equal(result.code,'siteChanged');
+  assert.deepEqual(h.api.storage.local.values,{});
+});
+
+test('page actions and retry fail on unsupported active pages while status remains readable',async()=>{
+  const h=harness(),messages=[];
+  h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
+  for(const url of ['chrome://newtab/','chrome://extensions/','file:///private.txt',undefined]) {
+    h.tabs.set(1,{id:1,url});
+    const status=await h.send('statusGet',undefined,h.popup);
+    assert.equal(status.ok,true);assert.equal(status.data.available,false);
+    for(const action of ['preview','toggleVisibility','clearRules','undoSave']) {
+      const result=await h.send('pageAction',{action},h.popup);
+      assert.equal(result.ok,false,`${url}: ${action}`);assert.match(result.error,/普通网页/);
+    }
+    assert.equal((await h.send('retry',undefined,h.popup)).ok,false);
+  }
+  assert.deepEqual(messages,[]);
+});
+
+test('clearing this page preserves shared rules, other pages, partitions and sanitized undo',async()=>{
+  const h=harness(),origin='https://example.org',site=origin+'|site',type=origin+'|type:/article/:id';
+  const page=origin+'|page:/article/1?view=full',other=origin+'|page:/article/1?view=compact';
+  const content={...h.content,url:origin+'/article/1?view=full#reading',tab:{id:2}};
+  const shared={selector:'.ad',label:'Shared'},exception={selector:'.article',label:'This page',page,action:'keep'};
+  const elsewhere={selector:'.other',label:'Other page',page:other},previous={selector:'.previous',label:'Previous'};
+  const partition={parent:'.sidebar',parts:['.a','.b']},values=h.api.storage.local.values,messages=[];
+  Object.assign(values,{
+    ['rules:'+site]:[shared,exception,elsewhere],['rules:'+type]:[shared,exception],
+    ['rules:'+page]:[shared],['rules:'+other]:[previous],['rules:https://other.test|site']:[shared],
+    ['partitions:'+site]:[partition],['partitions:'+type]:[partition],['partitions:'+page]:[partition],['partitions:'+other]:[partition],
+    ['rulesUndo:'+site]:{rules:[previous,exception,elsewhere],partitions:[partition]},
+    ['rulesUndo:'+type]:{rules:[previous],partitions:[partition]},['rulesUndo:'+page]:{rules:[previous]},['rulesUndo:'+other]:{rules:[shared]},
+    ['splitExperience:'+type]:[{parent:shared,parts:[previous]}]
+  });
+  h.api.tabs.query=async()=>[{id:2,url:content.url},{id:3,url:origin+'/article/2'},{id:4,url:'https://other.test/'}];
+  h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
+  h.api.storage.session.values['splitProvisional:2']={scope:type,examples:[]};
+  const payload={keys:[site,type,page]};
+  assert.equal((await h.send('rulesClearPage',payload,content)).ok,true);
+  assert.deepEqual(values['rules:'+site],[shared,elsewhere]);assert.deepEqual(values['rules:'+type],[shared]);
+  assert.deepEqual(values['rules:'+page],[]);assert.deepEqual(values['rules:'+other],[previous]);
+  assert.deepEqual(values['rules:https://other.test|site'],[shared]);
+  for(const key of [site,type,other])assert.deepEqual(values['partitions:'+key],[partition]);
+  assert.equal(values['partitions:'+page],undefined);assert.equal(values['rulesUndo:'+page],undefined);
+  assert.deepEqual(values['rulesUndo:'+site],{rules:[previous,elsewhere],partitions:[partition]});
+  assert.deepEqual(values['rulesUndo:'+type],{rules:[previous],partitions:[partition]});
+  assert.deepEqual(values['rulesUndo:'+other],{rules:[shared]});assert.equal(values['splitExperience:'+type].length,1);
+  assert.deepEqual(h.api.storage.session.values['splitProvisional:2'],{scope:type,examples:[]});
+  assert.deepEqual(messages.map(item=>item.id),[2,3]);
+  await h.send('rulesUndo',{keys:[site,type,page]},content);
+  assert.deepEqual(values['rules:'+site],[previous,elsewhere]);assert.deepEqual(values['rules:'+type],[previous]);assert.deepEqual(values['rules:'+page],[]);
+  const before=structuredClone(values);
+  assert.equal((await h.send('rulesClearPage',{keys:['https://other.test|site']},content)).ok,false);
+  assert.equal((await h.send('rulesClearPage',payload,h.popup)).ok,false);
+  assert.deepEqual(values,before);
+});
+
+test('page clear and concurrent site saves share the mutation queue',async()=>{
+  const h=harness(),origin='https://www.zhihu.com',site=origin+'|site',page=origin+'|page:/';
+  const shared={selector:'.ad',label:'Shared'},exception={selector:'.reading',label:'This page',page},newer={selector:'.new',label:'New'};
+  await h.send('rulesSet',{key:site,rules:[shared,exception]});
+  const results=await Promise.all([
+    h.send('rulesClearPage',{keys:[site,origin+'|type:/',page]}),
+    h.send('rulesSet',{key:site,baseRules:[shared,exception],rules:[shared,exception,newer]})
+  ]);
+  assert.equal(results.every(result=>result.ok),true);
+  assert.deepEqual(h.api.storage.local.values['rules:'+site],[shared,newer]);
+});
+
+test('clearing a blog page keeps legacy author selectors available without reviving explicitly cleared types',async()=>{
+  const h=harness(),origin='https://blog.csdn.net',canonical=origin+'|type:/:author/article/details/:id';
+  const legacy=origin+'|type:/alice/article/details/:id',page=origin+'|page:/alice/article/details/123';
+  const shared={selector:'.ad',label:'Shared'},local={selector:'.reading',label:'This page',page};
+  const content={...h.content,url:origin+'/alice/article/details/123',tab:{id:2}};
+  const keys=[origin+'|site',canonical,page];
+  h.api.storage.local.values['rules:'+legacy]=[shared,local];
+  assert.equal((await h.send('rulesClearPage',{keys},content)).ok,true);
+  const groups=(await h.send('rulesGet',{keys},content)).data.groups;
+  assert.deepEqual(groups.find(group=>group.key===legacy).rules,[shared]);
+  assert.deepEqual(h.api.storage.local.values['rules:'+legacy],[shared]);
+  h.api.storage.local.values['rules:'+canonical]=[];
+  assert.equal((await h.send('rulesGet',{keys},content)).data.groups.some(group=>group.legacy),false);
+});
+
+test('origin guards reread live toolbar and embedded tabs before page actions',async()=>{
+  for(const embedded of [false,true]) {
+    const h=harness(),messages=[];
+    const sender=embedded?{...h.popup,url:h.popup.url+'?embedded=1',tab:{id:1,url:'https://www.zhihu.com/'}}:h.popup;
+    const get=h.api.tabs.get;
+    let reads=0;
+    h.api.tabs.get=async id=>{
+      if(++reads===2)h.tabs.set(1,{id:1,url:'https://other.test/'});
+      return get(id);
+    };
+    h.api.tabs.sendMessage=async(id,message)=>messages.push({id,message});
+    const result=await h.send('pageAction',{action:'preview',expectedOrigin:'https://www.zhihu.com'},sender);
+    assert.equal(result.ok,false);assert.equal(result.code,'siteChanged');assert.deepEqual(messages,[]);
+  }
+});
+
+test('bound origin guards report navigation to unsupported pages and closed tabs as unavailable',async()=>{
+  const h=harness(),settings=h.settings({id:9,url:'https://alpha.test/news'});
+  for(const url of ['chrome://extensions/','file:///private.txt',null]) {
+    if(url===null)h.tabs.delete(9);else h.tabs.set(9,{id:9,url});
+    const result=await h.send('statusGet',{expectedOrigin:'https://alpha.test'},settings);
+    assert.equal(result.ok,false);assert.equal(result.code,'siteChanged');
+  }
 });
 
 test('freeform requirements reach visibility with full-intent and mixed-content protections',async()=>{

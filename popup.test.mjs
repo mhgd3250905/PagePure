@@ -4,10 +4,11 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
 import {i18nSource, i18nChrome} from './i18n-support.mjs';
+import {createMessageHandler} from './extension/background.js';
 
 const source = readFileSync(new URL('./extension/popup.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('./extension/popup.html', import.meta.url), 'utf8');
-const settle = async () => {for(let i=0;i<20;i++)await Promise.resolve();};
+const settle = async () => {for(let i=0;i<50;i++)await Promise.resolve();};
 async function environment(send, options = {}) {
   const {document,window}=parseHTML(options.settings ? readFileSync(new URL('./extension/settings.html', import.meta.url), 'utf8') : html), timers=new Map();let id=0, closes=0;
   window.close=()=>{closes++;};
@@ -102,4 +103,55 @@ test('custom requirement survives saving and reopening the CSDN settings panel',
  const reopened=await environment(send);
  assert.equal(reopened.document.querySelector('#context').value,goal);
  assert.match(reopened.document.querySelector('label[for=context]').textContent,/www.csdn.net/);
+});
+
+test('settings keep their original site and unsaved draft after the source tab navigates elsewhere',async()=>{
+  const values={},requests=[];
+  let sourceTab={id:42,url:'https://alpha.test/article'};
+  const storage={get:async keys=>keys===null?{...values}:Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,values[key]])),set:async entries=>Object.assign(values,entries),remove:async key=>{delete values[key];}};
+  const api={runtime:{id:'test',getURL:path=>'chrome-extension://test/'+path},storage:{local:storage,session:{...storage}},tabs:{
+    get:async()=>sourceTab,query:async()=>[sourceTab],sendMessage:async()=>{},create:async()=>{},update:async()=>{}
+  }};
+  const handler=createMessageHandler(api);
+  const sender={id:'test',url:api.runtime.getURL('settings.html?tabId=42'),frameId:0};
+  const env=await environment(message=>{requests.push(message);return new Promise(resolve=>handler(message,sender,resolve));},{settings:true,search:'?tabId=42'});
+  const document=env.document,form=document.querySelector('#settings'),goal=document.querySelector('#context'),key=document.querySelector('#key');
+  goal.value='Keep tutorials';key.value='new-private-key-123456';document.querySelector('#aiEnabled').checked=true;
+  sourceTab={id:42,url:'https://beta.test/article'};
+  form.dispatchEvent(new document.defaultView.Event('submit',{cancelable:true}));await settle();
+  assert.equal(requests.filter(message=>message.type==='configSet').at(-1).payload.expectedOrigin,'https://alpha.test');
+  assert.deepEqual(values,{});
+  assert.equal(goal.value,'Keep tutorials');assert.equal(key.value,'new-private-key-123456');
+  assert.match(document.querySelector('label[for=context]').textContent,/alpha.test/);
+  assert.equal(document.querySelector('#siteIdentity').textContent,'https://alpha.test');
+  assert.equal(document.querySelector('#siteIdentity').hidden,false);
+  assert.match(document.querySelector('#status').textContent,/目标网站已变化/);
+  for(const id of ['preview','toggleVisibility','retry','clearRules'])assert.equal(document.getElementById(id).disabled,true);
+  sourceTab={id:42,url:'https://alpha.test/another'};
+  form.dispatchEvent(new document.defaultView.Event('submit',{cancelable:true}));await settle();
+  assert.equal(values['context:https://alpha.test'],'Keep tutorials');assert.equal(values['ai:https://alpha.test'],true);
+  assert.equal(values['context:https://beta.test'],undefined);assert.equal(key.value,'');
+  assert.equal(document.getElementById('preview').disabled,false);
+});
+
+test('unsupported pages disable page actions while leaving the rule manager available',async()=>{
+  const env=await environment(async message=>message.type==='configGet'?{ok:true,data:{...config.data,origin:''}}:{ok:true,data:{hidden:0,pending:0,error:'请在普通网页使用',available:false}},{search:''});
+  for(const id of ['preview','toggleVisibility','retry','clearRules'])assert.equal(env.document.getElementById(id).disabled,true,id);
+  assert.equal(env.document.querySelector('#manageRules').disabled,false);
+  assert.match(env.document.querySelector('#manageRules').textContent,/净化规则/);
+  assert.match(env.document.querySelector('#pageStatus').textContent,/普通网页/);
+});
+
+for(const result of [{ok:false,error:'请在普通网页使用'},{ok:true,data:{available:false,error:'请在普通网页使用'}}])test(`unavailable selection never reports success or closes the popup (${result.ok ? 'legacy' : 'failure'} reply)`,async()=>{
+  const env=await environment(async message=>message.type==='configGet'?config:message.type==='pageAction'?result:{ok:true,data:{available:true,hidden:0,pending:0,error:''}},{search:''});
+  env.document.querySelector('#preview').click();await settle();
+  assert.equal(env.closes,0);
+  assert.match(env.document.querySelector('#status').textContent,/普通网页/);
+  assert.equal(env.document.querySelector('#status').classList.contains('error'),true);
+});
+
+test('manual hidden counts remain visible alongside the AI status',async()=>{
+  const env=await environment(async message=>message.type==='configGet'?config:{ok:true,data:{available:true,hidden:2,pending:1,error:'',reason:'此网站未启用 AI 判断'}});
+  const text=env.document.querySelector('#pageStatus').textContent;
+  assert.match(text,/2/);assert.match(text,/1/);assert.match(text,/未启用 AI/);
 });

@@ -147,7 +147,7 @@
     "message": "Ultimo salvataggio annullato"
   },
   "popupClearedPageRules": {
-    "message": "Regole di questa pagina cancellate"
+    "message": "Le regole specifiche di questa pagina sono state eliminate. Le regole condivise sono state mantenute."
   },
   "statusPurifierOff": {
     "message": "La purificazione delle pagine è disattivata"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Impostazioni non valide: massimo 4000 caratteri per le preferenze di lettura"
+  },
+  "bgErrorSiteChanged": {
+    "message": "Il sito di destinazione è cambiato. Torna al sito originale o riapri le impostazioni; le modifiche non salvate restano nel modulo."
   },
   "bgErrorSaveOnWeb": {
     "message": "Apri una pagina web per salvare le preferenze di lettura"

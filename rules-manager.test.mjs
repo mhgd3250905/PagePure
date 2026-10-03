@@ -37,6 +37,12 @@ test('settings view stores the chosen UI locale and switches views',async()=>{
  e.document.querySelector('#nav-settings').click();
  assert.equal(e.document.querySelector('#settings-view').hidden,false);
  assert.equal(e.document.querySelector('#rules-view').hidden,true);
+ assert.equal(e.document.querySelector('#viewTitle').textContent,e.document.querySelector('#nav-settings').textContent.trim());
+ assert.equal(e.document.querySelector('#viewIntro').hidden,true);
+ e.document.querySelector('#nav-rules').click();
+ assert.equal(e.document.querySelector('#viewTitle').textContent,e.document.querySelector('#nav-rules').textContent.trim());
+ assert.equal(e.document.querySelector('#viewIntro').hidden,false);
+ e.document.querySelector('#nav-settings').click();
  await e.flush();
  // linkedom 未实现 select.value，这里用属性拦截模拟原生行为。
  const select=e.document.querySelector('#uiLocale');

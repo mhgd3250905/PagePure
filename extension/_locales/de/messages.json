@@ -147,7 +147,7 @@
     "message": "Letztes Speichern zurückgenommen"
   },
   "popupClearedPageRules": {
-    "message": "Regeln für diese Seite gelöscht"
+    "message": "Regeln nur für diese Seite gelöscht. Gemeinsame Regeln wurden beibehalten."
   },
   "statusPurifierOff": {
     "message": "Die Seitenbereinigung ist aus"
@@ -331,6 +331,9 @@
   },
   "bgErrorSettings": {
     "message": "Ungültige Einstellungen: maximal 4000 Zeichen"
+  },
+  "bgErrorSiteChanged": {
+    "message": "Die Zielwebsite hat sich geändert. Kehre zur ursprünglichen Website zurück oder öffne die Einstellungen erneut. Ungespeicherte Änderungen bleiben im Formular."
   },
   "bgErrorSaveOnWeb": {
     "message": "Öffne eine Webseite, um Leseeinstellungen zu speichern"

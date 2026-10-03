@@ -5,6 +5,7 @@
   const containsExtensionUi = node => globalThis.JevZhihu?.containsUi?.(node) === true;
   const listen = (node,type,handler) => node.addEventListener(type,event=>{if(event.isTrusted===true)return handler(event);});
   let active = false, host, ui, layer, layerRoot, resizing, toolbarResizing, timer;
+  let starting=null, startGeneration=0, draftBaseRules=[];
   let candidates = [], selected = new Set(), hidden = new Set();
   let groups = [], config = {}, url = '', revision = 0, previewing = false, collapsed = false;
   let rulesReady=false, ruleCovered=new Set();
@@ -81,7 +82,11 @@
     for(const node of pageKept)kept.add(node);
     return {hidden,kept};
   }
-  function loadRules() {localRules=rulesForScope().filter(r=>r.selector);}
+  function loadRules() {
+    // Keep the edit baseline independent of later broadcasts from other tabs.
+    draftBaseRules=rulesForScope().filter(r=>r.selector).map(r=>({...r}));
+    localRules=draftBaseRules.map(r=>({...r}));
+  }
   const setHidden = (node, attribute, enabled) => globalThis.JevZhihu.setHidden(node, attribute, enabled);
   function restore() {hidden.forEach(n=>setHidden(n,'data-jev-manual-hidden',false));hidden.clear();}
   function apply() {
@@ -97,7 +102,7 @@
       globalThis.JevPage?.report?.();
     }finally{applying=false;notifyRulesApplied();}
   }
-  async function refresh() {
+  async function refresh(throwErrors=false) {
     rulesReady=false;
     const version=++revision, nextUrl=page();
     if(url!==nextUrl){partitions.clear();showOriginal=false;}
@@ -110,7 +115,7 @@
       if(config.enabled&&groups.some(g=>g.rules.some(r=>r.selector)))globalThis.JevStartup?.prepare(apply);
       else globalThis.JevStartup?.release();
       return true;
-    } catch(error){globalThis.JevStartup?.release();if(ui)ui.querySelector('#status').textContent=error.message;}
+    } catch(error){globalThis.JevStartup?.release();if(ui)ui.querySelector('#status').textContent=error.message;if(throwErrors)throw error;}
   }
   function clearMarks() {
     previewNodes.forEach(n=>setHidden(n,'data-jev-preview-hide',false));previewNodes.clear();
@@ -214,8 +219,9 @@
     quick.style.width=w+'px';
     const height=quick.getBoundingClientRect().height || 60;
     quick.style.top=Math.max(8,Math.min(y+12,innerHeight-height-8))+'px';
-    ui.querySelector('#quick-name').textContent=t('quickSelectedRegion');
-    ui.querySelector('#quick-name').title=moduleName(focusNode);
+    const heading=focusNode.querySelector('h1,h2,h3,h4,h5,h6,[role="heading"]'), name=moduleName(heading || focusNode);
+    ui.querySelector('#quick-name').textContent=t('selectionName',name);
+    ui.querySelector('#quick-name').title=name;
     ui.querySelector('#q-smaller').disabled=!focusTrail.length;
     ui.querySelector('#q-save').disabled=ui.querySelector('#save').disabled;
   }
@@ -325,6 +331,7 @@
     }finally{syncing=false;}
   }
   function leave() {
+    startGeneration++;starting=null;draftBaseRules=[];
     clearGroupOffer();
     globalThis.cancelAnimationFrame?.(positionFrame);positionFrame=null;clearMarks();partitions.clear();learnedSplit=false;focusNode=null;quickAnchor=null;active=false;previewing=false;collapsed=false;
     if(layer){globalThis.JevZhihu.unregisterUi?.(layer);layer.remove();}layer=null;layerRoot=null;resizing?.disconnect();resizing=null;toolbarResizing?.disconnect();toolbarResizing=null;
@@ -336,10 +343,26 @@
   function own(event){return event.composedPath().some(isExtensionUi);}
   function click(event){if(event.isTrusted!==true||own(event))return;event.preventDefault();event.stopImmediatePropagation();const node=candidates.find(n=>n===event.target||n.contains(event.target));if(node)toggle(node,event);}
   function keydown(event){if(event.isTrusted!==true)return;if(event.key==='Escape'){event.preventDefault();leave();}}
-  async function start() {
-    if(active||!document.body)return;
+  function start() {
+    if(starting)return starting;
+    if(active||!document.body)return Promise.resolve();
+    const version=++startGeneration, expectedUrl=page(), expectedBody=document.body;
+    const operation=initialize(version,expectedUrl,expectedBody).catch(error=>{
+      if(version!==startGeneration||page()!==expectedUrl||document.body!==expectedBody)return;
+      if(active||host||layer)leave();
+      throw error;
+    }).finally(()=>{if(starting===operation)starting=null;});
+    starting=operation;
+    return operation;
+  }
+  async function initialize(version,expectedUrl,expectedBody) {
+    const current=()=>version===startGeneration&&page()===expectedUrl&&document.body===expectedBody;
     await globalThis.PagePureI18n.ready;
-    await refresh();active=true;showOriginal=false;globalThis.JevPage?.suspend();restore();
+    // A concurrent configuration refresh may supersede our read. Retry that
+    // read only while this initialization still belongs to the same page.
+    while(current())if(await refresh(true))break;
+    if(!current())return;
+    active=true;showOriginal=false;globalThis.JevPage?.suspend();restore();
     loadRules();
     host=document.createElement('div');host.setAttribute('data-jev-ui','preview');globalThis.JevZhihu.registerUi?.(host,'preview');host.style.cssText='position:fixed!important;top:16px!important;right:16px!important;z-index:2147483647!important;';
     ui=host.attachShadow({mode:'closed'});
@@ -352,7 +375,7 @@
       .range-row{margin-bottom:6px}.range{display:flex;gap:3px}.range button{flex:1}.range button{height:28px;font-size:11px;padding:0 6px;background:#fff;box-shadow:none}
       #cancel{width:28px;height:28px;padding:0;color:#7b889b;background:#fff;box-shadow:none}
       #more-toggle{list-style:none;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #d8e1ec;background:#fff;border-radius:7px;font-size:17px}#more-toggle::-webkit-details-marker{display:none}#more[open] #more-toggle{background:#edf3fc;border-color:#b9ceeb}
-      .action-row{display:grid;grid-template-columns:58px 1fr 1fr;align-items:center;gap:6px;padding:8px;background:#f5f7fb;border:1px solid #e8edf4;border-radius:9px}.scope-label{font-size:11px;color:#64748b;font-weight:500;padding-left:2px}
+      .action-row{display:grid;grid-template-columns:58px 1fr 1fr;align-items:center;gap:6px;padding:8px;background:#f5f7fb;border:1px solid #e8edf4;border-radius:9px}.scope-label{font-size:12px;line-height:1.5;color:#53647b;font-weight:500;padding-left:2px;overflow-wrap:anywhere}
       .action-row button{background:#fff;box-shadow:0 1px 2px #172b3a06;font-size:12px;padding:0 6px}
       #q-hide{color:#155bc6;background:#edf4ff;border-color:#c9dcfa}#q-hide:hover{background:#dceaff}
       #more-actions{margin-top:6px}
@@ -372,7 +395,7 @@
         <button id="cancel" aria-label="${t('cancelAria')}" title="${t('cancelAria')}">×</button>
       </div>
       <div class="action-row range-row"><span class="scope-label">${t('scopeRangeLabel')}</span><div class="range" role="group" aria-label="${t('rangeGroupAria')}"><button id="q-larger" title="${t('largerTitle')}">${t('largerBtn')}</button><button id="q-smaller" title="${t('smallerTitle')}">${t('smallerBtn')}</button></div><button id="q-split" title="${t('splitTitle')}">${t('splitLabel')}</button></div>
-      <div class="action-row" role="group" aria-label="${t('areaGroupAria')}"><span class="scope-label">${t('areaScopeLabel')}</span><button id="q-hide">${t('hideAreaBtn')}</button><button id="q-keep">${t('keepAreaBtn')}</button></div>
+      <div class="action-row" role="group" aria-label="${t('areaGroupAria')}"><span id="save-scope" class="scope-label">${t('scopeSite')}</span><button id="q-hide">${t('hideAreaBtn')}</button><button id="q-keep">${t('keepAreaBtn')}</button></div>
       <div id="more-actions" hidden>
         <div class="action-row" role="group" aria-label="${t('pageGroupAria')}"><span class="scope-label">${t('pageScopeLabel')}</span><button id="q-page-hide" aria-label="${t('pageHideAria')}">${t('hideAreaBtn')}</button><button id="q-page-keep" aria-label="${t('pageKeepAria')}">${t('keepAreaBtn')}</button></div>
         <details id="diagnostics"><summary>${t('diagnosticsTitle')}</summary><p>${t('diagnosticsHint')}</p><textarea id="diagnostic-log" readonly aria-label="${t('diagnosticsTitle')}" spellcheck="false"></textarea></details>
@@ -429,7 +452,7 @@
       focusTrail.push(focusNode);focus(parent,false);
     });
     bindAction('smaller',()=>{const child=focusTrail.pop();if(child)focus(child,false);});
-    listen(ui.querySelector('#scope'),'change',()=>{clearMarks();focusNode=null;ui.querySelector('#selection').hidden=true;loadRules();previewing=false;ui.querySelector('#effect').textContent=t('effectPreview');syncCandidates();});
+    listen(ui.querySelector('#scope'),'change',()=>{ui.querySelector('#save-scope').textContent=t(ui.querySelector('#scope').value==='page'?'scopeCurrentPage':ui.querySelector('#scope').value==='type'?'scopeType':'scopeSite');clearMarks();focusNode=null;ui.querySelector('#selection').hidden=true;loadRules();previewing=false;ui.querySelector('#effect').textContent=t('effectPreview');syncCandidates();});
     listen(ui.querySelector('#effect'),'click',()=>{previewing=!previewing;selectKnown();ui.querySelector('#effect').textContent=previewing?t('effectBack'):t('effectPreview');if(!previewing)syncCandidates();position();if(focusNode)recordDiagnostic('preview-toggle',false,globalThis.JevManual.describeRule(focusNode));});
     listen(ui.querySelector('#retry'),'click',async()=>{await refresh();syncCandidates();});
     bindAction('save',async()=>{
@@ -438,7 +461,7 @@
       try {
         const key=scope(page(),ui.querySelector('#scope').value || 'site'),rules=draftRules();
         const boundaries=serializePartitions(key);
-        await request('rulesSet',{key,rules,partitions:boundaries,learnSplit:learnedSplit,...(key.endsWith('|site')?{baseRules:rulesForScope()}:{})});
+        await request('rulesSet',{key,rules,partitions:boundaries,learnSplit:learnedSplit,...(key.endsWith('|site')?{baseRules:draftBaseRules}:{})});
         groups=groups.filter(g=>g.key!==key);groups.push({key,rules,partitions:boundaries});
         if(!await refresh()||page()!==savingUrl)throw new Error(t('savePageChanged'));
         partitions.clear();leave();
@@ -457,18 +480,18 @@
     // Mutation callbacks run before paint: protect newly inserted modules now,
     // rather than letting them render during the debounce delay.
     if(url===page()&&!active&&groups.length){clearTimeout(timer);apply();return;}
-    clearTimeout(timer);timer=setTimeout(()=>{if(url!==page()){if(active)leave();void refresh();}else if(active)syncCandidates();else apply();},200);
+    clearTimeout(timer);timer=setTimeout(()=>{if(url!==page()){if(active||starting)leave();void refresh();}else if(active)syncCandidates();else apply();},200);
   }).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','id','role','data-testid','data-test','data-component','src','href','style','data-jev-manual-hidden']});
   chrome.runtime.onMessage.addListener((msg,_sender,respond)=>{
-    if(msg.type==='rulesChanged'||msg.type==='configChanged'){if(msg.source==='manager'&&active)leave();void refresh();}
+    if(msg.type==='rulesChanged'||msg.type==='configChanged'){if(msg.source==='manager'&&(active||starting))leave();void refresh();}
     if(msg.type==='pageAction') {
-      const work=msg.action==='toggleVisibility'?(async()=>{if(active)leave();showOriginal=!showOriginal;if(showOriginal)globalThis.JevPage?.suspend();else void globalThis.JevPage?.resume();apply();})():msg.action==='undoSave'?(async()=>{if(active)leave();await request('rulesUndo',{keys:keys()});await refresh();})():msg.action==='preview'?start():msg.action==='clearRules'?(async()=>{if(active)leave();await request('rulesDelete',{keys:keys()});await refresh();void globalThis.JevPage?.resume();})():Promise.reject(new Error(t('unknownAction')));
+      const work=msg.action==='toggleVisibility'?(async()=>{if(active||starting)leave();showOriginal=!showOriginal;if(showOriginal)globalThis.JevPage?.suspend();else void globalThis.JevPage?.resume();apply();})():msg.action==='undoSave'?(async()=>{if(active||starting)leave();await request('rulesUndo',{keys:keys()});await refresh();})():msg.action==='preview'?start():msg.action==='clearRules'?(async()=>{if(active||starting)leave();await request('rulesClearPage',{keys:keys()});await refresh();void globalThis.JevPage?.resume();})():Promise.reject(new Error(t('unknownAction')));
       work.then(()=>respond({ok:true})).catch(error=>respond({ok:false,error:error.message}));return true;
     }
   });
   globalThis.JevPreview={get active(){return active;},get hasRules(){return showOriginal || groups.length>0;},get aiReady(){return rulesReady&&url===page()&&!active&&!showOriginal&&config.enabled&&globalThis.JevStartup?.released!==false;},aiAllows(node){return !!node?.isConnected&&![...ruleCovered].some(target=>target===node||target.contains(node)||node.contains(target));},isCandidate(node){return candidates.includes(node);},isSelected(node){return selected.has(node);},get selectedCount(){return selected.size;},get focusedNode(){return focusNode;},get groupOfferCount(){return groupOffer?.nodes.length||0;},get pending(){return 0;},get error(){return undefined;},start};
   document.addEventListener('pagepure-locale-changed',()=>{if(active)position();});
-  globalThis.addEventListener?.('popstate',()=>{if(active)leave();void refresh();});
-  globalThis.navigation?.addEventListener('navigatesuccess',()=>{if(active)leave();void refresh();});
+  globalThis.addEventListener?.('popstate',()=>{if(active||starting)leave();void refresh();});
+  globalThis.navigation?.addEventListener('navigatesuccess',()=>{if(active||starting)leave();void refresh();});
   void refresh();
 })();

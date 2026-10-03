@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {parseHTML} from 'linkedom';
 import {i18nSource, i18nChrome} from './i18n-support.mjs';
+import {createMessageHandler} from './extension/background.js';
 
 const manualSource = readFileSync(new URL('./extension/manual.js', import.meta.url), 'utf8');
 const previewSource = readFileSync(new URL('./extension/preview.js', import.meta.url), 'utf8');
@@ -43,6 +44,7 @@ async function environment(initialGroups = [], body = null, options = {}) {
         calls.push(message);
         if (message.type === 'configGet') return {ok: true, data: {enabled: true, aiEnabled:true, configured:true,splitExperienceAvailable:!!options.experience,...options.config}};
         const payload = message.payload;
+        if(options.rulesMessage&&message.type.startsWith('rules'))return options.rulesMessage(message);
         if(message.type==='splitBlock')return options.split?options.split(payload):{ok:true,data:{ids:payload.blocks.map(b=>b.id)}};
         if(message.type==='snapshotGet')return {ok:true,data:{entries:options.snapshotStore?.get(payload.key+'\n'+payload.revision)||options.snapshots||[]}};
         if(message.type==='snapshotSet'){
@@ -95,6 +97,26 @@ const selected = (env, id) => env.context.JevPreview.isSelected(env.document.que
 const selectedCount = env => env.context.JevPreview.selectedCount;
 const hidden = (env, id) => env.document.querySelector(`#${id}`).hasAttribute('data-jev-manual-hidden');
 const overlay = (env, index) => env.layer.querySelectorAll('button')[index];
+
+function rulesBackend(url = 'https://example.com/articles/123') {
+  const storage = () => {
+    const values = {};
+    return {values,setAccessLevel:async()=>{},
+      get:async keys=>structuredClone(keys===null?values:Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,values[key]]))),
+      set:async entries=>Object.assign(values,structuredClone(entries)),
+      remove:async keys=>{for(const key of Array.isArray(keys)?keys:[keys])delete values[key];}};
+  };
+  const tabs = [{id:1,url},{id:2,url:'https://example.com/articles/456'}];
+  let notify;
+  const api = {runtime:{id:'preview-test',getURL:path=>'chrome-extension://preview-test/'+path},
+    storage:{local:storage(),session:storage()},
+    tabs:{query:async()=>tabs,sendMessage:async(id,message)=>{if(id===1&&notify)await notify(message);}}};
+  const handler = createMessageHandler(api);
+  return {values:api.storage.local.values,
+    setNotify(callback){notify=callback;},
+    send(type,payload,tabId=1){const tab=tabs.find(tab=>tab.id===tabId);return new Promise(resolve=>handler({type,payload},{id:api.runtime.id,url:tab.url,tab,frameId:0},resolve));}
+  };
+}
 
 test('selection stays manual without automatic classification or category controls',async()=>{
  const env=await environment([],feedPage,{experience:true});await env.start();
@@ -625,4 +647,127 @@ test('partial two-of-three split keeps parent intact and saves no rejected parti
  await env.click(env.ui.querySelector('#q-save'));
  const saved=env.calls.find(c=>c.type==='rulesSet').payload;
  assert.equal(saved.partitions.length,0);assert.equal(saved.learnSplit,false);
+});
+
+test('open drafts merge against their original baseline after another tab adds or removes saved rules',async()=>{
+  const key='https://example.com|site';
+  const original={selector:'#sports',label:'Sports',action:'hide'};
+  const remote={selector:'#ad',label:'Remote advertisement',action:'hide'};
+  const remotePage={selector:'#promotion',label:'Remote page keep',action:'keep',page:'https://example.com|page:/articles/456'};
+  for(const removeOriginal of [false,true]) {
+    const backend=rulesBackend();
+    assert.equal((await backend.send('rulesSet',{key,rules:[original]})).ok,true);
+    let saving;
+    const env=await environment([],feedPage,{rulesMessage:message=>{
+      const response=backend.send(message.type,message.payload);
+      if(message.type==='rulesSet')saving=response;
+      return response;
+    }});
+    backend.setNotify(message=>env.notify(message.type,message));
+    await env.start();
+    await env.click(env.document.querySelector('#technology'));await env.click(env.ui.querySelector('#q-hide'));
+    const remoteRules=[...(removeOriginal?[]:[original]),remote,remotePage];
+    assert.equal((await backend.send('rulesSet',{key,rules:remoteRules,baseRules:[original]},2)).ok,true);
+    await env.click(env.ui.querySelector('#q-save'));
+    assert.equal((await saving).ok,true);
+    await settle();
+    const saved=env.calls.find(call=>call.type==='rulesSet').payload;
+    assert.deepEqual(Array.from(saved.baseRules,rule=>rule.selector),['#sports'],'a refresh must not replace the edit baseline');
+    const persisted=backend.values['rules:'+key];
+    assert.deepEqual(persisted.map(rule=>rule.selector).sort(),[...(removeOriginal?[]:['#sports']),'#ad','#promotion','#technology'].sort());
+    assert.equal(persisted.find(rule=>rule.selector==='#promotion').page,remotePage.page);
+    assert.equal(env.context.JevPreview.active,false,env.ui?.querySelector('#status').textContent);
+    assert.equal(hidden(env,'ad'),true,'remote additions apply after saving the local draft');
+  }
+});
+
+test('concurrent preview actions share initialization and one cancel removes every host and layer',async()=>{
+  let delay=false;
+  const waiting=[];
+  const env=await environment([],null,{rulesGetWait:()=>delay?new Promise(resolve=>waiting.push(resolve)):undefined});
+  delay=true;
+  const first=env.action('preview'),second=env.action('preview');
+  await settle();
+  const reads=waiting.length;
+  waiting.splice(0).forEach(resolve=>resolve());
+  const results=await Promise.all([first,second]);
+  assert.deepEqual(results.map(result=>result.ok),[true,true]);
+  assert.equal(reads,1,'the two actions must wait for the same rule read');
+  assert.equal(env.suspended,1);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview]').length,1);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=selection-layer]').length,1);
+  await env.click(env.ui.querySelector('#cancel'));
+  assert.equal(env.context.JevPreview.active,false);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview],[data-jev-ui=selection-layer]').length,0);
+  assert.equal(env.context.JevZhihu.findUi('preview'),null);
+  assert.equal(env.context.JevZhihu.findUi('selection-layer'),null);
+});
+
+test('failed preview initialization returns an error and a later action can retry without leftover UI',async()=>{
+  let fail=false;
+  const env=await environment([],null,{rulesGetError:()=>fail});
+  fail=true;
+  const failed=await env.action('preview');
+  assert.equal(failed.ok,false);
+  assert.equal(failed.error,'Rules unavailable');
+  assert.equal(env.suspended,0);
+  assert.equal(env.context.JevPreview.active,false);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview],[data-jev-ui=selection-layer]').length,0);
+  fail=false;
+  assert.equal((await env.action('preview')).ok,true);
+  assert.equal(env.context.JevPreview.active,true);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview]').length,1);
+  await env.click(env.ui.querySelector('#cancel'));
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview],[data-jev-ui=selection-layer]').length,0);
+});
+
+test('showing the original page cancels pending initialization before its delayed result can mount UI',async()=>{
+  let delay=false;
+  const waiting=[];
+  const env=await environment([{key:'https://example.com|site',rules:[{selector:'#promotion',label:'Promotion',action:'hide'}]}],null,{rulesGetWait:()=>delay?new Promise(resolve=>waiting.push(resolve)):undefined});
+  delay=true;
+  const pending=env.action('preview');
+  await settle();
+  assert.equal(waiting.length,1);
+  assert.equal((await env.action('toggleVisibility')).ok,true);
+  delay=false;waiting.splice(0).forEach(resolve=>resolve());
+  await pending;
+  assert.equal(env.context.JevPreview.active,false);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview],[data-jev-ui=selection-layer]').length,0);
+  assert.equal(hidden(env,'promotion'),false,'the canceled start must not undo the original-page choice');
+  assert.equal((await env.action('preview')).ok,true);
+  await env.click(env.ui.querySelector('#cancel'));
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview],[data-jev-ui=selection-layer]').length,0);
+});
+
+test('clearRules clears current-page overrides through rulesClearPage and preserves shared and other-page rules',async()=>{
+  const address='https://example.com/articles/123?view=full#section';
+  const backend=rulesBackend(address),site='https://example.com|site',type='https://example.com|type:/articles/:id';
+  const current='https://example.com|page:/articles/123?view=full',other='https://example.com|page:/articles/123?view=compact';
+  const shared={selector:'#ad',label:'Shared hide',action:'hide'};
+  const otherRule={selector:'#promotion',label:'Other page',action:'hide',page:other};
+  const boundaries=[{parent:'#sidebar',parts:['#first','#second'],pageType:type}];
+  assert.equal((await backend.send('rulesSet',{key:site,rules:[shared,{selector:'#ad',label:'Current keep',action:'keep',page:current},otherRule],partitions:boundaries})).ok,true);
+  assert.equal((await backend.send('rulesSet',{key:type,rules:[{selector:'#technology',label:'Shared type',action:'hide'},{selector:'#sports',label:'Current hide',action:'hide',page:current}]})).ok,true);
+  assert.equal((await backend.send('rulesSet',{key:current,rules:[{selector:'#promotion',label:'Page hide',action:'hide'}],partitions:[{parent:'#main',parts:['#a','#b']}]})).ok,true);
+  assert.equal((await backend.send('rulesSet',{key:other,rules:[{selector:'#sports',label:'Other exact page',action:'keep'}]})).ok,true);
+  const env=await environment([],feedPage,{url:address,rulesMessage:message=>backend.send(message.type,message.payload)});
+  backend.setNotify(message=>env.notify(message.type,message));
+  await env.start();
+  assert.equal((await env.action('clearRules')).ok,true);
+  const request=env.calls.find(call=>call.type==='rulesClearPage');
+  assert.ok(request,'the page action must use the page-specific backend operation');
+  assert.ok(request.payload.keys.includes(current),'page scope includes search and excludes the hash');
+  assert.equal(env.calls.some(call=>call.type==='rulesDelete'),false);
+  assert.deepEqual(backend.values['rules:'+site],[shared,otherRule]);
+  assert.deepEqual(backend.values['partitions:'+site],boundaries);
+  assert.deepEqual(backend.values['rules:'+type],[{selector:'#technology',label:'Shared type',action:'hide'}]);
+  assert.equal(backend.values['rules:'+current]?.length||0,0);
+  assert.equal(backend.values['partitions:'+current],undefined);
+  assert.equal(backend.values['rules:'+other].length,1);
+  assert.equal(env.context.JevPreview.active,false);
+  assert.equal(env.document.querySelectorAll('[data-jev-ui=preview],[data-jev-ui=selection-layer]').length,0);
+  assert.equal(hidden(env,'ad'),true,'removing a page keep restores the inherited shared hide');
+  assert.equal(hidden(env,'technology'),true);
+  assert.equal(hidden(env,'promotion'),false);
 });
